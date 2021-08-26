@@ -31,6 +31,7 @@ public class DatasourceConfig {
         }
 
         SqlSessionFactory factory = factoryBean.getObject();
+        assert factory != null;
         factory.getConfiguration().setMapUnderscoreToCamelCase(true);
 
         org.apache.ibatis.session.Configuration config = factory.getConfiguration();
