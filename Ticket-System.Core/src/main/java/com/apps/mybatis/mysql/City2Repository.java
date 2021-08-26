@@ -5,6 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface UserRepository {
+public interface City2Repository {
     City findByState(@Param("state") String state);
 }

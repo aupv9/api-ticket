@@ -1,7 +1,8 @@
 package com.apps;
 
 
-import com.apps.mybatis.mysql.UserRepository;
+import com.apps.domain.repository.CityRepository;
+import com.apps.mybatis.mysql.City2Repository;
 import com.apps.peformance.InformationApp;
 import com.apps.config.properties.ApplicationSecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,19 @@ import org.springframework.core.env.Environment;
 @ConfigurationPropertiesScan(basePackages = "com.apps.config.properties")
 public class Application extends InformationApp implements CommandLineRunner {
     @Autowired
-    private UserRepository userRepository;
+    private City2Repository city2Repository;
     @Autowired
     private ApplicationSecurityProperties properties;
+
+    @Autowired
+    private CityRepository cityRepository;
+
     public static void main(String[] args) {
         ApplicationContext applicationContext = SpringApplication.run(Application.class);
         Environment environment = applicationContext.getEnvironment();
         logApplicationStartup(environment);
     }
     public void run(String... args) throws Exception {
-        System.out.println(userRepository.findByState("CA"));
+        System.out.println(city2Repository.findByState("CA"));
     }
 }

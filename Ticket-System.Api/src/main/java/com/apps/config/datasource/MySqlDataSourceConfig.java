@@ -32,7 +32,7 @@ public class MySqlDataSourceConfig {
         Resource[] resources = applicationContext.getResources(MAPPER_LOCATION_PATTERN);
         SqlSessionFactory sqlSessionFactory = DatasourceConfig.sqlSessionFactory(dataSource,resources);
         if (dataSource instanceof HikariDataSource) {
-            log.info("HikariDataSource ORACLE url {}", ((HikariDataSource) dataSource).getJdbcUrl());
+            log.info("HikariDataSource MySQL url {}", ((HikariDataSource) dataSource).getJdbcUrl());
         }
         org.apache.ibatis.session.Configuration config = sqlSessionFactory.getConfiguration();
         config.setJdbcTypeForNull(JdbcType.VARCHAR);
