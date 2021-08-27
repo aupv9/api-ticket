@@ -1,7 +1,8 @@
 package com.apps.domain.entity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.Generated;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -9,10 +10,12 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "city")
+@ApiModel(value = "City model")
 public class City implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @ApiModelProperty(notes = "The database generated City ID")
     private Long id;
 
     private String name;

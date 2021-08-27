@@ -1,7 +1,10 @@
 package com.apps.utils;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CommonUtils {
     public static boolean isNullOrEmpty(String content) {
@@ -48,5 +51,35 @@ public class CommonUtils {
         return obj != null ? obj.toString() : "";
     }
 
+    private static final List<TimeUnit> timeUnits = Arrays.asList(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES,
+            TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+    public static String toHumanReadableDuration(final long millis) {
+        if (millis < 1000) {
+            return millis + " " + shortName(TimeUnit.MILLISECONDS);
+        }
+        final StringBuilder builder = new StringBuilder();
+        long acc = millis;
+        for (final TimeUnit timeUnit : timeUnits) {
+            final long convert = timeUnit.convert(acc, TimeUnit.MILLISECONDS);
+            if (convert > 0) {
+                // builder.append(convert).append(' ').append(timeUnit.name().toLowerCase()).append(", ");
+                builder.append(convert).append(shortName(timeUnit)).append(", ");
+                acc -= TimeUnit.MILLISECONDS.convert(convert, timeUnit);
+            }
+        }
+        return builder.substring(0, builder.length() - 2);
+    }
 
+    private static String shortName(TimeUnit unit) {
+        switch (unit) {
+            case NANOSECONDS:
+                return "ns";
+            case MICROSECONDS:
+                return "μs";
+            case MILLISECONDS:
+                return "ms";
+            default:
+                return unit.name().substring(0, 1).toLowerCase();
+        }
+    }
 }
