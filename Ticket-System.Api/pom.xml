@@ -40,6 +40,35 @@
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
             <plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>2.1.0</version>
+                <configuration>
+                    <schemaVersion>v2</schemaVersion>
+                    <subscriptionId>4bcd143b-2241-443e-8019-4c84be61b90f</subscriptionId>
+                    <resourceGroup>rg-app-TicketSystem-210901135346</resourceGroup>
+                    <appName>app-TicketSystem-210901135342</appName>
+                    <region>West US</region>
+                    <pricingTier>B1</pricingTier>
+                    <runtime>
+                        <os>Linux</os>
+                        <javaVersion>Java 8</javaVersion>
+                        <webContainer>TOMCAT 9.0</webContainer>
+                    </runtime>
+                    <deployment>
+                        <resources>
+                            <resource>
+                                <directory>${project.basedir}/target</directory>
+                                <includes>
+                                    <include>*.war</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </deployment>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -67,6 +96,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.1.1</version>
             </plugin>
+
         </plugins>
     </build>
 

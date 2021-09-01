@@ -13,7 +13,7 @@ public class CityServiceImpl implements CityService {
     @Autowired
     City2Repository city2Repository;
 
-    @Cacheable(cacheNames = "city", key = "#state")
+    @Cacheable(value = "CityService", key = "'CityService.findByState_'+#state", unless = "#result == null")
     @Override
     public City findByState(String state) {
         simulateSlowService();
