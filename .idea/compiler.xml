@@ -9,6 +9,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="AuthorizationServer" />
         <module name="Authenticate" />
         <module name="Ticket-System.Api" />
         <module name="Ticket-System.Core" />

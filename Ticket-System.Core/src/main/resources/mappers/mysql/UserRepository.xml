@@ -1,36 +1,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.apps.mybatis.mysql.City2Repository">
+<mapper namespace="com.apps.authenticate.repository.UserAccountRepository">
 
-<!--    <select id="findByState" resultType="com.apps.domain.entity.City">-->
-<!--        select id, name, state, country from city where state = #{state}-->
-<!--    </select>-->
-<!--    <select id="getById" resultType="com.aia.apps.one.domain.entity.UwDecision">-->
-<!--        select *-->
-<!--        from  uw_decision where ID = #{ID}-->
-<!--    </select>-->
-<!--    <select id="getId" resultType="java.lang.Long">-->
-<!--        select SEQ_EXCLUSION.nextval from dual-->
-<!--    </select>-->
-
-<!--    <update id = "update" >-->
-<!--        UPDATE uw_decision SET  POLNUM= #{entity.polNum},-->
-<!--                                WORKFLOWID = #{entity.workFlowId},-->
-<!--                                EFFDATE = #{entity.effDate},-->
-<!--                                UPDATEDDATE = #{entity.updatedDate},-->
-<!--                                UPDATEDBY = #{entity.updatedBy},-->
-<!--                                STATUS = #{entity.status},-->
-<!--                                CLIENTName = #{entity.clientName},-->
-<!--                                PLANCODE = #{entity.planCode},-->
-<!--                                DEPT = #{entity.dept},-->
-<!--                                PLANNAME = #{entity.planName},-->
-<!--                                REMARK = #{entity.reMark},-->
-<!--                                RIDNUM = #{entity.ridNum}-->
-<!--        WHERE ID = #{entity.id}-->
-<!--    </update>-->
-<!--    <insert id = "insert">-->
-<!--        INSERT INTO uw_decision (POLNUM,WORKFLOWID,EFFDATE,CREATEDDATE,CREATEDBY,UPDATEDDATE,UPDATEDBY,-->
-<!--                                 STATUS,CLIENTNAME,PLANCODE,DEPT,PLANNAME,REMARK,RIDNUM,ID) VALUES (#{entity.polNum},#{entity.workFlowId},#{entity.effDate},#{entity.createdDate},#{entity.createdBy},#{entity.updatedDate},#{entity.updatedBy},#{entity.status},#{entity.clientName},#{entity.planCode},#{entity.dept},#{entity.planName},TO_CLOB(#{entity.reMark}),#{entity.ridNum},#{entity.id})-->
-<!--    </insert>-->
 </mapper>

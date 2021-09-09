@@ -33,7 +33,16 @@
             <version>8.0.26</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>0.7.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.10</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -46,8 +55,8 @@
                 <configuration>
                     <schemaVersion>v2</schemaVersion>
                     <subscriptionId>4bcd143b-2241-443e-8019-4c84be61b90f</subscriptionId>
-                    <resourceGroup>rg-app-TicketSystem-210901135346</resourceGroup>
-                    <appName>app-TicketSystem-210901135342</appName>
+                    <resourceGroup>rg-app-TicketSystem-210901154715</resourceGroup>
+                    <appName>app-TicketSystem-210901154715</appName>
                     <region>West US</region>
                     <pricingTier>B1</pricingTier>
                     <runtime>

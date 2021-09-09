@@ -3,6 +3,7 @@ package com.apps.domain.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "city")
 @ApiModel(value = "City model")
+@RequiredArgsConstructor
 public class City implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

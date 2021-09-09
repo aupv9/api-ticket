@@ -18,10 +18,14 @@ import javax.sql.DataSource;
 
 @Configuration
 @Slf4j
-@MapperScan(basePackages = MySqlDataSourceConfig.BASE_PACKAGE,
+@MapperScan(basePackages = {
+        MySqlDataSourceConfig.BASE_PACKAGE_CORE,
+        MySqlDataSourceConfig.BASE_PACKAGE_AUTHENTICATE},
             sqlSessionTemplateRef = MySqlDataSourceConfig.SESSION_FACTORY_TEMPLATE)
 public class MySqlDataSourceConfig {
-    public static final String BASE_PACKAGE = "com.apps.mybatis.mysql";
+    public static final String BASE_PACKAGE_CORE = "com.apps.mybatis.mysql";
+    public static final String BASE_PACKAGE_AUTHENTICATE = "com.apps.authenticate.repository";
+
     public static final String MAPPER_LOCATION_PATTERN = "classpath:/mappers/mysql/**/*.xml";
     public static final String SESSION_FACTORY_TEMPLATE = "mysqlSessionFactoryTemplate";
     public static final String SESSION_FACTORY = "mysqlSessionFactory";
