@@ -4,6 +4,7 @@ import com.apps.authenticate.entity.UserAccountStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -12,8 +13,9 @@ public interface UserAccountStatusRepository {
 
     int insert(@Param("entity")UserAccountStatus accountStatus);
     int update(@Param("entity")UserAccountStatus accountStatus);
-    int delete(@Param("id") int id);
-    List<UserAccountStatus> findAll();
+    int deleteById(@Param("id") int id);
+    @Cacheable(cacheNames = "userAccountStatus",key = "'UserAccountStatusRepository.findAll'", unless = "#result == null")
+    List<UserAccountStatus> findAll(@Param("page") int page, @Param("size") int size);
     @Select(value = "select * from user_account_status where id = #{id}")
     UserAccountStatus findById(int id);
 

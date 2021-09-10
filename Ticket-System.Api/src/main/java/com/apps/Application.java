@@ -1,14 +1,10 @@
 package com.apps;
 
-import com.apps.authenticate.entity.UserAccountStatus;
-import com.apps.authenticate.repository.UserAccountStatusRepository;
 import com.apps.authenticate.service.UserAccountStatusService;
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.repository.CityRepository;
 import com.apps.config.properties.ApplicationSecurityProperties;
-import com.apps.authenticate.entity.UserAccount;
 import com.apps.authenticate.repository.UserAccountRepository;
-import com.apps.service.CityService;
 import com.apps.utils.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +22,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.sql.*;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
 
 
 @SpringBootApplication
@@ -51,9 +37,6 @@ public class Application extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(Application.class);
     }
-
-    @Autowired
-    private CityService cityService;
 
     @Autowired
     private ApplicationSecurityProperties properties;
@@ -119,13 +102,14 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
+
 //            UserAccountStatus accountStatus = new UserAccountStatus();
 //            accountStatus.setCode("CFE");
 //            accountStatus.setName("CONFIRMED");
 //            accountStatus.setId(1);
 //            log.info("insert user_account_status :"+ accountStatusService.insert(accountStatus));
-            log.info("select all user_account_status :"+  accountStatusService.findById(2));
-            log.info("select all user_account_status :"+  accountStatusService.findById(1));
+//            log.info("select all user_account_status :"+  accountStatusService.findById(2));
+//            log.info("select all user_account_status :"+  accountStatusService.findById(1));
 //            log.info("select all user_account_status :"+  accountStatusService.findAll());
 //            log.info("select all user_account_status :"+  accountStatusService.findAll());
 //            log.info("select all user_account_status :"+  accountStatusService.findAll());

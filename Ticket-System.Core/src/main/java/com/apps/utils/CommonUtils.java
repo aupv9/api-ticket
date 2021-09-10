@@ -15,6 +15,10 @@ public class CommonUtils {
         return collection == null || collection.isEmpty();
     }
 
+    public static <T> boolean isNullOrEmpty(T obj){
+        return obj == null;
+    }
+
     public static <T> boolean isNullOrEmpty(T[] collection) {
         return collection == null || collection.length == 0;
     }

@@ -1,14 +1,14 @@
 package com.apps.authenticate.service;
 
 import com.apps.authenticate.entity.UserAccountStatus;
-import com.apps.authenticate.exception.ApplicationException;
+import com.apps.authenticate.response.ResponseStatus;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 public interface UserAccountStatusService {
-    List<UserAccountStatus> findAll();
-    UserAccountStatus findById(int id) throws ApplicationException;
-    int insert(UserAccountStatus accountStatus);
-    int update(UserAccountStatus accountStatus) throws ApplicationException;
-    int delete(int id) throws ApplicationException;
+    Page<com.apps.authenticate.jpa.entity.UserAccountStatus> findAll(int page, int size);
+    UserAccountStatus findById(int id);
+    ResponseStatus insert(UserAccountStatus accountStatus) ;
+    ResponseStatus update(UserAccountStatus accountStatus) ;
+    ResponseStatus delete(int id);
 }

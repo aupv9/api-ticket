@@ -1,7 +1,6 @@
 package com.apps.config.security.jwt;
 
 import com.apps.domain.entity.City;
-import com.apps.service.CityService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -22,8 +21,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class JWTServiceImp implements JWTService{
-    @Autowired
-    private CityService cityService;
+
 
     RSAKey rsaJWK ;
     char[] keyId = new char[]{'1','6','3','6','9'};
@@ -44,7 +42,6 @@ public class JWTServiceImp implements JWTService{
 
 
         Map<String, City> map = new HashMap<>();
-        map.put("city",cityService.findByState("CA"));
         // Prepare JWT with claims set
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("alice")
@@ -70,7 +67,7 @@ public class JWTServiceImp implements JWTService{
         JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
         Map<String,City> map = (Map<String, City>) this.getSignedJWT(token).getJWTClaimsSet().getClaim("payload");
         log.info("Token Exprired: " + this.isTokenExpired(token));
-        return this.getSignedJWT(token).verify(verifier);
+        return this.getSignedJWT(token).verify(verifier) && this.isTokenExpired(token);
     }
 
     @Override
@@ -86,7 +83,7 @@ public class JWTServiceImp implements JWTService{
         Date expiration = this.getSignedJWT(token).getJWTClaimsSet().getExpirationTime();
         log.info("expiration: "+ expiration);
         log.info("now: "+ new Date());
-        return expiration.before(new Date());
+        return expiration.after(new Date());
     }
 
     private Date generateExpirationDate() {

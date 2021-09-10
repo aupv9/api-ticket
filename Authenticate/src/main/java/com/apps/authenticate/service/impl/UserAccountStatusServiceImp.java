@@ -1,68 +1,89 @@
 package com.apps.authenticate.service.impl;
 
-import com.apps.authenticate.contants.MessageData;
 import com.apps.authenticate.entity.UserAccountStatus;
-import com.apps.authenticate.exception.ApplicationException;
 import com.apps.authenticate.repository.UserAccountStatusRepository;
+import com.apps.authenticate.response.ResponseStatus;
 import com.apps.authenticate.service.UserAccountStatusService;
-import com.apps.utils.CommonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
+@Slf4j
 public class UserAccountStatusServiceImp implements UserAccountStatusService {
 
     @Autowired
     private UserAccountStatusRepository statusRepository;
 
-    @Cacheable(cacheNames = "userAccountStatus",key = "'UserAccountStatusRepository.findAll'", unless = "#result == null")
+    @Autowired
+    @Qualifier(value = "userAccountStatus")
+    private com.apps.authenticate.jpa.repository.UserAccountStatusRepository accountStatusRepository;
+
+    @Cacheable(cacheNames = "userAccountStatus", unless = "#result == null")
     @Override
-    public List<UserAccountStatus> findAll() {
-        return statusRepository.findAll();
+    public Page<com.apps.authenticate.jpa.entity.UserAccountStatus> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return this.accountStatusRepository.findAll(pageable);
     }
 
     @Cacheable(cacheNames = "userAccountStatus",key = "'UserAccountStatusRepository.findById_'+#id", unless = "#result == null")
     @Override
-    public UserAccountStatus findById(int id) throws ApplicationException {
-        UserAccountStatus accountStatus = statusRepository.findById(id);
-        if(accountStatus == null){
-            throw new ApplicationException(MessageData.NOT_FOUND_ACCOUNT_STATUS);
-        }
+    public UserAccountStatus findById(int id)  {
         return statusRepository.findById(id);
     }
 
     @Override
-    public int insert(UserAccountStatus accountStatus) {
-        if(accountStatus == null) throw new ApplicationException(Mess);
-        return statusRepository.insert(accountStatus);
+    public ResponseStatus insert(UserAccountStatus accountStatus)  {
+        ResponseStatus status = new ResponseStatus();
+        int result = statusRepository.insert(accountStatus);
+        if(result > 0){
+            status.setStatus(ResponseStatus.StatusType.SUCCESS);
+            status.setMessage(ResponseStatus.StatusMessage.USER_ACCOUNT_CREATE_SUCCESS);
+            status.setResult(result);
+        }else{
+            status.setStatus(ResponseStatus.StatusType.FAIL);
+            status.setMessage(ResponseStatus.StatusMessage.USER_ACCOUNT_CREATE_SUCCESS);
+            status.setResult(result);
+        }
+        return status ;
     }
 
     @Override
-    public int update(UserAccountStatus accountStatus) throws ApplicationException {
-        if(CommonUtils.isNullOrEmpty(String.valueOf(accountStatus.getId()))){
-            UserAccountStatus userAccountStatus = this.findById(accountStatus.getId());
-            if(userAccountStatus != null){
-                return statusRepository.update(userAccountStatus);
-            }else{
-                throw new ApplicationException(MessageData.NOT_FOUND_ACCOUNT_STATUS);
-            }
+    public ResponseStatus update(UserAccountStatus accountStatus) {
+        ResponseStatus status = new ResponseStatus();
+        UserAccountStatus userAccountStatus = UserAccountStatus.builder()
+                                                .id(accountStatus.getId())
+                                                .code(accountStatus.getCode())
+                                                .name(accountStatus.getName()).build();
+        int result = this.statusRepository.update(userAccountStatus);
+        if(result > 0){
+            status.setStatus(ResponseStatus.StatusType.SUCCESS);
+            status.setResult(accountStatus);
+        }else{
+            status.setStatus(ResponseStatus.StatusType.FAIL);
         }
-        return -1;
+        return status;
     }
 
     @Override
-    public int delete(int id) throws ApplicationException {
-        if(CommonUtils.isNullOrEmpty(String.valueOf(id))){
-            UserAccountStatus userAccountStatus = this.findById(id);
-            if(userAccountStatus != null){
-                return statusRepository.delete(id);
-            }else{
-                return -1;
-            }
+    public ResponseStatus delete(int id)  {
+        log.info("UserAccountStatus : "+ id);
+        ResponseStatus status = new ResponseStatus();
+
+        int result = this.statusRepository.deleteById(id);
+        log.info("Result delete : "+ result);
+
+        if(result > 0){
+            status.setStatus(ResponseStatus.StatusType.SUCCESS);
+        }else{
+            status.setStatus(ResponseStatus.StatusType.FAIL);
         }
-        return -1;
+        return status;
     }
 }
