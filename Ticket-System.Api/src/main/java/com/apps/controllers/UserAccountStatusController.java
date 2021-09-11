@@ -1,11 +1,12 @@
 package com.apps.controllers;
 
-import com.apps.authenticate.entity.UserAccountStatus;
-import com.apps.authenticate.response.ResponseStatus;
-import com.apps.authenticate.service.UserAccountStatusService;
+import com.apps.domain.entity.UserAccountStatus;
+import com.apps.response.ResponseStatus;
+import com.apps.service.UserAccountStatusService;
 import com.apps.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class UserAccountStatusController {
     @GetMapping(value = "/account-status",produces = { MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> findAll(@RequestParam(value = "page") Integer page,
                                      @RequestParam(value = "size") Integer size){
-        Page<com.apps.authenticate.jpa.entity.UserAccountStatus> accountStatuses = accountStatusService.findAll(page,size);
+        Page<com.apps.jpa.entity.UserAccountStatus> accountStatuses = accountStatusService.findAll(page,size);
         ResponseStatus responseStatus = new ResponseStatus();
         responseStatus.setStatus(ResponseStatus.StatusType.SUCCESS);
         responseStatus.setResult(accountStatuses);

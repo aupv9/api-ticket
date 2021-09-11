@@ -1,7 +1,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.apps.authenticate.repository.UserAccountRepository">
+<mapper namespace="com.apps.jpa.repository.UserAccountRepository">
 
 <!--    <insert id="insert">-->
 <!--        insert into user_account_status (id,code, name) values(#{entity.id},#{entity.code},#{entity.name})-->
@@ -15,7 +15,7 @@
 <!--        delete from user_account_status where id =#{id}-->
 <!--    </delete>-->
 
-<!--    <select id="findAll" resultType="com.apps.authenticate.entity.UserAccountStatus">-->
+<!--    <select id="findAll" resultType="com.apps.domain.entity.UserAccountStatus">-->
 <!--        select * from user_account_status-->
 <!--    </select>-->
 

@@ -1,6 +1,5 @@
 package com.apps.config.security.jwt;
 
-import com.apps.domain.entity.City;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -9,14 +8,12 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Service
 @Slf4j
@@ -41,13 +38,11 @@ public class JWTServiceImp implements JWTService{
         JWSSigner signer = new RSASSASigner(this.rsaJWK);
 
 
-        Map<String, City> map = new HashMap<>();
         // Prepare JWT with claims set
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("alice")
                 .issuer("https://c2id.com")
                 .expirationTime(this.generateExpirationDate())
-                .claim("payload", map)
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(
@@ -65,13 +60,12 @@ public class JWTServiceImp implements JWTService{
         // On the consumer side, parse the JWS and verify its RSA signature
         RSAKey rsaPublicJWK = this.rsaJWK.toPublicJWK();
         JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
-        Map<String,City> map = (Map<String, City>) this.getSignedJWT(token).getJWTClaimsSet().getClaim("payload");
         log.info("Token Exprired: " + this.isTokenExpired(token));
         return this.getSignedJWT(token).verify(verifier) && this.isTokenExpired(token);
     }
 
     @Override
-    public City getClaims(String token) throws ParseException {
+    public Object getClaims(String token) throws ParseException {
         return null;
     }
 

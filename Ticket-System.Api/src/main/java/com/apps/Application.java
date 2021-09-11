@@ -1,10 +1,7 @@
 package com.apps;
 
-import com.apps.authenticate.service.UserAccountStatusService;
-import com.apps.config.cache.ApplicationCacheManager;
-import com.apps.domain.repository.CityRepository;
-import com.apps.config.properties.ApplicationSecurityProperties;
-import com.apps.authenticate.repository.UserAccountRepository;
+import com.apps.jpa.entity.Location;
+import com.apps.domain.repository.LocationRepositoryJPA;
 import com.apps.utils.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -39,23 +35,7 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Autowired
-    private ApplicationSecurityProperties properties;
-
-    @Autowired
-    private CityRepository cityRepository;
-
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Autowired
-    private ApplicationCacheManager applicationCacheManager;
-
-
-    @Autowired
-    private UserAccountRepository userAccountRepository;
-
-    @Autowired
-    private UserAccountStatusService accountStatusService;
+    private LocationRepositoryJPA locationRepositoryJPA;
 
     public static void main(String[] args) {
          ApplicationContext applicationContext = SpringApplication.run(Application.class);
@@ -102,25 +82,11 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
-
-//            UserAccountStatus accountStatus = new UserAccountStatus();
-//            accountStatus.setCode("CFE");
-//            accountStatus.setName("CONFIRMED");
-//            accountStatus.setId(1);
-//            log.info("insert user_account_status :"+ accountStatusService.insert(accountStatus));
-//            log.info("select all user_account_status :"+  accountStatusService.findById(2));
-//            log.info("select all user_account_status :"+  accountStatusService.findById(1));
-//            log.info("select all user_account_status :"+  accountStatusService.findAll());
-//            log.info("select all user_account_status :"+  accountStatusService.findAll());
-//            log.info("select all user_account_status :"+  accountStatusService.findAll());
-//            log.info("select all user_account_status :"+  accountStatusService.findAll());
-
-//            log.info("Select city: " + cityService.findByState("CA"));
-//            log.info("Select city: " + cityService.findByState("CA"));
-//            log.info("Select city: " + cityService.findByState("CA"));
-//            log.info("Select city: " + cityService.findByState("CA"));
-//            log.info("Select city: " + cityService.findByState("CA"));
-
+            Location location = new Location();
+            location.setName("Đồng Tháp");
+            location.setZipcode("6555");
+            log.info("Save Location :" + this.locationRepositoryJPA.save(location));
+            log.info("Location list : " + this.locationRepositoryJPA.findAll());
         };
     }
 
