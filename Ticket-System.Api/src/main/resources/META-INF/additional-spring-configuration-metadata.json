@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "application.security.permitUrls",
+      "type": "java.lang.String",
+      "description": "Description for application.security.permitUrls."
+  }
+] }
