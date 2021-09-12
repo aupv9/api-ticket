@@ -12,11 +12,12 @@ public class Location implements Serializable {
     private String zipcode;
     private String latitude;
     private String longitude;
+    private Collection<ShowtimesDetail> showtimesDetailsById;
     private Collection<Theater> theatersById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -76,6 +77,15 @@ public class Location implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, zipcode, latitude, longitude);
+    }
+
+    @OneToMany(mappedBy = "locationByLocationId",fetch = FetchType.EAGER)
+    public Collection<ShowtimesDetail> getShowtimesDetailsById() {
+        return showtimesDetailsById;
+    }
+
+    public void setShowtimesDetailsById(Collection<ShowtimesDetail> showtimesDetailsById) {
+        this.showtimesDetailsById = showtimesDetailsById;
     }
 
     @OneToMany(mappedBy = "locationByLocationId")

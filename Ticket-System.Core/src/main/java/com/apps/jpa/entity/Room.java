@@ -13,12 +13,12 @@ public class Room implements Serializable {
     private int theaterId;
     private Theater theaterByTheaterId;
     private Collection<SeatRoom> seatRoomsById;
-    private Collection<Showtimes> showtimesById;
+    private Collection<ShowtimesDetail> showtimesDetailsById;
     private Collection<Tier> tiersById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -71,7 +71,7 @@ public class Room implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "theater_id", referencedColumnName = "id", nullable = false, updatable = false, insertable = false)
+    @JoinColumn(name = "theater_id", referencedColumnName = "id", nullable = false, insertable = false,updatable = false)
     public Theater getTheaterByTheaterId() {
         return theaterByTheaterId;
     }
@@ -89,13 +89,13 @@ public class Room implements Serializable {
         this.seatRoomsById = seatRoomsById;
     }
 
-    @OneToMany(mappedBy = "roomByIdRoom")
-    public Collection<Showtimes> getShowtimesById() {
-        return showtimesById;
+    @OneToMany(mappedBy = "roomByRoomId")
+    public Collection<ShowtimesDetail> getShowtimesDetailsById() {
+        return showtimesDetailsById;
     }
 
-    public void setShowtimesById(Collection<Showtimes> showtimesById) {
-        this.showtimesById = showtimesById;
+    public void setShowtimesDetailsById(Collection<ShowtimesDetail> showtimesDetailsById) {
+        this.showtimesDetailsById = showtimesDetailsById;
     }
 
     @OneToMany(mappedBy = "roomByRoomId")

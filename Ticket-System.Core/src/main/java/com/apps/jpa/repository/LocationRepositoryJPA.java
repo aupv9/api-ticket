@@ -1,4 +1,4 @@
-package com.apps.domain.repository;
+package com.apps.jpa.repository;
 
 import com.apps.jpa.entity.Location;
 import org.springframework.data.repository.PagingAndSortingRepository;

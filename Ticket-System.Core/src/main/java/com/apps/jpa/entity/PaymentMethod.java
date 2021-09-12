@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "payment_method")
+@Table(name = "payment_method", schema = "booksystem", catalog = "")
 public class PaymentMethod implements Serializable {
     private int id;
     private String code;
@@ -15,7 +15,7 @@ public class PaymentMethod implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }

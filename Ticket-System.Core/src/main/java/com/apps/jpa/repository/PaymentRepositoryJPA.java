@@ -1,4 +1,4 @@
-package com.apps.domain.repository;
+package com.apps.jpa.repository;
 
 public interface PaymentRepositoryJPA {
 }

@@ -13,6 +13,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/Authenticate/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthorizationServer/pom.xml" />
       </set>
     </option>
   </component>

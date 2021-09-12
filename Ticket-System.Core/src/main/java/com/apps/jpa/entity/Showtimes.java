@@ -2,26 +2,20 @@ package com.apps.jpa.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(uniqueConstraints =
-        {@UniqueConstraint(columnNames = {"id_movie","id_room","time_start","time_start"})})
 public class Showtimes implements Serializable {
     private int id;
-    private int idRoom;
-    private int idMovie;
-    private Timestamp timeStart;
-    private Timestamp timeEnd;
-    private Room roomByIdRoom;
-    private Movie movieByIdMovie;
+    private Date dayshowtimes;
+    private Collection<ShowtimesDetail> showtimesDetailsById;
     private Collection<Ticket> ticketsById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -31,43 +25,13 @@ public class Showtimes implements Serializable {
     }
 
     @Basic
-    @Column(name = "id_room", nullable = false)
-    public int getIdRoom() {
-        return idRoom;
+    @Column(name = "dayshowtimes", nullable = true)
+    public Date getDayshowtimes() {
+        return dayshowtimes;
     }
 
-    public void setIdRoom(int idRoom) {
-        this.idRoom = idRoom;
-    }
-
-    @Basic
-    @Column(name = "id_movie", nullable = false)
-    public int getIdMovie() {
-        return idMovie;
-    }
-
-    public void setIdMovie(int idMovie) {
-        this.idMovie = idMovie;
-    }
-
-    @Basic
-    @Column(name = "time_start", nullable = false)
-    public Timestamp getTimeStart() {
-        return timeStart;
-    }
-
-    public void setTimeStart(Timestamp timeStart) {
-        this.timeStart = timeStart;
-    }
-
-    @Basic
-    @Column(name = "time_end", nullable = false)
-    public Timestamp getTimeEnd() {
-        return timeEnd;
-    }
-
-    public void setTimeEnd(Timestamp timeEnd) {
-        this.timeEnd = timeEnd;
+    public void setDayshowtimes(Date dayshowtimes) {
+        this.dayshowtimes = dayshowtimes;
     }
 
     @Override
@@ -75,32 +39,21 @@ public class Showtimes implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Showtimes showtimes = (Showtimes) o;
-        return id == showtimes.id && idRoom == showtimes.idRoom && idMovie == showtimes.idMovie && Objects.equals(timeStart, showtimes.timeStart) && Objects.equals(timeEnd, showtimes.timeEnd);
+        return id == showtimes.id && Objects.equals(dayshowtimes, showtimes.dayshowtimes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idRoom, idMovie, timeStart, timeEnd);
+        return Objects.hash(id, dayshowtimes);
     }
 
-    @ManyToOne
-    @JoinColumn(name = "id_room", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
-    public Room getRoomByIdRoom() {
-        return roomByIdRoom;
+    @OneToMany(mappedBy = "showtimesByShowtimesId")
+    public Collection<ShowtimesDetail> getShowtimesDetailsById() {
+        return showtimesDetailsById;
     }
 
-    public void setRoomByIdRoom(Room roomByIdRoom) {
-        this.roomByIdRoom = roomByIdRoom;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "id_movie", referencedColumnName = "id", nullable = false, updatable = false, insertable = false)
-    public Movie getMovieByIdMovie() {
-        return movieByIdMovie;
-    }
-
-    public void setMovieByIdMovie(Movie movieByIdMovie) {
-        this.movieByIdMovie = movieByIdMovie;
+    public void setShowtimesDetailsById(Collection<ShowtimesDetail> showtimesDetailsById) {
+        this.showtimesDetailsById = showtimesDetailsById;
     }
 
     @OneToMany(mappedBy = "showtimesByShowtimesId")

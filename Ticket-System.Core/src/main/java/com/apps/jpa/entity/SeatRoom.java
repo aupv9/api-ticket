@@ -6,22 +6,23 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "seat_room",uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id_room","id_seat","id_tier"})})
+@Table(name = "seat_room", schema = "booksystem",
+uniqueConstraints =  @UniqueConstraint(columnNames = {"id_room","id_seat","id_tier"}))
 public class SeatRoom implements Serializable {
     private int id;
     private Integer idRoom;
     private Integer idSeat;
     private Boolean status;
     private Integer idTier;
+    private Integer user;
     private Room roomByIdRoom;
     private Seat seatByIdSeat;
     private Tier tierByIdTier;
-    private Collection<Ticket> ticketsById;
+    private Collection<TicketDetail> ticketDetailsById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -70,21 +71,31 @@ public class SeatRoom implements Serializable {
         this.idTier = idTier;
     }
 
+    @Basic
+    @Column(name = "user", nullable = true)
+    public Integer getUser() {
+        return user;
+    }
+
+    public void setUser(Integer user) {
+        this.user = user;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SeatRoom seatRoom = (SeatRoom) o;
-        return id == seatRoom.id && Objects.equals(idRoom, seatRoom.idRoom) && Objects.equals(idSeat, seatRoom.idSeat) && Objects.equals(status, seatRoom.status) && Objects.equals(idTier, seatRoom.idTier);
+        return id == seatRoom.id && Objects.equals(idRoom, seatRoom.idRoom) && Objects.equals(idSeat, seatRoom.idSeat) && Objects.equals(status, seatRoom.status) && Objects.equals(idTier, seatRoom.idTier) && Objects.equals(user, seatRoom.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, idRoom, idSeat, status, idTier);
+        return Objects.hash(id, idRoom, idSeat, status, idTier, user);
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_room", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "id_room", referencedColumnName = "id",updatable = false, insertable = false)
     public Room getRoomByIdRoom() {
         return roomByIdRoom;
     }
@@ -94,7 +105,7 @@ public class SeatRoom implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_seat", referencedColumnName = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "id_seat", referencedColumnName = "id", insertable = false, updatable = false)
     public Seat getSeatByIdSeat() {
         return seatByIdSeat;
     }
@@ -104,7 +115,7 @@ public class SeatRoom implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "id_tier", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "id_tier", referencedColumnName = "id", updatable = false, insertable = false)
     public Tier getTierByIdTier() {
         return tierByIdTier;
     }
@@ -114,11 +125,11 @@ public class SeatRoom implements Serializable {
     }
 
     @OneToMany(mappedBy = "seatRoomBySeatRoomId")
-    public Collection<Ticket> getTicketsById() {
-        return ticketsById;
+    public Collection<TicketDetail> getTicketDetailsById() {
+        return ticketDetailsById;
     }
 
-    public void setTicketsById(Collection<Ticket> ticketsById) {
-        this.ticketsById = ticketsById;
+    public void setTicketDetailsById(Collection<TicketDetail> ticketDetailsById) {
+        this.ticketDetailsById = ticketDetailsById;
     }
 }

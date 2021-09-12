@@ -9,13 +9,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="AuthorizationServer" />
         <module name="Ticket-System.Api" />
         <module name="Ticket-System.Core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Authenticate" target="8" />
+      <module name="AuthorizationServer" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -12,11 +12,12 @@ public class Theater implements Serializable {
     private String name;
     private int locationId;
     private Collection<Room> roomsById;
+    private Collection<ShowtimesDetail> showtimesDetailsById;
     private Location locationByLocationId;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -77,9 +78,17 @@ public class Theater implements Serializable {
         this.roomsById = roomsById;
     }
 
+    @OneToMany(mappedBy = "theaterByTheaterId")
+    public Collection<ShowtimesDetail> getShowtimesDetailsById() {
+        return showtimesDetailsById;
+    }
+
+    public void setShowtimesDetailsById(Collection<ShowtimesDetail> showtimesDetailsById) {
+        this.showtimesDetailsById = showtimesDetailsById;
+    }
+
     @ManyToOne
-    @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false,
-    updatable = false, insertable = false)
+    @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false, updatable = false, insertable = false)
     public Location getLocationByLocationId() {
         return locationByLocationId;
     }

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_account_status")
+@Table(name = "user_account_status", schema = "booksystem", catalog = "")
 public class UserAccountStatus implements Serializable {
     private int id;
     private String code;
@@ -15,7 +15,7 @@ public class UserAccountStatus implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -57,7 +57,7 @@ public class UserAccountStatus implements Serializable {
         return Objects.hash(id, code, name);
     }
 
-    @OneToMany(mappedBy = "userAccountStatusByUserAccountStatusId")
+    @OneToMany(mappedBy = "userAccountStatusByUserAccountStatusId", cascade = CascadeType.ALL)
     public Collection<UserAccount> getUserAccountsById() {
         return userAccountsById;
     }

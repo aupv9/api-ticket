@@ -1,7 +1,6 @@
 package com.apps;
 
-import com.apps.jpa.entity.Location;
-import com.apps.domain.repository.LocationRepositoryJPA;
+import com.apps.jpa.repository.LocationRepositoryJPA;
 import com.apps.utils.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -82,11 +81,12 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
-            Location location = new Location();
-            location.setName("Đồng Tháp");
-            location.setZipcode("6555");
-            log.info("Save Location :" + this.locationRepositoryJPA.save(location));
-            log.info("Location list : " + this.locationRepositoryJPA.findAll());
+//            Location location = new Location();
+//            location.setName("Đồng Tháp");
+//            location.setZipcode("6555");
+//
+//            log.info("Save Location :" + this.locationRepositoryJPA.save(location));
+//            log.info("Location list : " + this.locationRepositoryJPA.findAll());
         };
     }
 

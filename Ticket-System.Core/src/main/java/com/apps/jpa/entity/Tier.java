@@ -16,7 +16,7 @@ public class Tier implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -78,8 +78,8 @@ public class Tier implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "room_id", referencedColumnName = "id", nullable = false,
-    insertable = false, updatable = false)
+    @JoinColumn(name = "room_id", referencedColumnName = "id",
+            nullable = false, updatable = false, insertable = false)
     public Room getRoomByRoomId() {
         return roomByRoomId;
     }

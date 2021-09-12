@@ -14,7 +14,7 @@ public class Seat implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -47,7 +47,8 @@ public class Seat implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "seat_type_id", referencedColumnName = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "seat_type_id", referencedColumnName = "id",
+            updatable = false, insertable = false)
     public SeatType getSeatTypeBySeatTypeId() {
         return seatTypeBySeatTypeId;
     }

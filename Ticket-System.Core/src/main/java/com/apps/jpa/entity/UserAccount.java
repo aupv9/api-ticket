@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_account")
+@Table(name = "user_account", schema = "booksystem", catalog = "")
 public class UserAccount implements Serializable {
     private int userInfoId;
     private String userName;
@@ -21,6 +21,7 @@ public class UserAccount implements Serializable {
 
     @Id
     @Column(name = "userInfoId", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getUserInfoId() {
         return userInfoId;
     }
@@ -113,7 +114,7 @@ public class UserAccount implements Serializable {
     }
 
     @OneToOne
-    @JoinColumn(name = "userInfoId", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "userInfoId", referencedColumnName = "id", nullable = false,updatable = false, insertable = false)
     public UserInfo getUserInfoByUserInfoId() {
         return userInfoByUserInfoId;
     }
@@ -123,7 +124,7 @@ public class UserAccount implements Serializable {
     }
 
     @ManyToOne
-    @JoinColumn(name = "user_account_status_id", referencedColumnName = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "user_account_status_id", referencedColumnName = "id",updatable = false,insertable = false)
     public UserAccountStatus getUserAccountStatusByUserAccountStatusId() {
         return userAccountStatusByUserAccountStatusId;
     }

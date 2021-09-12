@@ -8,11 +8,11 @@ import java.util.Objects;
 @Entity
 public class Movie implements Serializable {
     private int id;
-    private Collection<Showtimes> showtimesById;
+    private Collection<ShowtimesDetail> showtimesDetailsById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -34,12 +34,12 @@ public class Movie implements Serializable {
         return Objects.hash(id);
     }
 
-    @OneToMany(mappedBy = "movieByIdMovie")
-    public Collection<Showtimes> getShowtimesById() {
-        return showtimesById;
+    @OneToMany(mappedBy = "movieByMovieId")
+    public Collection<ShowtimesDetail> getShowtimesDetailsById() {
+        return showtimesDetailsById;
     }
 
-    public void setShowtimesById(Collection<Showtimes> showtimesById) {
-        this.showtimesById = showtimesById;
+    public void setShowtimesDetailsById(Collection<ShowtimesDetail> showtimesDetailsById) {
+        this.showtimesDetailsById = showtimesDetailsById;
     }
 }

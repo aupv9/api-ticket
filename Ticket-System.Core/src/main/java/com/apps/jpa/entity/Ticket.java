@@ -2,27 +2,27 @@ package com.apps.jpa.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"showtimes_id","user_id",
-        "seat_room_id"})
-})
 public class Ticket implements Serializable {
     private int id;
     private Integer showtimesId;
-    private Integer seatRoomId;
     private int userId;
+    private Date ticketDate;
+    private Integer movie;
+    private Integer location;
+    private Integer theater;
+    private Integer room;
     private Collection<Payment> paymentsById;
     private Showtimes showtimesByShowtimesId;
-    private SeatRoom seatRoomBySeatRoomId;
-    private UserInfo userInfoByUserId;
+    private Collection<TicketDetail> ticketDetailsById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -42,16 +42,6 @@ public class Ticket implements Serializable {
     }
 
     @Basic
-    @Column(name = "seat_room_id", nullable = true)
-    public Integer getSeatRoomId() {
-        return seatRoomId;
-    }
-
-    public void setSeatRoomId(Integer seatRoomId) {
-        this.seatRoomId = seatRoomId;
-    }
-
-    @Basic
     @Column(name = "user_id", nullable = false)
     public int getUserId() {
         return userId;
@@ -61,17 +51,67 @@ public class Ticket implements Serializable {
         this.userId = userId;
     }
 
+    @Basic
+    @Column(name = "ticket_date", nullable = true)
+    public Date getTicketDate() {
+        return ticketDate;
+    }
+
+    public void setTicketDate(Date ticketDate) {
+        this.ticketDate = ticketDate;
+    }
+
+    @Basic
+    @Column(name = "movie", nullable = true)
+    public Integer getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Integer movie) {
+        this.movie = movie;
+    }
+
+    @Basic
+    @Column(name = "location", nullable = true)
+    public Integer getLocation() {
+        return location;
+    }
+
+    public void setLocation(Integer location) {
+        this.location = location;
+    }
+
+    @Basic
+    @Column(name = "theater", nullable = true)
+    public Integer getTheater() {
+        return theater;
+    }
+
+    public void setTheater(Integer theater) {
+        this.theater = theater;
+    }
+
+    @Basic
+    @Column(name = "room", nullable = true)
+    public Integer getRoom() {
+        return room;
+    }
+
+    public void setRoom(Integer room) {
+        this.room = room;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Ticket ticket = (Ticket) o;
-        return id == ticket.id && userId == ticket.userId && Objects.equals(showtimesId, ticket.showtimesId) && Objects.equals(seatRoomId, ticket.seatRoomId);
+        return id == ticket.id && userId == ticket.userId && Objects.equals(showtimesId, ticket.showtimesId) && Objects.equals(ticketDate, ticket.ticketDate) && Objects.equals(movie, ticket.movie) && Objects.equals(location, ticket.location) && Objects.equals(theater, ticket.theater) && Objects.equals(room, ticket.room);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, showtimesId, seatRoomId, userId);
+        return Objects.hash(id, showtimesId, userId, ticketDate, movie, location, theater, room);
     }
 
     @OneToMany(mappedBy = "ticketByTicketId")
@@ -93,25 +133,12 @@ public class Ticket implements Serializable {
         this.showtimesByShowtimesId = showtimesByShowtimesId;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "seat_room_id", referencedColumnName = "id",
-    updatable = false,insertable = false)
-    public SeatRoom getSeatRoomBySeatRoomId() {
-        return seatRoomBySeatRoomId;
+    @OneToMany(mappedBy = "ticketByTicketId")
+    public Collection<TicketDetail> getTicketDetailsById() {
+        return ticketDetailsById;
     }
 
-    public void setSeatRoomBySeatRoomId(SeatRoom seatRoomBySeatRoomId) {
-        this.seatRoomBySeatRoomId = seatRoomBySeatRoomId;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false,
-    insertable = false, updatable = false)
-    public UserInfo getUserInfoByUserId() {
-        return userInfoByUserId;
-    }
-
-    public void setUserInfoByUserId(UserInfo userInfoByUserId) {
-        this.userInfoByUserId = userInfoByUserId;
+    public void setTicketDetailsById(Collection<TicketDetail> ticketDetailsById) {
+        this.ticketDetailsById = ticketDetailsById;
     }
 }

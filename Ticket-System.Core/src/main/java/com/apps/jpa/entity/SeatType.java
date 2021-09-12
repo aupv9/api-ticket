@@ -6,14 +6,14 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "seat_type")
+@Table(name = "seat_type", schema = "booksystem", catalog = "")
 public class SeatType implements Serializable {
     private int id;
     private Collection<Seat> seatsById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }

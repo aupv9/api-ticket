@@ -1,13 +1,11 @@
 package com.apps.jpa.entity;
 
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_info")
+@Table(name = "user_info", schema = "booksystem", catalog = "")
 public class UserInfo implements Serializable {
     private int id;
     private String firstName;
@@ -16,12 +14,11 @@ public class UserInfo implements Serializable {
     private String email;
     private String timeZone;
     private Byte isLoginSocial;
-    private Collection<Ticket> ticketsById;
     private UserAccount userAccountById;
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }
@@ -101,15 +98,6 @@ public class UserInfo implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, fullName, email, timeZone, isLoginSocial);
-    }
-
-    @OneToMany(mappedBy = "userInfoByUserId")
-    public Collection<Ticket> getTicketsById() {
-        return ticketsById;
-    }
-
-    public void setTicketsById(Collection<Ticket> ticketsById) {
-        this.ticketsById = ticketsById;
     }
 
     @OneToOne(mappedBy = "userInfoByUserInfoId")
