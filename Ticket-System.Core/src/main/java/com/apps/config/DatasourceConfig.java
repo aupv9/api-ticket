@@ -2,6 +2,8 @@ package com.apps.config;
 
 import com.apps.utils.CommonUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
@@ -25,6 +27,7 @@ public class DatasourceConfig {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
         factoryBean.setVfs(SpringBootVFS.class);
+        factoryBean.setTransactionFactory(new ManagedTransactionFactory());
 
         if (!CommonUtils.isNullOrEmpty(mapperLocations)) {
             factoryBean.setMapperLocations(mapperLocations);
@@ -33,7 +36,7 @@ public class DatasourceConfig {
         SqlSessionFactory factory = factoryBean.getObject();
         assert factory != null;
         factory.getConfiguration().setMapUnderscoreToCamelCase(true);
-
+        factory.getConfiguration().setUseGeneratedKeys(true);
         org.apache.ibatis.session.Configuration config = factory.getConfiguration();
         config.setJdbcTypeForNull(JdbcType.VARCHAR);
 

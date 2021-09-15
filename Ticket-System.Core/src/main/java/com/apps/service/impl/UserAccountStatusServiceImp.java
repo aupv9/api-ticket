@@ -1,16 +1,12 @@
 package com.apps.service.impl;
 
 import com.apps.domain.entity.UserAccountStatus;
-import com.apps.jpa.repository.UserAccountStatusRepositoryJPA;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.response.ResponseStatus;
 import com.apps.service.UserAccountStatusService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -21,15 +17,6 @@ public class UserAccountStatusServiceImp implements UserAccountStatusService {
     @Autowired
     private UserAccountStatusRepository statusRepository;
 
-    @Autowired
-    private UserAccountStatusRepositoryJPA accountStatusRepository;
-
-    @Cacheable(cacheNames = "userAccountStatus", unless = "#result == null")
-    @Override
-    public Page<com.apps.jpa.entity.UserAccountStatus> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return this.accountStatusRepository.findAll(pageable);
-    }
 
     @Cacheable(cacheNames = "userAccountStatus",key = "'UserAccountStatusRepository.findById_'+#id", unless = "#result == null")
     @Override

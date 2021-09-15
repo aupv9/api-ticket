@@ -1,6 +1,5 @@
 package com.apps;
 
-import com.apps.jpa.repository.LocationRepositoryJPA;
 import com.apps.utils.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +32,7 @@ public class Application extends SpringBootServletInitializer {
         return builder.sources(Application.class);
     }
 
-    @Autowired
-    private LocationRepositoryJPA locationRepositoryJPA;
+
 
     public static void main(String[] args) {
          ApplicationContext applicationContext = SpringApplication.run(Application.class);

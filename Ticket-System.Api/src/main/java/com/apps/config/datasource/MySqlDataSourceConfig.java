@@ -4,6 +4,7 @@ package com.apps.config.datasource;
 import com.apps.config.DatasourceConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -39,6 +40,7 @@ public class MySqlDataSourceConfig {
         }
         org.apache.ibatis.session.Configuration config = sqlSessionFactory.getConfiguration();
         config.setJdbcTypeForNull(JdbcType.VARCHAR);
+
         return sqlSessionFactory;
     }
 

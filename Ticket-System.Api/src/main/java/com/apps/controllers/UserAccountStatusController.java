@@ -22,15 +22,6 @@ public class UserAccountStatusController {
     @Autowired
     private UserAccountStatusService accountStatusService;
 
-    @GetMapping(value = "/account-status",produces = { MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> findAll(@RequestParam(value = "page") Integer page,
-                                     @RequestParam(value = "size") Integer size){
-        Page<com.apps.jpa.entity.UserAccountStatus> accountStatuses = accountStatusService.findAll(page,size);
-        ResponseStatus responseStatus = new ResponseStatus();
-        responseStatus.setStatus(ResponseStatus.StatusType.SUCCESS);
-        responseStatus.setResult(accountStatuses);
-        return ResponseEntity.ok(responseStatus);
-    }
 
     @GetMapping(value = "/account-status-id",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> findById(@RequestParam(value = "id",required = false) Integer id) {

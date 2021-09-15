@@ -1,0 +1,30 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.SeatRoomRepository">
+
+    <select id="findByRoomId" resultType="com.apps.domain.entity.SeatRoom">
+        select * from seat_room where room_id = #{roomId};
+    </select>
+
+    <select id="findByAll" resultType="com.apps.domain.entity.SeatRoom">
+        select * from seat_room where room_id = #{roomId} and
+            seat_id = #{seatId} and showtimes_detail_id = #{showTimesDetailId}
+            and tier_id = #{tierId};
+    </select>
+
+
+
+    <update id="reservedSeat" >
+        Update seat_room set status = #{status}  where id = #{id}
+    </update>
+
+    <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
+    <!--        INSERT INTO booksystem.room (code, name, theater_id)-->
+    <!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->
+    <!--        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >-->
+    <!--            SELECT LAST_INSERT_ID();-->
+    <!--        </selectKey>-->
+    <!--    </insert>-->
+
+</mapper>
