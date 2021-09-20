@@ -1,9 +1,7 @@
 package com.apps.controllers;
 
 
-import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Theater;
-import com.apps.service.LocationService;
 import com.apps.service.TheaterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +17,15 @@ public class TheaterController {
     @Autowired
     private TheaterService theaterService;
 
-
     @GetMapping("theaters")
     public ResponseEntity<?> getLocations(@RequestParam("size") Integer size,
                                           @RequestParam("page") Integer page){
         return ResponseEntity.ok(this.theaterService.findAll(page,size));
+    }
+
+    @GetMapping("theater/{id}")
+    public ResponseEntity<?> getLocations(@PathVariable("id") Integer id){
+        return ResponseEntity.ok(this.theaterService.findById(id));
     }
 
     @PostMapping(value = "/theater",produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -32,4 +34,7 @@ public class TheaterController {
         log.info("Id return : "+ id);
         return ResponseEntity.ok(id);
     }
+
+
+
 }

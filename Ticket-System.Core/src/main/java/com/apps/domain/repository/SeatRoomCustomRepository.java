@@ -16,7 +16,7 @@ public class SeatRoomCustomRepository implements Repository<SeatRoom>{
     @Autowired
     private DataSource dataSource;
 
-//    PreparedStatement stmt = null;
+    PreparedStatement stmt = null;
     ResultSet rs = null;
 
     @Override
@@ -24,19 +24,19 @@ public class SeatRoomCustomRepository implements Repository<SeatRoom>{
         return 0;
     }
 
-    public void clockSeatById(int id) throws SQLException {
+    public int clockSeatById(int id, String status) throws SQLException {
         Connection connection = null;
-        try{
+        CallableStatement statement = null;
+        boolean hadResults = false;
 
+        try{
             connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-            Statement stmt = connection.createStatement();
-            stmt.addBatch("start transaction");
-            stmt.execute();
-            stmt = connection.prepareStatement("SELECT status FROM seat_room WHERE id = ? FOR UPDATE;");
-            stmt.setInt(1,id);
-            boolean result  = stmt.execute();
-            log.info("Result clock seat room : "+ result);
+            statement = connection.prepareCall("{call clockSeatRoom(?,?,?)}");
+            statement.setInt(1,id);
+            statement.setString(2,status);
+            statement.registerOutParameter(3,Types.INTEGER);
+            hadResults = statement.execute();
+            return statement.getInt(3);
         }finally {
             assert connection != null;
             if(!connection.isClosed()) connection.close();

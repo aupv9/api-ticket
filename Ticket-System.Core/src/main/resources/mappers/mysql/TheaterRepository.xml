@@ -7,6 +7,14 @@
         select * from theater limit #{limit} offset #{offset};
     </select>
 
+    <select id="findById" resultType="com.apps.domain.entity.Theater">
+        select * from theater where id = #{id};
+    </select>
+
+    <select id="findByLocation" resultType="com.apps.domain.entity.Theater">
+        select * from theater where location_id = #{id};
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
 
         insert into booksystem.theater(code, name, location_id, latitude, longitude)
@@ -18,4 +26,17 @@
         </selectKey>
 
     </insert>
+
+    <update id="update" parameterType="com.apps.domain.entity.Theater">
+        update theater set code = #{theater.code}, name = #{theater.name},
+                           latitude = #{theater.latitude},
+                           longitude = #{theater.longitude}
+                where id = #{theater.id}
+    </update>
+
+    <delete id="delete">
+        delete from theater where id = #{id}
+    </delete>
+
+
 </mapper>

@@ -27,6 +27,6 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Override
     public int insert(ShowTimesDetail showTimesDetail) {
-        return 0;
+        return this.showTimesDetailRepository.insert(showTimesDetail);
     }
 }

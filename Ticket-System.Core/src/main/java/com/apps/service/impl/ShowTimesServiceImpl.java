@@ -21,7 +21,7 @@ public class ShowTimesServiceImpl implements ShowTimesService {
 
     @Override
     public int insert(ShowTimes showTimes) {
-        return 0;
+        return this.showtimesRepository.insert(showTimes);
     }
 
     @Override

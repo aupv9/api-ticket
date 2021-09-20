@@ -2,7 +2,6 @@ package com.apps.domain.entity;
 
 import lombok.Data;
 
-
 import java.io.Serializable;
 
 @Data
@@ -12,4 +11,6 @@ public class Room implements Serializable {
     private String code;
     private String name;
     private Integer theaterId;
+    private Integer horizontalSize;
+    private Integer verticalSize;
 }

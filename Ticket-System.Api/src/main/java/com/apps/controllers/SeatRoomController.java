@@ -25,6 +25,12 @@ public class SeatRoomController {
         return ResponseEntity.ok(this.roomService.findAll(page,size));
     }
 
+
+    @GetMapping("seatRoomsByShowTimes")
+    public ResponseEntity<?> seatRooms(@RequestParam("idShowTimes") Integer idShowTimes){
+        return ResponseEntity.ok(this.roomService.findSeatInRoomByShowTimes(idShowTimes));
+    }
+
     @GetMapping("seatRoomByAll")
     public ResponseEntity<?> seatRoomByAll(@RequestParam("roomId") Integer roomId,
                                           @RequestParam("seatId") Integer seatId,
@@ -49,8 +55,12 @@ public class SeatRoomController {
     }
 
     @GetMapping("/reservedSeat")
-    public ResponseEntity<?> reservedSeat(@RequestParam("id") int id,
-                                          @RequestParam("status") boolean status) throws SQLException {
-        return ResponseEntity.ok(this.roomService.reservedSeat(id,status));
+    public ResponseEntity<?> reservedSeat(@RequestParam("id") int id) throws SQLException {
+        return ResponseEntity.ok(this.roomService.reservedSeat(id));
+    }
+
+    @GetMapping("/expireReservedSeat")
+    public ResponseEntity<?> expireReservedSeat(@RequestParam("id") int id) throws SQLException {
+        return ResponseEntity.ok(this.roomService.expireReservedSeat(id));
     }
 }

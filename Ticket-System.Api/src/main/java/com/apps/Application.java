@@ -2,9 +2,9 @@ package com.apps;
 
 import com.apps.utils.CommonUtils;
 
+import com.paypal.api.payments.PaymentCard;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,12 +32,11 @@ public class Application extends SpringBootServletInitializer {
         return builder.sources(Application.class);
     }
 
-
-
     public static void main(String[] args) {
          ApplicationContext applicationContext = SpringApplication.run(Application.class);
             Environment environment = applicationContext.getEnvironment();
             logApplicationStartup(environment);
+
     }
 
     static void logApplicationStartup(Environment env){

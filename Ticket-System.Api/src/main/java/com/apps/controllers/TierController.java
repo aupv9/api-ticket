@@ -1,7 +1,5 @@
 package com.apps.controllers;
 
-
-import com.apps.domain.entity.Theater;
 import com.apps.domain.entity.Tier;
 import com.apps.service.TierService;
 import lombok.extern.slf4j.Slf4j;

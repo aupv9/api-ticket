@@ -33,13 +33,6 @@ public class ShowTimesDetailController {
 
     @PostMapping(value = "showTimesDetail",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimesDetail showTimes) throws SQLException {
-//        com.apps.response.ResponseStatus status = new com.apps.response.ResponseStatus();
-//        if(userAccountStatus == null){
-//            status.setStatus(com.apps.response.ResponseStatus.StatusType.WARNING);
-//            status.setMessage(ResponseStatus.StatusMessage.USER_ACCOUNT_IS_NULL);
-//            return ResponseEntity.ok(status);
-//        }
-//        status =
         int id = this.showTimesDetailService.insert(showTimes);
         log.info("Id return : "+ id);
         return ResponseEntity.ok(id);
