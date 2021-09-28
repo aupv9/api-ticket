@@ -1,7 +1,6 @@
 package com.apps.controllers;
 
 
-import com.apps.domain.entity.SeatRoom;
 import com.apps.domain.entity.ShowTimes;
 import com.apps.service.ShowTimesService;
 import lombok.extern.slf4j.Slf4j;

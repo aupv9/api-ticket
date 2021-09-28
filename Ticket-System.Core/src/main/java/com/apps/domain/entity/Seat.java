@@ -12,4 +12,5 @@ public class Seat implements Serializable {
     private Float price;
     private Integer seatTypeId;
     private Integer tierId;
+    private String name;
 }

@@ -5,6 +5,7 @@ import com.apps.domain.repository.TierCustomRepository;
 import com.apps.mybatis.mysql.TierRepository;
 import com.apps.service.TierService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -19,7 +20,9 @@ public class TierServiceImpl implements TierService {
 
     @Autowired
     private TierCustomRepository tierCustomRepository;
+
     @Override
+    @Cacheable(value = "TierService" ,key = "'TierList_'+#page +'-'+#size" , unless = "#result == null")
     public List<Tier> findAll(Integer page, Integer size) {
         return this.tierRepository.findAll(size,page * size);
     }

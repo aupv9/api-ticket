@@ -4,6 +4,7 @@ import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
 import com.apps.service.ShowTimesDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     private ShowTimesDetailRepository showTimesDetailRepository;
 
     @Override
+    @Cacheable(cacheNames = "ShowTimesDetailService",key = "'ShowTimesDetailList_'+#page +'-'+#size")
     public List<ShowTimesDetail> findAll(int page, int size) {
         return this.showTimesDetailRepository.findAll(size, page * size);
     }

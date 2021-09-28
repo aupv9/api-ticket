@@ -5,6 +5,7 @@ import com.apps.domain.repository.SeatCustomRepository;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.service.SeatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -20,6 +21,7 @@ public class SeatServiceImpl implements SeatService {
     private SeatCustomRepository seatCustomRepository;
 
     @Override
+    @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size")
     public List<Seat> findAll(Integer page, Integer size) {
         return seatRepository.findAll(size, page * size);
     }

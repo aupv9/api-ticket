@@ -4,6 +4,7 @@ package com.apps.domain.entity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 public class Payment implements Serializable {
@@ -11,7 +12,13 @@ public class Payment implements Serializable {
     private int id;
     private Double amount;
     private String transactionId;
-    private Integer status;
+    private String status;
     private Integer paymentMethodId;
+    private String createtionDate;
+    private String startDate;
+    private String endDate;
+    private String note;
+    private String useFor;
+    private Integer partId;
 
 }

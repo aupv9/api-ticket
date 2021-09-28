@@ -19,9 +19,14 @@ public class LocationServiceImpl implements LocationService {
     LocationRepository locationRepository;
 
     @Override
-    @Cacheable(cacheNames = "LocationService" , unless = "#result == null")
+    @Cacheable(value = "LocationService" ,key = "'LocationList_'+#page +'-'+#size", unless = "#result == null")
     public List<Location> findAll(Integer page, Integer size) {
         return this.locationRepository.findAll(size,size * page);
+    }
+
+    @Override
+    public Location findById(Integer id) {
+        return this.locationRepository.findById(id);
     }
 
 }

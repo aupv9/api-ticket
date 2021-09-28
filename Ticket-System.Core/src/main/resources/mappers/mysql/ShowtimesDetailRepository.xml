@@ -4,12 +4,12 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
-        select * from showtimes limit #{limit} offset #{offset};
+        select * from showtimes_detail limit #{limit} offset #{offset};
     </select>
 
         <insert id="insert" useGeneratedKeys="true" keyProperty="id">
             insert into booksystem.showtimes_detail(time_end, showtimes_id, movie_id, location_id, theater_id, room_id, time_start)
-            values (#{entity.timeEnd},#{entity.showTimesId},#{entity.movieId},#{entity.locationId},#{entity.theaterId},#{entity.roomId},#{entity.timeEnd})
+            values (#{entity.timeEnd},#{entity.showTimesId},#{entity.movieId},#{entity.locationId},#{entity.theaterId},#{entity.roomId},#{entity.timeStart})
             <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
                     SELECT LAST_INSERT_ID();
             </selectKey>

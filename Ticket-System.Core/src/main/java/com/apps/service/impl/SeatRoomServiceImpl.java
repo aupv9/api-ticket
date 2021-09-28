@@ -9,6 +9,7 @@ import com.apps.service.SeatRoomService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -25,6 +26,7 @@ public class SeatRoomServiceImpl implements SeatRoomService {
     private SeatRoomCustomRepository roomCustomRepository;
 
     @Override
+    @Cacheable(cacheNames = "SeatRoomService",key = "'SeatRoomList_'+#page +'-'+#size")
     public List<SeatRoom> findAll(Integer page, Integer size) {
         return this.roomRepository.findAll(size, page * size);
     }

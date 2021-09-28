@@ -18,7 +18,7 @@ public class TheaterServiceImpl implements TheaterService {
 
 
     @Override
-    @Cacheable(cacheNames = "TheaterService" , unless = "#result == null")
+    @Cacheable(value = "TheaterService" ,key = "'TheaterList_'+#page +'-'+#size" , unless = "#result == null")
     public List<Theater> findAll(Integer page, Integer size) {
             return this.theaterRepository.findAll(size,page*size);
     }

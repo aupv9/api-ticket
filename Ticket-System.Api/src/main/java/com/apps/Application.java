@@ -18,6 +18,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 @SpringBootApplication
@@ -78,12 +81,8 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
-//            Location location = new Location();
-//            location.setName("Đồng Tháp");
-//            location.setZipcode("6555");
-//
-//            log.info("Save Location :" + this.locationRepositoryJPA.save(location));
-//            log.info("Location list : " + this.locationRepositoryJPA.findAll());
+            DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            System.out.println(LocalDate.now().format(simpleDateFormat));
         };
     }
 
