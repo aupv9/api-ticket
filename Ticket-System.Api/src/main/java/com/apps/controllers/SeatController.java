@@ -2,8 +2,11 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
+import com.apps.response.ResponseList;
+import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,17 @@ public class SeatController {
         return ResponseEntity.ok(this.seatService.findById(id));
     }
 
+    @GetMapping("seatsAvaiableWithShowTimesAndRoom")
+    public ResponseEntity<?> findSeatInRoomByShowTimesDetail(
+                                          @RequestParam("showTimesDetail") Integer showTimesDetail,
+                                          @RequestParam("room") Integer room){
+        var resultList = this.seatService.findSeatInRoomByShowTimesDetail(showTimesDetail,room);
+        var responseList = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(responseList);
+    }
 
     @PostMapping(value = "/seat",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody Seat seat) throws SQLException {
@@ -44,4 +58,7 @@ public class SeatController {
         log.info("Id return : "+ id);
         return ResponseEntity.ok(id);
     }
+
+
+
 }

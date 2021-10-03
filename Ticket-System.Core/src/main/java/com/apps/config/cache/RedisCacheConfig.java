@@ -1,7 +1,6 @@
 package com.apps.config.cache;
 
 
-import com.apps.config.properties.RedisCustomCacheProperties;
 import com.apps.utils.CommonUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;

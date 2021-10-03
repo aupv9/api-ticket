@@ -7,6 +7,14 @@
         select * from seat limit #{limit} offset #{offset};
     </select>
 
+
+    <select id="findSeatInRoomByShowTimesDetail" resultType="com.apps.domain.entity.Seat" >
+        select * from seat where room_id = #{room} and seat.id
+            not in  (select seat_id from orders
+                    join orders_seat os on orders.id = os.orders_id
+                     where showtimes_detail_id = #{showTimesDetailId})
+    </select>
+
     <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
     <!--        INSERT INTO booksystem.room (code, name, theater_id)-->
     <!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->

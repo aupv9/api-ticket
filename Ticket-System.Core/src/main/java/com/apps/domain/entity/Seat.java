@@ -10,7 +10,9 @@ public class Seat implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
     private Float price;
-    private Integer seatTypeId;
-    private Integer tierId;
+    private String seatType;
+    private Integer roomId;
     private String name;
+    private Integer numbers;
+    private String tier;
 }

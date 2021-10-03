@@ -1,4 +1,4 @@
-package com.apps.config.properties;
+package com.apps.config.cache;
 
 import lombok.Data;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;

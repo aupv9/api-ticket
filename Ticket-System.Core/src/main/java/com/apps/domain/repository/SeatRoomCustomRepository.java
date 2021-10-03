@@ -1,6 +1,5 @@
 package com.apps.domain.repository;
 
-import com.apps.domain.entity.Seat;
 import com.apps.domain.entity.SeatRoom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,21 +39,24 @@ public class SeatRoomCustomRepository implements Repository<SeatRoom>{
         }finally {
             assert connection != null;
             if(!connection.isClosed()) connection.close();
-
         }
     }
 
-    public void unClockSeatById() throws SQLException {
+    public int unClockSeatById(int id) throws SQLException {
         Connection connection = null;
+        CallableStatement statement = null;
+        boolean hadResults = false;
+
         try{
-            connection = stmt.getConnection();
-            stmt = connection.prepareStatement("start transaction");
-            stmt.execute();
+            connection = dataSource.getConnection();
+            statement = connection.prepareCall("{call unClockSeatRoom(?)}");
+            statement.setInt(1,id);
+            hadResults = statement.execute();
+            return hadResults ? 1 :0;
         }finally {
             assert connection != null;
             if(!connection.isClosed()) connection.close();
-            if(!rs.isClosed()) rs.close();
-            if(!stmt.isClosed()) stmt.close();
+
         }
     }
 }

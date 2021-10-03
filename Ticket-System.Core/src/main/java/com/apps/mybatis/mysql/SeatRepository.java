@@ -12,4 +12,5 @@ public interface SeatRepository {
     List<Seat> findAll(@Param("limit") Integer page, @Param("offset") Integer size);
     @Select("SELECT * FROM SEAT WHERE ID = #{id}")
     Seat findById(Integer id);
+    List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesDetailId") Integer showTimesDetailId, @Param("room") Integer roomId);
 }

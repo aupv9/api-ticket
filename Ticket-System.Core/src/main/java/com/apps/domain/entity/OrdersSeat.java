@@ -6,8 +6,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class TicketDetail implements Serializable {
+public class OrdersSeat implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int ticketId;
-    private Integer seatRoomId;
+    private Integer ordersId;
+    private Integer seatId;
 }

@@ -4,7 +4,43 @@
 <mapper namespace="com.apps.mybatis.mysql.TheaterRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Theater">
-        select * from theater limit #{limit} offset #{offset};
+        select theater.id, theater.name,code, location_id,
+        theater.latitude, theater.longitude, thumbnail,image, l.name as locationName
+        from theater
+        join location l on theater.location_id = l.id
+        <where>
+            <if test="search != null">
+                 theater.name like concat('%',#{search},'%')
+            </if>
+            <if test="location != null and search != null">
+                and theater.location_id = #{location}
+            </if>
+            <if test="location != null">
+                theater.location_id = #{location}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <when test="sort == 'code'">
+                    code
+                </when>
+                <when test="sort == 'latitude'">
+                    latitude
+                </when>
+                <otherwise>
+                    longitude
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
     </select>
 
     <select id="findById" resultType="com.apps.domain.entity.Theater">
@@ -28,9 +64,14 @@
     </insert>
 
     <update id="update" parameterType="com.apps.domain.entity.Theater">
-        update theater set code = #{theater.code}, name = #{theater.name},
-                           latitude = #{theater.latitude},
-                           longitude = #{theater.longitude}
+        update theater set
+                        code = #{theater.code},
+                        name = #{theater.name},
+                        latitude = #{theater.latitude},
+                        longitude = #{theater.longitude},
+                        thumbnail = #{theater.thumbnail},
+                        image = #{theater.image}
+
                 where id = #{theater.id}
     </update>
 

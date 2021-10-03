@@ -36,6 +36,7 @@ public class ApplicationCacheManager {
         if (cacheManager instanceof RedisCacheManager) {
             redisTemplate.setKeySerializer(new StringRedisSerializer());
             Set<Object> keys = redisTemplate.keys(redisKeyPrefix + "*" + pattern);
+            log.info("Key redis {}",keys);
             allkeys = new ArrayList<>(keys);
         } else if (cacheManager instanceof ConcurrentMapCacheManager) {
             // ConcurrentMapCacheManager ccmManager = (ConcurrentMapCacheManager) cacheManager;
@@ -64,7 +65,7 @@ public class ApplicationCacheManager {
     public void evits(List<Object> keys) {
         if (cacheManager instanceof RedisCacheManager) {
             redisTemplate.setKeySerializer(new StringRedisSerializer());
-
+            log.info("evits redis keys size  {}  ", keys.size());
             if (!CommonUtils.isNullOrEmpty(keys)) {
                 Long total = redisTemplate.delete(keys);
                 log.info("evits redis {} keys success {} keys ", keys.size(), total);

@@ -3,9 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.MovieRepository">
 
+    <select id="findByLocationAndDate" resultType="com.apps.domain.entity.Movie">
+        select distinct m.id from showtimes_detail
+                            join location l on showtimes_detail.location_id = l.id
+                            join movie m on showtimes_detail.movie_id = m.id
+                            join showtimes s on showtimes_detail.showtimes_id = s.id
+        where l.id = #{location} and s.dayshowtimes = #{date}
+    </select>
+
 <!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
 <!--        select * from room limit #{limit} offset #{offset};-->
 <!--    </select>-->
+
 
     <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
     <!--        INSERT INTO booksystem.room (code, name, theater_id)-->

@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.ShowTimesDetail;
+import com.apps.domain.entity.ShowTimesDetailMini;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -16,4 +17,8 @@ public interface ShowTimesDetailRepository {
 
     int insert(@Param("entity") ShowTimesDetail showTimesDetail);
 
+    List<ShowTimesDetail> findByShowTimes(@Param("limit") int limit);
+
+    List<ShowTimesDetailMini> findShowTimesDetailByLocationAndDate(@Param("location") int location,
+                                                                   @Param("date") String date);
 }

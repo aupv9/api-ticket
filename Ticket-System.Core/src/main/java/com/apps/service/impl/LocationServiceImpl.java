@@ -1,10 +1,14 @@
 package com.apps.service.impl;
 
+import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Location;
 import com.apps.mybatis.mysql.LocationRepository;
 import com.apps.service.LocationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +22,46 @@ public class LocationServiceImpl implements LocationService {
     @Autowired
     LocationRepository locationRepository;
 
+    @Autowired
+    ApplicationCacheManager cacheManager;
+
     @Override
-    @Cacheable(value = "LocationService" ,key = "'LocationList_'+#page +'-'+#size", unless = "#result == null")
-    public List<Location> findAll(Integer page, Integer size) {
-        return this.locationRepository.findAll(size,size * page);
+    @Cacheable(value = "LocationService" ,key = "'LocationList_'+#page +'-'+#size +'-'+#sort +'-'+#order +'-'+#search", unless = "#result == null")
+    public List<Location> findAll(Integer page, Integer size,String sort, String order, String search) {
+        return this.locationRepository.findAll(size, page * size,sort,order, search);
     }
 
     @Override
+    @Cacheable(value = "LocationService" ,key = "'findById_'+#id", unless = "#result == null")
     public Location findById(Integer id) {
         return this.locationRepository.findById(id);
     }
+
+    @Override
+    public int update(Location location) {
+        Location location1  = this.findById(location.getId());
+        location1.setName(location.getName());
+        location1.setZipcode(location.getZipcode());
+        int result = this.locationRepository.update(location1);
+        cacheManager.clearCache("LocationService");
+        return result;
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "LocationService",key = "'findById_'+#id")
+    public Location delete(int id) {
+        Location location  = this.findById(id);
+        this.locationRepository.delete(id);
+        cacheManager.clearCache("LocationService");
+        return location;
+    }
+
+    @Override
+    public int insert(Location location) {
+        int result = this.locationRepository.insert(location);
+        cacheManager.clearCache("LocationService");
+        return result;
+    }
+
 
 }

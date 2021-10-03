@@ -9,10 +9,14 @@ import java.util.List;
 
 @Mapper
 public interface TheaterRepository {
-    List<Theater> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset);
+    List<Theater> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
+                          @Param("sort") String sort, @Param("order") String order,
+                          @Param("search") String search,
+                          @Param("location") Integer location);
+
     int insert(@Param("entity") Theater theater);
     Theater findById(@Param("id") Integer id);
-    int update(@Param("entity") Theater theater);
+    int update(@Param("theater") Theater theater);
     void delete(Integer id);
     Theater findByLocation(@Param("id") Integer idLocation);
 }

@@ -11,6 +11,4 @@ import java.util.Objects;
 public class Movie implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
-
-
 }

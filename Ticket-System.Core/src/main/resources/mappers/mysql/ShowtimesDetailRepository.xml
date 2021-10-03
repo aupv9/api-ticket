@@ -7,12 +7,23 @@
         select * from showtimes_detail limit #{limit} offset #{offset};
     </select>
 
-        <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
             insert into booksystem.showtimes_detail(time_end, showtimes_id, movie_id, location_id, theater_id, room_id, time_start)
             values (#{entity.timeEnd},#{entity.showTimesId},#{entity.movieId},#{entity.locationId},#{entity.theaterId},#{entity.roomId},#{entity.timeStart})
             <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
                     SELECT LAST_INSERT_ID();
             </selectKey>
-        </insert>
+    </insert>
+
+    <select id="findShowTimesDetailByLocationAndDate" resultType="com.apps.domain.entity.ShowTimesDetailMini">
+        select distinct showtimes_detail.id,t.id as theaterId,s.dayshowtimes as dayshowtimes,
+                        t.name as theaterName, l.name as locationName from showtimes_detail
+                        join location l on showtimes_detail.location_id = l.id
+                        join movie m on showtimes_detail.movie_id = m.id
+                        join showtimes s on showtimes_detail.showtimes_id = s.id
+                        join theater t on showtimes_detail.theater_id = t.id
+        where l.id = #{location} and s.dayshowtimes = #{date}
+
+    </select>
 
 </mapper>
