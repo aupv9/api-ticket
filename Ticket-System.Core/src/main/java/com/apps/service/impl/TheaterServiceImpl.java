@@ -1,13 +1,13 @@
 package com.apps.service.impl;
 
+import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Theater;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.TheaterRepository;
 import com.apps.service.TheaterService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +18,8 @@ public class TheaterServiceImpl implements TheaterService {
     @Autowired
     private TheaterRepository theaterRepository;
 
+    @Autowired
+    ApplicationCacheManager cacheManager;
 
     @Override
     @Cacheable(value = "TheaterService" ,key = "'TheaterList_'+#page +'-'+#size +'-'+#sort +'-'+#order +'-'+#search+'-'+#location" , unless = "#result == null")
@@ -28,11 +30,13 @@ public class TheaterServiceImpl implements TheaterService {
 
     @Override
     public int insert(Theater theater) {
-        return this.theaterRepository.insert(theater);
+        int result = this.theaterRepository.insert(theater);
+        cacheManager.clearCache("TheaterService");
+        return result;
     }
 
     @Override
-    @Cacheable(value = "TheaterService" ,key = "'findById_'+#id" , unless = "#result == null")
+    @Cacheable(value = "TheaterService" ,key = "'findById_Theater_'+#id" , unless = "#result == null")
     public Theater findById(Integer id) {
         Theater theater = this.theaterRepository.findById(id);
         if(theater == null){
@@ -50,11 +54,14 @@ public class TheaterServiceImpl implements TheaterService {
             theater1.setName(theater.getName());
             theater1.setLatitude(theater.getLatitude());
             theater1.setLongitude(theater.getLongitude());
-
-        return this.theaterRepository.update(theater1);
+            theater1.setLocationId(theater.getLocationId());
+        int result = this.theaterRepository.update(theater1);
+        cacheManager.clearCache("TheaterService");
+        return result;
     }
 
     @Override
+    @CacheEvict(cacheNames = "TheaterService",key = "'findById_Theater_'+#id" )
     public void deleteById(Integer id) {
         Theater theater = this.findById(id);
         this.theaterRepository.delete(theater.getId());

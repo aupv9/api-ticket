@@ -23,9 +23,12 @@ public class RoomServiceImpl implements RoomService {
     private RoomCustomRepository roomCustomRepository;
 
     @Override
-    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size", unless = "#result == null")
-    public List<Room> findAll(Integer page, Integer size) {
-        return this.roomRepository.findAll(size,page*size);
+    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
+    public List<Room> findAll(Integer page, Integer size,
+                              String sort, String order,
+                              String search,
+                              Integer theater) {
+        return this.roomRepository.findAll(size,page*size,sort,order,search,theater);
     }
 
     @Override

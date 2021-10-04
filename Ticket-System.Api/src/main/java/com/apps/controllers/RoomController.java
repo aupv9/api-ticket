@@ -3,9 +3,11 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.UserAccountStatus;
+import com.apps.response.ResponseRA;
 import com.apps.response.ResponseStatus;
 import com.apps.service.RoomService;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +18,30 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
+@CrossOrigin("*")
 public class RoomController {
 
     @Autowired
     private RoomService roomService;
 
     @GetMapping("rooms")
-    public ResponseEntity<?> getLocations(@RequestParam("size") Integer size,
-                                          @RequestParam("page") Integer page){
-        return ResponseEntity.ok(this.roomService.findAll(page,size));
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "search", required = false) String search,
+                                          @RequestParam(value = "theater_id",required = false) Integer theater){
+        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theater);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/room",produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<?> createAccountStatus(@RequestBody Room room) throws SQLException {
-//        com.apps.response.ResponseStatus status = new com.apps.response.ResponseStatus();
-//        if(userAccountStatus == null){
-//            status.setStatus(com.apps.response.ResponseStatus.StatusType.WARNING);
-//            status.setMessage(ResponseStatus.StatusMessage.USER_ACCOUNT_IS_NULL);
-//            return ResponseEntity.ok(status);
-//        }
-//        status =
+    @PostMapping(value = "/rooms",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> createRoom(@RequestBody Room room) throws SQLException {
         int id = this.roomService.insert(room);
-        log.info("Id return : "+ id);
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok(room);
     }
 }

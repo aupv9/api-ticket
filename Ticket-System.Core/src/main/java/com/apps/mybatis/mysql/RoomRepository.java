@@ -14,6 +14,10 @@ public interface RoomRepository {
     @Insert("INSERT INTO booksystem.room (code, name, theater_id)\n" +
             "VALUES (#{room.code},#{room.name},#{room.theaterId})")
     int insert(@Param("room") Room room);
-    List<Room> findAll(@Param("limit") int limit, @Param("offset") int offset);
+
+    List<Room> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
+                       @Param("sort") String sort, @Param("order") String order,
+                       @Param("search") String search,
+                       @Param("theater") Integer theater);
 
 }

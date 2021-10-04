@@ -4,7 +4,46 @@
 <mapper namespace="com.apps.mybatis.mysql.RoomRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Room">
-        select * from room limit #{limit} offset #{offset};
+        select * from room
+        <where>
+            <if test="search != null">
+                name like concat('%',#{search},'%')
+            </if>
+            <if test="theater != null and search != null">
+                and theater_id = #{theater}
+            </if>
+            <if test="theater != null">
+                theater_id = #{theater}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <when test="sort == 'code'">
+                    code
+                </when>
+                <when test="sort == 'theaterId'">
+                    theater_id
+                </when>
+                <otherwise>
+                    type
+                </otherwise>
+<!--                <when test="sort == 'latitude'">-->
+<!--                    latitude-->
+<!--                </when>-->
+<!--                <otherwise>-->
+<!--                    longitude-->
+<!--                </otherwise>-->
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
     </select>
 
 <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->

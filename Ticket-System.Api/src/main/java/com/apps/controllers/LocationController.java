@@ -38,7 +38,8 @@ public class LocationController {
 
     @GetMapping("locations/{id}")
     public ResponseEntity<?> getLocations(@PathVariable(value = "id", required = false) Integer idLocation){
-        return ResponseEntity.ok(this.locationService.findById(idLocation));
+        var resultLocation = this.locationService.findById(idLocation);
+        return ResponseEntity.ok(resultLocation);
     }
 
     @PostMapping("locations")
@@ -55,8 +56,6 @@ public class LocationController {
                 .id(resultUpdate)
                 .previousData(location)
                 .build();
-
-
         return ResponseEntity.ok(response);
     }
 

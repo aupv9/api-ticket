@@ -8,6 +8,9 @@ import java.util.List;
 
 
 public interface RoomService {
-    List<Room> findAll(Integer page, Integer size);
+    List<Room> findAll(Integer page, Integer size,
+                       String sort, String order,
+                       String search,
+                       Integer theater);
     int insert(Room room) throws SQLException;
 }

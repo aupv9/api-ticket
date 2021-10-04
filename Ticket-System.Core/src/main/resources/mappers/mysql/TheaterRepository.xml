@@ -5,7 +5,8 @@
 
     <select id="findAll" resultType="com.apps.domain.entity.Theater">
         select theater.id, theater.name,code, location_id,
-        theater.latitude, theater.longitude, thumbnail,image, l.name as locationName
+        theater.latitude, theater.longitude, thumbnail,image, l.name as locationName,
+        address
         from theater
         join location l on theater.location_id = l.id
         <where>
@@ -53,9 +54,10 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
 
-        insert into booksystem.theater(code, name, location_id, latitude, longitude)
-
-        VALUES (#{entity.code},#{entity.name},#{entity.locationId},#{entity.latitude},#{entity.longitude})
+        insert into booksystem.theater(code, name, location_id, latitude, longitude,thumbnail,image)
+        VALUES (#{entity.code},#{entity.name},#{entity.locationId},
+                #{entity.latitude},#{entity.longitude},
+                #{entity.thumbnail},#{entity.image})
 
         <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
             SELECT LAST_INSERT_ID();
@@ -70,8 +72,8 @@
                         latitude = #{theater.latitude},
                         longitude = #{theater.longitude},
                         thumbnail = #{theater.thumbnail},
-                        image = #{theater.image}
-
+                        image = #{theater.image},
+                        location_id = #{theater.locationId}
                 where id = #{theater.id}
     </update>
 

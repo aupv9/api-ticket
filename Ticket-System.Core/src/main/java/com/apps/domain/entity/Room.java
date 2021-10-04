@@ -11,6 +11,5 @@ public class Room implements Serializable {
     private String code;
     private String name;
     private Integer theaterId;
-    private Integer horizontalSize;
-    private Integer verticalSize;
+    private String type;
 }

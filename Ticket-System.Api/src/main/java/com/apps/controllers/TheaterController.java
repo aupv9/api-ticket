@@ -1,6 +1,5 @@
 package com.apps.controllers;
 
-
 import com.apps.domain.entity.Theater;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
@@ -20,6 +19,7 @@ public class TheaterController {
 
     @Autowired
     private TheaterService theaterService;
+
 
 
     @GetMapping("theaters")
@@ -53,4 +53,15 @@ public class TheaterController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("theaters/{id}")
+    public ResponseEntity<?> deleteTheaters(@PathVariable(value = "id",required = false) Integer id){
+        this.theaterService.deleteById(id);
+        return ResponseEntity.ok(id);
+    }
+
+    @PostMapping("theaters")
+    public ResponseEntity<?> createTheater(@RequestBody Theater theater){
+        this.theaterService.insert(theater);
+        return ResponseEntity.ok(theater);
+    }
 }
