@@ -14,7 +14,7 @@ public interface LocationRepository {
     List<Location> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                            @Param("sort") String sort, @Param("order") String order,
                            @Param("search") String search);
-
+    int findCountAll(@Param("search") String search);
     @Select("SELECT * FROM LOCATION WHERE ID = #{id}")
     Location findById(@Param("id") Integer id);
 

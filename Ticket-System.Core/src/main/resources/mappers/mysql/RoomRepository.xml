@@ -9,16 +9,16 @@
             <if test="search != null">
                 name like concat('%',#{search},'%')
             </if>
-            <if test="theater != null and search != null">
-                and theater_id = #{theater}
-            </if>
             <if test="theater != null">
-                theater_id = #{theater}
+                and room.theater_id = #{theater}
             </if>
         </where>
         <if test="sort != null">
             order by
             <choose>
+                <when test="sort == 'id'">
+                    room.id
+                </when>
                 <when test="sort == 'name'">
                     name
                 </when>
@@ -31,27 +31,36 @@
                 <otherwise>
                     type
                 </otherwise>
-<!--                <when test="sort == 'latitude'">-->
-<!--                    latitude-->
-<!--                </when>-->
-<!--                <otherwise>-->
-<!--                    longitude-->
-<!--                </otherwise>-->
             </choose>
         </if>
-
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
         limit #{limit} offset #{offset}
     </select>
 
-<!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
-<!--        INSERT INTO booksystem.room (code, name, theater_id)-->
-<!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->
-<!--        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >-->
-<!--            SELECT LAST_INSERT_ID();-->
-<!--        </selectKey>-->
-<!--    </insert>-->
+    <select id="findById" resultType="com.apps.domain.entity.Room">
+        select * from room where id = #{id}
+    </select>
+
+    <update id="update" >
+        update room set type = #{room.type},
+                        name = #{room.name},
+                        code = #{room.code},
+                        theater_id = #{room.theaterId}
+        where id = #{room.id}
+    </update>
+
+    <delete id="delete">
+        delete from room where id = #{id}
+    </delete>
+
+    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO booksystem.room (code, name, theater_id,type)
+        VALUES (#{room.code},#{room.name},#{room.theaterId},#{room.type})
+        <selectKey keyProperty="returnedId" order="AFTER" resultType="INT" >
+            SELECT LAST_INSERT_ID() as returnedId;
+        </selectKey>
+    </insert>
 
 </mapper>

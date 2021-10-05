@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
+import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
@@ -17,15 +18,28 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
+@CrossOrigin("*")
 public class SeatController {
 
     @Autowired
     private SeatService seatService;
 
+
     @GetMapping("seats")
-    public ResponseEntity<?> getLocations(@RequestParam("size") Integer size,
-                                          @RequestParam("page") Integer page){
-        return ResponseEntity.ok(this.seatService.findAll(page,size));
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "search", required = false) String search,
+                                          @RequestParam(value = "room_id",required = false) Integer room){
+        var result  = seatService.findAll(page - 1, size, sort, order,  search,  room);
+        var totalElement = seatService.findCountAll(search,room);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(totalElement)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("seat/{id}")

@@ -61,7 +61,8 @@ public class TheaterController {
 
     @PostMapping("theaters")
     public ResponseEntity<?> createTheater(@RequestBody Theater theater){
-        this.theaterService.insert(theater);
+        int id = this.theaterService.insert(theater);
+        theater.setId(id);
         return ResponseEntity.ok(theater);
     }
 }

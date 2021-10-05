@@ -1,9 +1,9 @@
 package com.apps.service.impl;
 
 import com.apps.domain.entity.Seat;
-import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.SeatCustomRepository;
 import com.apps.mybatis.mysql.SeatRepository;
+import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,14 @@ public class SeatServiceImpl implements SeatService {
     private SeatCustomRepository seatCustomRepository;
 
     @Override
-    @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size")
-    public List<Seat> findAll(Integer page, Integer size) {
-        return seatRepository.findAll(size, page * size);
+    @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
+    public List<Seat> findAll(Integer page, Integer size, String sort , String order, String search, Integer room) {
+        return seatRepository.findAll(size, page * size, sort, order,  search,  room);
+    }
+
+    @Override
+    public int findCountAll(String search, Integer room) {
+        return seatRepository.findCountAll(search,room);
     }
 
     @Override

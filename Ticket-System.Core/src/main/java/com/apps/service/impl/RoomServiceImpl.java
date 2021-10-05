@@ -1,7 +1,9 @@
 package com.apps.service.impl;
 
+import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Room;
 import com.apps.domain.repository.RoomCustomRepository;
+import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoomRepository;
 import com.apps.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +24,50 @@ public class RoomServiceImpl implements RoomService {
     @Qualifier(value = "commonRepository")
     private RoomCustomRepository roomCustomRepository;
 
+    @Autowired
+    private ApplicationCacheManager cacheManager;
+
     @Override
     @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
-    public List<Room> findAll(Integer page, Integer size,
-                              String sort, String order,
-                              String search,
+    public List<Room> findAll(Integer page, Integer size, String sort, String order, String search,
                               Integer theater) {
         return this.roomRepository.findAll(size,page*size,sort,order,search,theater);
     }
 
     @Override
     public int insert(Room room) throws SQLException {
-        String sql = "INSERT INTO booksystem.room (code, name, theater_id) VALUES (?,?,?)";
-        return this.roomCustomRepository.insert(room,sql);
+        String sql = "INSERT INTO booksystem.room (code, name, theater_id,type) VALUES (?,?,?,?)";
+        int result = this.roomCustomRepository.insert(room,sql);
+        cacheManager.clearCache("RoomService");
+        return result;
+    }
+
+    @Override
+    @Cacheable(value = "RoomService" ,key = "'findByRoom_'+#id", unless = "#result == null")
+    public Room findById(Integer id) {
+        Room room1 = this.roomRepository.findById(id);
+        if(room1 == null){
+            throw new NotFoundException("Not Found Object have Id:"+ id);
+        }
+        return this.roomRepository.findById(id);
+    }
+
+    @Override
+    public int update(Room room) {
+        Room room1 = this.roomRepository.findById(room.getId());
+        room1.setName(room.getName());
+        room1.setCode(room.getName());
+        room1.setType(room.getType());
+        room1.setTheaterId(room.getTheaterId());
+        int result = this.roomRepository.update(room1);
+        cacheManager.clearCache("RoomService");
+        return result;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        Room room = this.roomRepository.findById(id);
+        this.roomRepository.delete(id);
+        cacheManager.clearCache("RoomService");
     }
 }

@@ -4,8 +4,53 @@
 <mapper namespace="com.apps.mybatis.mysql.SeatRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Seat">
-        select * from seat limit #{limit} offset #{offset};
+        select * from seat
+        <where>
+            <if test="search != null">
+                numbers like concat('%',#{search},'%')
+            </if>
+            <if test="room != null">
+                seat.room_id = #{room}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'numbers'">
+                    numbers
+                </when>
+                <when test="sort == 'roomId'">
+                    room_id
+                </when>
+                <when test="sort == 'seatType'">
+                    seat_type
+                </when>
+                <otherwise>
+                    tier
+                </otherwise>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
     </select>
+
+    <select id="findCountAll" resultType="Int" >
+        select count(*) from seat
+        <where>
+            <if test="search != null">
+                numbers like concat('%',#{search},'%')
+            </if>
+            <if test="room != null">
+                seat.room_id = #{room}
+            </if>
+        </where>
+    </select>
+
 
 
     <select id="findSeatInRoomByShowTimesDetail" resultType="com.apps.domain.entity.Seat" >
@@ -14,6 +59,9 @@
                     join orders_seat os on orders.id = os.orders_id
                      where showtimes_detail_id = #{showTimesDetailId})
     </select>
+
+
+
 
     <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
     <!--        INSERT INTO booksystem.room (code, name, theater_id)-->

@@ -1,15 +1,15 @@
 package com.apps.domain.repository;
 
-import com.apps.domain.entity.Room;
+import com.apps.domain.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
+@Component
+public class LocationCustomRepository implements Repository<Location>{
 
-@Component("commonRepository")
-public class RoomCustomRepository implements Repository<Room>{
 
     @Autowired
     private DataSource dataSource;
@@ -23,12 +23,11 @@ public class RoomCustomRepository implements Repository<Room>{
         int generatedKey = 0 ;
         try{
             connection = dataSource.getConnection();
-            stmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-            Room room = (Room) object;
-            stmt.setString(1,room.getCode());
-            stmt.setString(2,room.getName());
-            stmt.setInt(3,room.getTheaterId());
-            stmt.setString(4,room.getType());
+            stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            if(!(object instanceof Location) ) return 0;
+            Location room = (Location) object;
+            stmt.setString(1, room.getName());
+            stmt.setString(2,room.getZipcode());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){
@@ -37,7 +36,6 @@ public class RoomCustomRepository implements Repository<Room>{
         }finally {
             assert connection != null;
             if(!connection.isClosed()) connection.close();
-            if(!rs.isClosed()) rs.close();
             if(!stmt.isClosed()) stmt.close();
         }
         return generatedKey;

@@ -13,4 +13,7 @@ public interface RoomService {
                        String search,
                        Integer theater);
     int insert(Room room) throws SQLException;
+    Room findById(Integer id);
+    int update(Room room);
+    void delete(Integer id);
 }

@@ -1,7 +1,6 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.Location;
-import com.apps.request.QueryParam;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.LocationService;
@@ -10,6 +9,8 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 
 @RestController
@@ -27,11 +28,11 @@ public class LocationController {
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search",  required = false) String search){
-
         var resultList = this.locationService.findAll(page - 1 ,size,sort,order,search);
+        var totalElements = this.locationService.findCountAll(search);
         var response = ResponseRA.builder()
                 .content(resultList)
-                .totalElements(resultList.size())
+                .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -43,8 +44,9 @@ public class LocationController {
     }
 
     @PostMapping("locations")
-    public ResponseEntity<?> createLocation(@RequestBody Location location){
-        this.locationService.insert(location);
+    public ResponseEntity<?> createLocation(@RequestBody Location location) throws SQLException {
+        int idReturned = this.locationService.insert(location);
+        location.setId(idReturned);
         return ResponseEntity.ok(location);
     }
 

@@ -3,6 +3,7 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.UserAccountStatus;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.response.ResponseStatus;
 import com.apps.service.RoomService;
@@ -39,9 +40,36 @@ public class RoomController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/rooms",produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping("rooms/{id}")
+    public ResponseEntity<?> getLocations(@PathVariable(value = "id", required = false) Integer id){
+        return ResponseEntity.ok(this.roomService.findById(id));
+    }
+
+    @PostMapping(value = "/rooms")
     public ResponseEntity<?> createRoom(@RequestBody Room room) throws SQLException {
         int id = this.roomService.insert(room);
+//        room.setId(id);
+        System.out.println(id);
         return ResponseEntity.ok(room);
     }
+
+    @PutMapping(value = "/rooms/{id}")
+    public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id,@RequestBody Room room) throws SQLException {
+
+        room.setId(id);
+        int result = this.roomService.update(room);
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(result)
+                .build();
+
+        return ResponseEntity.ok(room);
+    }
+
+    @DeleteMapping(value = "/rooms/{id}")
+    public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id) throws SQLException {
+        this.roomService.delete(id);
+        return ResponseEntity.ok(id);
+    }
+
 }

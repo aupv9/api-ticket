@@ -28,6 +28,14 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="findCountAll" resultType="INT">
+        select count(*) from location
+        <if test="search != null">
+            where name like concat('%',#{search},'%')
+        </if>
+    </select>
+
+
     <update id="update" >
         update location set name = #{location.name}, zipcode = #{location.zipcode} where id = #{location.id}
     </update>
