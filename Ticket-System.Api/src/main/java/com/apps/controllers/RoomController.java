@@ -33,9 +33,10 @@ public class RoomController {
                                           @RequestParam(value = "search", required = false) String search,
                                           @RequestParam(value = "theater_id",required = false) Integer theater){
         var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theater);
+        var totalElement = this.roomService.findCountAll(search,theater);
         var response = ResponseRA.builder()
                 .content(resultList)
-                .totalElements(resultList.size())
+                .totalElements(totalElement)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -48,7 +49,7 @@ public class RoomController {
     @PostMapping(value = "/rooms")
     public ResponseEntity<?> createRoom(@RequestBody Room room) throws SQLException {
         int id = this.roomService.insert(room);
-//        room.setId(id);
+        room.setId(id);
         System.out.println(id);
         return ResponseEntity.ok(room);
     }

@@ -13,11 +13,8 @@
             <if test="search != null">
                  theater.name like concat('%',#{search},'%')
             </if>
-            <if test="location != null and search != null">
-                and theater.location_id = #{location}
-            </if>
             <if test="location != null">
-                theater.location_id = #{location}
+                and theater.location_id = #{location}
             </if>
         </where>
         <if test="sort != null">
@@ -42,6 +39,21 @@
             DESC
         </if>
         limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*)
+        from theater
+        join location l on theater.location_id = l.id
+        <where>
+            <if test="search != null">
+                theater.name like concat('%',#{search},'%')
+            </if>
+            <if test="location != null">
+                and theater.location_id = #{location}
+            </if>
+        </where>
+
     </select>
 
     <select id="findById" resultType="com.apps.domain.entity.Theater">

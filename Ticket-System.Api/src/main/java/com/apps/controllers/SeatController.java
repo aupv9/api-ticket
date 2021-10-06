@@ -59,18 +59,12 @@ public class SeatController {
         return ResponseEntity.ok(responseList);
     }
 
-    @PostMapping(value = "/seat",produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<?> createAccountStatus(@RequestBody Seat seat) throws SQLException {
-//        com.apps.response.ResponseStatus status = new com.apps.response.ResponseStatus();
-//        if(userAccountStatus == null){
-//            status.setStatus(com.apps.response.ResponseStatus.StatusType.WARNING);
-//            status.setMessage(ResponseStatus.StatusMessage.USER_ACCOUNT_IS_NULL);
-//            return ResponseEntity.ok(status);
-//        }
-//        status =
+    @PostMapping(value = "/seats",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> createSeat(@RequestBody Seat seat) throws SQLException {
         int id = this.seatService.insert(seat);
+        seat.setId(id);
         log.info("Id return : "+ id);
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok(seat);
     }
 
 

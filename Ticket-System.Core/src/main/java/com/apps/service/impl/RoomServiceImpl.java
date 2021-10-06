@@ -70,4 +70,9 @@ public class RoomServiceImpl implements RoomService {
         this.roomRepository.delete(id);
         cacheManager.clearCache("RoomService");
     }
+
+    @Override
+    public int findCountAll(String search, Integer theater) {
+        return this.roomRepository.findCountAll(search,theater);
+    }
 }

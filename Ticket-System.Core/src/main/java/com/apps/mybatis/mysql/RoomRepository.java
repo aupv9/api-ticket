@@ -24,4 +24,5 @@ public interface RoomRepository {
     Room findById(@Param("id")Integer id);
     int update(@Param("room")Room room);
     void delete(@Param("id")Integer id);
+    int findCountAll(@Param("search") String search, @Param("theater") Integer theater);
 }

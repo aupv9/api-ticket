@@ -72,4 +72,9 @@ public class TheaterServiceImpl implements TheaterService {
         return this.theaterRepository.findByLocation(id);
     }
 
+    @Override
+    public int findCountAll(String search, Integer location) {
+        return this.theaterRepository.findCountAll(search,location);
+    }
+
 }

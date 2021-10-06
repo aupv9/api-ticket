@@ -39,15 +39,39 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="findCountAll" resultType="INT">
+        select count(*) from room
+        <where>
+            <if test="search != null">
+                name like concat('%',#{search},'%')
+            </if>
+            <if test="theater != null">
+                and room.theater_id = #{theater}
+            </if>
+        </where>
+    </select>
+
+
     <select id="findById" resultType="com.apps.domain.entity.Room">
         select * from room where id = #{id}
     </select>
 
     <update id="update" >
-        update room set type = #{room.type},
-                        name = #{room.name},
-                        code = #{room.code},
-                        theater_id = #{room.theaterId}
+        update room
+        <set>
+            <if test="room.type != null">
+                type = #{room.type},
+            </if>
+            <if test="room.name != null">
+                name = #{room.name},
+            </if>
+            <if test="room.code != null">
+                code = #{room.code},
+            </if>
+            <if test="room.theaterId != null">
+                theater_id = #{room.theaterId}
+            </if>
+        </set>
         where id = #{room.id}
     </update>
 

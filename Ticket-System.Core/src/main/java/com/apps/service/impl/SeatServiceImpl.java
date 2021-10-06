@@ -38,7 +38,7 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public int insert(Seat seat) throws SQLException {
-        String sql = "insert into booksystem.seat(price, id, seat_type_id, tier_id) VALUES (?,?,?,?)";
+        String sql = "insert into seat(price, seat_type, tier, numbers,room_id) VALUES (?,?,?,?,?)";
         return this.seatCustomRepository.insert(seat,sql);
     }
 

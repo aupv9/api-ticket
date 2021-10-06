@@ -30,9 +30,10 @@ public class TheaterController {
                                         @RequestParam(value = "search", required = false) String search,
                                         @RequestParam(value = "location_id",required = false) Integer location){
         var resultList = this.theaterService.findAll(page - 1,size,sort,order,search,location);
+        var totalElement = this.theaterService.findCountAll(search,location);
         var response = ResponseRA.builder()
                 .content(resultList)
-                .totalElements(resultList.size())
+                .totalElements(totalElement)
                 .build();
         return ResponseEntity.ok(response);
     }

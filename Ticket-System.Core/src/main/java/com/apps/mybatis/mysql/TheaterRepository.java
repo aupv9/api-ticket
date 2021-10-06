@@ -19,4 +19,6 @@ public interface TheaterRepository {
     int update(@Param("theater") Theater theater);
     void delete(Integer id);
     Theater findByLocation(@Param("id") Integer idLocation);
+    int findCountAll(@Param("search") String search,
+                     @Param("location") Integer location);
 }

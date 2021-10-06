@@ -16,4 +16,6 @@ public interface RoomService {
     Room findById(Integer id);
     int update(Room room);
     void delete(Integer id);
+    int findCountAll(String search, Integer theater);
+
 }

@@ -27,9 +27,12 @@ public class SeatCustomRepository implements Repository<Seat>{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             Seat seat = (Seat) object;
-//            stmt.setFloat(1, seat.getPrice());
-//            stmt.setInt(2,seat.getSeatTypeId());
-//            stmt.setInt(3, seat.get());
+            stmt.setFloat(1, seat.getPrice());
+            stmt.setString(2,seat.getSeatType());
+            stmt.setString(3, seat.getTier());
+            stmt.setInt(4, seat.getNumbers());
+            stmt.setInt(5, seat.getRoomId());
+
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){
@@ -38,7 +41,6 @@ public class SeatCustomRepository implements Repository<Seat>{
         }finally {
             assert connection != null;
             if(!connection.isClosed()) connection.close();
-            if(!rs.isClosed()) rs.close();
             if(!stmt.isClosed()) stmt.close();
         }
         return generatedKey;

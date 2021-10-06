@@ -17,5 +17,5 @@ public interface TheaterService {
     int update(Theater theater);
     void deleteById(Integer id);
     Theater findByLocation(Integer id);
-
+    int findCountAll( String search, Integer location);
 }
