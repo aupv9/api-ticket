@@ -2,6 +2,7 @@ package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Room;
+import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.RoomCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoomRepository;
@@ -75,4 +76,6 @@ public class RoomServiceImpl implements RoomService {
     public int findCountAll(String search, Integer theater) {
         return this.roomRepository.findCountAll(search,theater);
     }
+
+
 }

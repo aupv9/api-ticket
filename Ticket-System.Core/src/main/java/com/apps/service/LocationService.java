@@ -15,4 +15,5 @@ public interface LocationService {
     int update(Location location);
     Location delete(int id);
     int insert(Location location) throws SQLException;
+    Integer countTheaterByLocation(int location);
 }

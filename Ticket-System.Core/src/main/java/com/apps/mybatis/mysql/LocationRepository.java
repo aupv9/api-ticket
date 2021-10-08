@@ -24,4 +24,7 @@ public interface LocationRepository {
     void delete(@Param("id") int id);
 
     int insert(@Param("entity") Location location);
+
+    @Select("SELECT count(*) from theater where location_id  = #{location}")
+    int countTheaterByLocation(int location);
 }

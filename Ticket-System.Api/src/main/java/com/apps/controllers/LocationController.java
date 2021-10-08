@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Location;
 import com.apps.response.RAResponseUpdate;
+import com.apps.response.ResponseCount;
 import com.apps.response.ResponseRA;
 import com.apps.service.LocationService;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,14 @@ public class LocationController {
         var resultLocation = this.locationService.findById(idLocation);
         return ResponseEntity.ok(resultLocation);
     }
+
+    @GetMapping("location-theater/{id}")
+    public ResponseEntity<?> getCountTheaterByLocation(@PathVariable(value = "id", required = false) Integer idLocation){
+        var count = this.locationService.countTheaterByLocation(idLocation);
+        var response = ResponseCount.builder().id(count != null ? count : 0).build();
+        return ResponseEntity.ok(response);
+    }
+
 
     @PostMapping("locations")
     public ResponseEntity<?> createLocation(@RequestBody Location location) throws SQLException {

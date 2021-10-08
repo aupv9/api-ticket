@@ -61,6 +61,25 @@
     </select>
 
 
+    <update id="update">
+        update seat
+        <set>
+            <if test="seat.tier != null">
+                tier = #{seat.tier},
+            </if>
+            <if test="seat.seatType != null">
+                seat_type = #{seat.seatType},
+            </if>
+            <if test="seat.roomId != null">
+                room_id = #{seat.roomId},
+            </if>
+            <if test="seat.numbers != null">
+                numbers = #{seat.numbers}
+            </if>
+        </set>
+        where id = #{seat.id}
+    </update>
+
 
 
     <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->

@@ -1,6 +1,7 @@
 package com.apps.service;
 
 import com.apps.domain.entity.Room;
+import com.apps.domain.entity.Seat;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;

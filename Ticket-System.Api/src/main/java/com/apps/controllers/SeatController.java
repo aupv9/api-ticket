@@ -3,6 +3,7 @@ package com.apps.controllers;
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
 import com.apps.mybatis.mysql.SeatRepository;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
@@ -24,6 +25,20 @@ public class SeatController {
     @Autowired
     private SeatService seatService;
 
+    @GetMapping("seats-validate")
+    public ResponseEntity<?> getLocations( @RequestParam(value = "tier", required = false) String tier,
+                                           @RequestParam(value = "numbers", required = false) Integer numbers,
+                                           @RequestParam(value = "room_id",required = false) Integer room){
+        var result  = seatService.validateSeat( room, tier, numbers);
+
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result ? 1 : 0)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @GetMapping("seats")
     public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -42,9 +57,15 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("seat/{id}")
+    @GetMapping("seats/{id}")
     public ResponseEntity<?> getLocations(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.seatService.findById(id));
+    }
+
+    @DeleteMapping("seats/{id}")
+    public ResponseEntity<?> deleteSeat(@PathVariable("id") Integer id){
+        this.seatService.delete(id);
+        return ResponseEntity.ok(id);
     }
 
     @GetMapping("seatsAvaiableWithShowTimesAndRoom")
@@ -65,6 +86,18 @@ public class SeatController {
         seat.setId(id);
         log.info("Id return : "+ id);
         return ResponseEntity.ok(seat);
+    }
+
+    @PutMapping(value = "/seats/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> updateSeat(@PathVariable("id") Integer id,@RequestBody Seat seat)  {
+        seat.setId(id);
+        int result = this.seatService.update(seat);
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(result)
+                .build();
+        log.info("Id return : "+ id);
+        return ResponseEntity.ok(response);
     }
 
 

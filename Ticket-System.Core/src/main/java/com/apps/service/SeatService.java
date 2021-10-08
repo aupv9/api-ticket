@@ -12,8 +12,11 @@ public interface SeatService {
     int findCountAll(String search, Integer room);
 
     int insert(Seat seat) throws SQLException;
+    int update(Seat seat);
+
     Seat findById(Integer id);
 
     List<List<Seat>> findSeatInRoomByShowTimesDetail( Integer showTimesDetailId,Integer roomId);
-
+    Boolean validateSeat( Integer room, String tier, Integer numbers);
+    void delete(Integer id);
 }

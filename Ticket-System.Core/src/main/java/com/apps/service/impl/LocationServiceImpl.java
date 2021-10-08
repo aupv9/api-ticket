@@ -75,5 +75,10 @@ public class LocationServiceImpl implements LocationService {
         return result;
     }
 
+    @Override
+    public Integer countTheaterByLocation(int location) {
+        return this.locationRepository.countTheaterByLocation(location);
+    }
+
 
 }
