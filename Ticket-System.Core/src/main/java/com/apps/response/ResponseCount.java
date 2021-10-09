@@ -7,4 +7,5 @@ import lombok.Data;
 @Builder
 public class ResponseCount {
     private Integer id;
+    private Integer count;
 }

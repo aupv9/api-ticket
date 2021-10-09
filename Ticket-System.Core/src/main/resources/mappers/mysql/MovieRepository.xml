@@ -11,6 +11,76 @@
         where l.id = #{location} and s.dayshowtimes = #{date}
     </select>
 
+    <select id="findAll" resultType="com.apps.domain.entity.Movie">
+        select * from movie
+        <where>
+            <if test="search != null">
+                name like concat('%',#{search},'%')
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    movie.id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findAllCount" resultType="INT">
+        select count(*) from movie
+        <where>
+            <if test="search != null">
+                name like concat('%',#{search},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultType="com.apps.domain.entity.Movie" >
+        select * from movie
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <update id="update">
+        update movie
+            <set>
+                <if test="movie.name != null">
+                    name = #{movie.name}
+                </if>
+                <if test="movie.thumbnail != null">
+                    thumbnail = #{movie.thumbnail}
+                </if>
+                <if test="movie.image != null">
+                    image = #{movie.image}
+                </if>
+            </set>
+        <if test="movie.id != null">
+            where id = #{movie.id}
+        </if>
+    </update>
+
+    <update id="delete">
+        update  movie
+            <set>
+                <if test="movie.active != null">
+                    active = #{active}
+                </if>
+            </set>
+        where id = #{id}
+    </update>
+
 <!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
 <!--        select * from room limit #{limit} offset #{offset};-->
 <!--    </select>-->

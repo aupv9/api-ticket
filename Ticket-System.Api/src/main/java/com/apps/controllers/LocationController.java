@@ -47,7 +47,8 @@ public class LocationController {
     @GetMapping("location-theater/{id}")
     public ResponseEntity<?> getCountTheaterByLocation(@PathVariable(value = "id", required = false) Integer idLocation){
         var count = this.locationService.countTheaterByLocation(idLocation);
-        var response = ResponseCount.builder().id(count != null ? count : 0).build();
+        var response = ResponseCount.builder().id(idLocation)
+                .count(count).build();
         return ResponseEntity.ok(response);
     }
 
