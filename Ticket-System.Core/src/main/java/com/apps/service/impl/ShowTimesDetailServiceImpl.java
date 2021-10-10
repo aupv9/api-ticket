@@ -2,6 +2,7 @@ package com.apps.service.impl;
 
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
 import com.apps.service.ShowTimesDetailService;
 import lombok.var;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +23,20 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Autowired
     private ShowTimesDetailRepository showTimesDetailRepository;
 
+    @Autowired
+    private ShowTimesDetailsCustomRepository repository;
+
     @Override
-    @Cacheable(cacheNames = "ShowTimesDetailService",key = "'ShowTimesDetailList_'+#page +'-'+#size")
-    public List<ShowTimesDetail> findAll(int page, int size) {
-        return this.showTimesDetailRepository.findAll(size, page * size);
+//    @Cacheable(cacheNames = "ShowTimesDetailService",key = "'ShowTimesDetailList_'+#page +'-'+#size")
+    public List<ShowTimesDetail> findAll(int page, int size,String sort, String order, Integer showTimesId,
+                                         Integer movieId, Integer room_id, String time_start) {
+        return this.showTimesDetailRepository.findAll(size, page * size
+        ,sort,order,showTimesId,movieId,room_id,time_start);
+    }
+
+    @Override
+    public int findCountAll(Integer showTimesId, Integer movieId, Integer room_id, String time_start) {
+        return this.showTimesDetailRepository.findCountAll(showTimesId,movieId,room_id,time_start);
     }
 
     @Override
@@ -33,8 +45,9 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     }
 
     @Override
-    public int insert(ShowTimesDetail showTimesDetail) {
-        return this.showTimesDetailRepository.insert(showTimesDetail);
+    public int insert(ShowTimesDetail showTimesDetail) throws SQLException {
+        String sql = "INSERT INTO showtimes_detail(showtimes_id,movie_id,room_id,time_start,time_end,dayshowtimes) values(?,?,?,?,?,?)";
+        return this.repository.insert(showTimesDetail,sql);
     }
 
     @Override
@@ -60,6 +73,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             listResult.add(item.getValue());
         }
         return listResult;
+    }
+
+    @Override
+    public int countShowTimesDetailByShowTimes(int idShowTimes) {
+        return this.showTimesDetailRepository.countShowTimesDetailByShowTimes(idShowTimes);
     }
 
 }

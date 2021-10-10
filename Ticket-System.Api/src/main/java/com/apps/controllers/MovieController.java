@@ -18,12 +18,13 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
+@CrossOrigin("*")
 public class MovieController {
 
     @Autowired
     private MovieService movieService;
 
-    @GetMapping("movies")
+    @GetMapping("movies-location")
     public ResponseEntity<?> findByLocationAndDate(@RequestParam(value = "location") Integer location,
                                                    @RequestParam(value = "date") String date) {
         var resultList = movieService.findByLocationAndDate(location, date);

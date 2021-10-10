@@ -1,8 +1,5 @@
 package com.apps.domain.entity;
-
-
 import lombok.Data;
-
 import java.io.Serializable;
 
 @Data

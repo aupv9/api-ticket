@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +18,5 @@ public class UserInfo implements Serializable {
     private String fullName;
     private String email;
     private String timeZone;
+    private Set<Role> roles;
 }

@@ -4,15 +4,59 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimes">
-        select * from showtimes limit #{limit} offset #{offset};
+        select * from showtimes
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <when test="sort == 'end_date'">
+                    end_date
+                </when>
+                <otherwise>
+                    start_date
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+
     </select>
 
-        <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-            INSERT INTO booksystem.room (code, name, theater_id)
-            VALUES (#{room.code},#{room.name},#{room.theaterId})
-            <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
-                SELECT LAST_INSERT_ID();
-            </selectKey>
-        </insert>
+    <select id="findAllCount" resultType="INT">
+        select count(*) from showtimes
+    </select>
+
+
+    <update id="update">
+        update showtimes
+        <set>
+            <if test="entity.startDate != null">
+                start_date = #{startDate},
+            </if>
+            <if test="entity.endDate != null">
+                end_date = #{endDate}
+            </if>
+
+        </set>
+        where id = #{entity.id}
+    </update>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO booksystem.room (code, name, theater_id)
+        VALUES (#{room.code},#{room.name},#{room.theaterId})
+        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
 
 </mapper>

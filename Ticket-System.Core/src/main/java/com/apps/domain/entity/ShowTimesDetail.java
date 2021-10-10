@@ -12,8 +12,7 @@ public class ShowTimesDetail implements Serializable {
     private String timeEnd;
     private int id;
     private Integer movieId;
-    private Integer locationId;
     private Integer roomId;
     private Integer showTimesId;
-    private Integer theaterId;
+    private String dayShowTime;
 }

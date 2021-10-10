@@ -1,7 +1,9 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.ShowTimesDetail;
+import com.apps.response.ResponseCount;
 import com.apps.response.ResponseList;
+import com.apps.response.ResponseRA;
 import com.apps.service.ShowTimesDetailService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -15,25 +17,39 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
+@CrossOrigin("*")
 public class ShowTimesDetailController {
 
     @Autowired
     private ShowTimesDetailService showTimesDetailService;
 
     @GetMapping("showTimesDetails")
-    public ResponseEntity<?> showTimesDetails(@RequestParam("size") Integer size,
-                                          @RequestParam("page") Integer page){
-        return ResponseEntity.ok(this.showTimesDetailService.findAll(page,size));
+    public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "showtimes_id", required = false) Integer showTimesId,
+                                          @RequestParam(value = "movie_id", required = false)Integer movieId,
+                                          @RequestParam(value = "room_id", required = false) Integer roomId,
+                                          @RequestParam(value = "time_start", required = false) String timeStart){
+        var result  = showTimesDetailService.findAll(page - 1, size, sort, order,showTimesId,
+                movieId,roomId,timeStart);
+        var totalElement = showTimesDetailService.findCountAll(showTimesId, movieId,roomId,timeStart);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(totalElement)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("showTimesDetail/{id}")
+    @GetMapping("showTimesDetails/{id}")
     public ResponseEntity<?> showTimesDetail(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.showTimesDetailService.findById(id));
     }
 
 
-    @GetMapping("showTimesDetail")
-    public ResponseEntity<?> getLocations(@RequestParam("id") Integer id){
+    @GetMapping("showTimesDetails-showtimes/{id}")
+    public ResponseEntity<?> getShowTimesDetails(@PathVariable("id") Integer id){
         var resultList = this.showTimesDetailService.findByShowTimes(id);
         var responseList = ResponseList.builder()
                 .data(resultList)
@@ -54,13 +70,18 @@ public class ShowTimesDetailController {
         return ResponseEntity.ok(response);
     }
 
-
-
-
-    @PostMapping(value = "showTimesDetail",produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimesDetail showTimes) throws SQLException {
         int id = this.showTimesDetailService.insert(showTimes);
         log.info("Id return : "+ id);
         return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("count-showTimesDetails/{id}")
+    public ResponseEntity<?> getShowTimesDetailByShowTimes(@PathVariable("id") Integer id){
+        var count = this.showTimesDetailService.countShowTimesDetailByShowTimes(id);
+        var response = ResponseCount.builder().id(id)
+                .count(count).build();
+        return ResponseEntity.ok(response);
     }
 }

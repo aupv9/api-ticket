@@ -10,7 +10,13 @@ import java.util.List;
 
 @Mapper
 public interface ShowTimesDetailRepository {
-    List<ShowTimesDetail> findAll(@Param("limit") int limit, @Param("offset") int offset);
+    List<ShowTimesDetail> findAll(@Param("limit") int limit, @Param("offset") int offset,
+                                  @Param("sort")String sort, @Param("order") String order,
+                                  @Param("showTimesId")Integer showTimesId, @Param("movieId")Integer movieId,
+                                  @Param("roomId")Integer roomId, @Param("timeStart")String timeStart);
+
+    int findCountAll(@Param("showTimesId")Integer showTimesId, @Param("movieId")Integer movieId,
+                     @Param("roomId")Integer roomId, @Param("timeStart")String timeStart);
 
     @Select("Select * from showtimes_detail where id = #{id}")
     ShowTimesDetail findById(int id);
@@ -21,4 +27,8 @@ public interface ShowTimesDetailRepository {
 
     List<ShowTimesDetailMini> findShowTimesDetailByLocationAndDate(@Param("location") int location,
                                                                    @Param("date") String date);
+    @Select("Select count(*) from showtimes_detail  where id = #{id}")
+    int countShowTimesDetailByShowTimes(@Param("id") int idShowTimes);
+
+
 }

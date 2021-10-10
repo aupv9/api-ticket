@@ -4,7 +4,64 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
-        select * from showtimes_detail limit #{limit} offset #{offset};
+        select * from showtimes_detail
+        <where>
+            <if test="showTimesId != null">
+                showtimes_id = #{showTimesId}
+            </if>
+            <if test="movieId != null">
+                and movie_id = #{movieId}
+            </if>
+            <if test="roomId != null">
+                and room_id = #{roomId}
+            </if>
+            <if test="timeStart != null">
+                and time_start != #{timeStart}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'showtimes_id'">
+                    showtimes_id
+                </when>
+                <when test="sort == 'movie_id'">
+                    movie_id
+                </when>
+                <when test="sort == 'room_id'">
+                    room_id
+                </when>
+                <otherwise>
+                    time_start
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from showtimes_detail
+        <where>
+            <if test="showTimesId != null">
+                showtimes_id = #{showTimesId}
+            </if>
+            <if test="movieId != null">
+                and movie_id = #{movieId}
+            </if>
+            <if test="roomId != null">
+                and roomId != null
+            </if>
+            <if test="timeStart != null">
+                and time_start = #{timeStart}
+            </if>
+        </where>
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">

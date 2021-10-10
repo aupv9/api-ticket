@@ -96,7 +96,6 @@ public class SeatController {
                 .id(result)
                 .previousData(result)
                 .build();
-        log.info("Id return : "+ id);
         return ResponseEntity.ok(response);
     }
 

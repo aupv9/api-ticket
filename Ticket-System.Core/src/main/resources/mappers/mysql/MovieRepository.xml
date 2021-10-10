@@ -12,7 +12,7 @@
     </select>
 
     <select id="findAll" resultType="com.apps.domain.entity.Movie">
-        select * from movie
+        select id, name as name, thumbnail, image from movie
         <where>
             <if test="search != null">
                 name like concat('%',#{search},'%')
