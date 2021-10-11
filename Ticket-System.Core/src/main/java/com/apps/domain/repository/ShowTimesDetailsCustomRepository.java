@@ -1,6 +1,5 @@
 package com.apps.domain.repository;
 
-import com.apps.domain.entity.ShowTimes;
 import com.apps.domain.entity.ShowTimesDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,12 +25,11 @@ public class ShowTimesDetailsCustomRepository implements Repository<ShowTimesDet
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             if(!(object instanceof ShowTimesDetail) ) return 0;
             ShowTimesDetail showTimes = (ShowTimesDetail) object;
-            stmt.setInt(1, showTimes.getShowTimesId());
-            stmt.setInt(2,showTimes.getMovieId());
-            stmt.setInt(3,showTimes.getRoomId());
-            stmt.setString(4,showTimes.getTimeStart());
-            stmt.setString(5,showTimes.getTimeEnd());
-            stmt.setString(6,showTimes.getDayShowTime());
+            stmt.setInt(1,showTimes.getMovieId());
+            stmt.setInt(2,showTimes.getRoomId());
+            stmt.setString(3,showTimes.getTimeStart());
+            stmt.setString(4,showTimes.getTimeEnd());
+            stmt.setString(5,showTimes.getDayShowTime());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

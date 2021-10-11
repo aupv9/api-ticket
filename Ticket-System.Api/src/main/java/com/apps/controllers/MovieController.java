@@ -52,7 +52,7 @@ public class MovieController {
     }
 
     @GetMapping("movies/{id}")
-    public ResponseEntity<?> getMovieById(@RequestParam(value = "id", required = false) Integer id) {
+    public ResponseEntity<?> getMovieById(@PathVariable(value = "id", required = false) Integer id) {
         if(id == null) return ResponseEntity.ok(null);
         var result = this.movieService.findById(id);
         return ResponseEntity.ok(result);

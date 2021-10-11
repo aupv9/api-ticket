@@ -46,7 +46,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.aia.apps.one.aop" level="info" additivity="false">
+        <Logger name="com.apps.aop" level="info" additivity="false">
             <AppenderRef ref="Console" />
             <AppenderRef ref="RollingFilePerformnace"/>
         </Logger>

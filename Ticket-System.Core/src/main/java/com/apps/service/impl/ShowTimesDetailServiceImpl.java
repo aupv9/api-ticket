@@ -27,16 +27,18 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     private ShowTimesDetailsCustomRepository repository;
 
     @Override
-//    @Cacheable(cacheNames = "ShowTimesDetailService",key = "'ShowTimesDetailList_'+#page +'-'+#size")
-    public List<ShowTimesDetail> findAll(int page, int size,String sort, String order, Integer showTimesId,
-                                         Integer movieId, Integer room_id, String time_start) {
+    @Cacheable(cacheNames = "ShowTimesDetailService",
+            key = "'ShowTimesDetailList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#movieId +'-'+#room_id+'-'+#time_start +'-'+#search")
+    public List<ShowTimesDetail> findAll(int page, int size,String sort, String order,
+                                         Integer movieId, Integer room_id, String time_start,String search
+                                         ) {
         return this.showTimesDetailRepository.findAll(size, page * size
-        ,sort,order,showTimesId,movieId,room_id,time_start);
+        ,sort,order,movieId,room_id,time_start,search);
     }
 
     @Override
-    public int findCountAll(Integer showTimesId, Integer movieId, Integer room_id, String time_start) {
-        return this.showTimesDetailRepository.findCountAll(showTimesId,movieId,room_id,time_start);
+    public int findCountAll( Integer movieId, Integer room_id, String time_start,String search) {
+        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Override
     public int insert(ShowTimesDetail showTimesDetail) throws SQLException {
-        String sql = "INSERT INTO showtimes_detail(showtimes_id,movie_id,room_id,time_start,time_end,dayshowtimes) values(?,?,?,?,?,?)";
+        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end,dayshowtimes) values(?,?,?,?,?,?)";
         return this.repository.insert(showTimesDetail,sql);
     }
 

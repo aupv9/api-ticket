@@ -28,13 +28,14 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "showtimes_id", required = false) Integer showTimesId,
                                           @RequestParam(value = "movie_id", required = false)Integer movieId,
                                           @RequestParam(value = "room_id", required = false) Integer roomId,
-                                          @RequestParam(value = "time_start", required = false) String timeStart){
-        var result  = showTimesDetailService.findAll(page - 1, size, sort, order,showTimesId,
-                movieId,roomId,timeStart);
-        var totalElement = showTimesDetailService.findCountAll(showTimesId, movieId,roomId,timeStart);
+                                          @RequestParam(value = "time_start", required = false) String timeStart,
+                                          @RequestParam(value = "search", required = false) String search
+                                          ){
+        var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
+                movieId,roomId,timeStart,search);
+        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search);
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

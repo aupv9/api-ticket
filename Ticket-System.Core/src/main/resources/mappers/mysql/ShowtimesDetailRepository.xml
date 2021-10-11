@@ -4,11 +4,12 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
-        select * from showtimes_detail
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id
+        from showtimes_detail
+        <if test="search != null">
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
         <where>
-            <if test="showTimesId != null">
-                showtimes_id = #{showTimesId}
-            </if>
             <if test="movieId != null">
                 and movie_id = #{movieId}
             </if>
@@ -16,7 +17,10 @@
                 and room_id = #{roomId}
             </if>
             <if test="timeStart != null">
-                and time_start != #{timeStart}
+                and time_start = #{timeStart}
+            </if>
+            <if test="search != null">
+                and m.name like concat('%',#{search},'%')
             </if>
         </where>
         <if test="sort != null">
@@ -48,18 +52,21 @@
 
     <select id="findCountAll" resultType="INT">
         select count(*) from showtimes_detail
+        <if test="search != null">
+            left join movie m on showtimes_detail.movie_id = m.id
+        </if>
         <where>
-            <if test="showTimesId != null">
-                showtimes_id = #{showTimesId}
-            </if>
             <if test="movieId != null">
                 and movie_id = #{movieId}
             </if>
             <if test="roomId != null">
-                and roomId != null
+                and room_id = #{roomId}
             </if>
             <if test="timeStart != null">
                 and time_start = #{timeStart}
+            </if>
+            <if test="search != null">
+                and m.name like concat('%',#{search},'%')
             </if>
         </where>
     </select>
