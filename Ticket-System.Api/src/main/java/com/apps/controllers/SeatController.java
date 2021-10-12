@@ -68,9 +68,9 @@ public class SeatController {
         return ResponseEntity.ok(id);
     }
 
-    @GetMapping("seatsAvaiableWithShowTimesAndRoom")
+    @GetMapping("seats-AvaiableInRoom")
     public ResponseEntity<?> findSeatInRoomByShowTimesDetail(
-                                          @RequestParam("showTimesDetail") Integer showTimesDetail,
+                                          @RequestParam("showTimesId") Integer showTimesDetail,
                                           @RequestParam("room") Integer room){
         var resultList = this.seatService.findSeatInRoomByShowTimesDetail(showTimesDetail,room);
         var responseList = ResponseRA.builder()

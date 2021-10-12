@@ -18,8 +18,13 @@ public interface SeatRepository {
 
     @Select("SELECT * FROM SEAT WHERE ID = #{id}")
     Seat findById(Integer id);
-    List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesDetailId") Integer showTimesDetailId, @Param("room") Integer roomId);
+
+    List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesId") Integer showTimesDetailId, @Param("roomId") Integer roomId);
     int findCountAll(@Param("search") String search, @Param("room") Integer room);
+
+    @Select("Select * from seat where room_id =#{room}")
+    List<Seat> findByRoom(@Param("room") Integer room);
+
 
     @Select("SELECT * FROM SEAT WHERE ROOM_ID = #{room} and TIER = #{tier} and numbers = #{numbers}")
     Seat validateSeat(@Param("room") Integer room, @Param("tier") String tier, @Param("numbers") Integer numbers);

@@ -29,7 +29,8 @@ public class ShowTimesDetailsCustomRepository implements Repository<ShowTimesDet
             stmt.setInt(2,showTimes.getRoomId());
             stmt.setString(3,showTimes.getTimeStart());
             stmt.setString(4,showTimes.getTimeEnd());
-            stmt.setString(5,showTimes.getDayShowTime());
+            stmt.setString(5,showTimes.getDate());
+
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

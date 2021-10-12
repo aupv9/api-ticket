@@ -103,4 +103,9 @@ public class SeatServiceImpl implements SeatService {
         this.seatRepository.delete(seat.getId());
         cacheManager.clearCache("SeatService");
     }
+
+    @Override
+    public List<Seat> findByRoom(Integer room) {
+        return this.seatRepository.findByRoom(room);
+    }
 }

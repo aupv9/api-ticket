@@ -30,12 +30,13 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "movie_id", required = false)Integer movieId,
                                           @RequestParam(value = "room_id", required = false) Integer roomId,
-                                          @RequestParam(value = "time_start", required = false) String timeStart,
-                                          @RequestParam(value = "search", required = false) String search
+                                          @RequestParam(value = "search", required = false) String search,
+                                          @RequestParam(value = "date_start", required = false) String dateStart,
+                                          @RequestParam(value = "time_start", required = false) String timeStart
                                           ){
         var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
-                movieId,roomId,timeStart,search);
-        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search);
+                movieId,roomId,timeStart,search,dateStart);
+        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)
@@ -83,6 +84,16 @@ public class ShowTimesDetailController {
         var count = this.showTimesDetailService.countShowTimesDetailByShowTimes(id);
         var response = ResponseCount.builder().id(id)
                 .count(count).build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("timeShowTimes")
+    public ResponseEntity<?> getShowTimes(){
+        var result  = showTimesDetailService.getTimeStart();
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
+                .build();
         return ResponseEntity.ok(response);
     }
 }

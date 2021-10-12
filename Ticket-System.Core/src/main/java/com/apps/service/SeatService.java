@@ -19,4 +19,6 @@ public interface SeatService {
     List<List<Seat>> findSeatInRoomByShowTimesDetail( Integer showTimesDetailId,Integer roomId);
     Boolean validateSeat( Integer room, String tier, Integer numbers);
     void delete(Integer id);
+    List<Seat> findByRoom(Integer room);
+
 }

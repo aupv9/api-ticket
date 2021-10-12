@@ -27,18 +27,18 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     private ShowTimesDetailsCustomRepository repository;
 
     @Override
-    @Cacheable(cacheNames = "ShowTimesDetailService",
-            key = "'ShowTimesDetailList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#movieId +'-'+#room_id+'-'+#time_start +'-'+#search")
+//    @Cacheable(cacheNames = "ShowTimesDetailService",
+//            key = "'ShowTimesDetailList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#movieId +'-'+#room_id+'-'+#time_start +'-'+#search")
     public List<ShowTimesDetail> findAll(int page, int size,String sort, String order,
                                          Integer movieId, Integer room_id, String time_start,String search
-                                         ) {
+            ,String dateStart) {
         return this.showTimesDetailRepository.findAll(size, page * size
-        ,sort,order,movieId,room_id,time_start,search);
+        ,sort,order,movieId,room_id,time_start,search,dateStart);
     }
 
     @Override
-    public int findCountAll( Integer movieId, Integer room_id, String time_start,String search) {
-        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search);
+    public int findCountAll( Integer movieId, Integer room_id, String time_start,String search,String dateStart) {
+        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart);
     }
 
     @Override
@@ -80,6 +80,12 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Override
     public int countShowTimesDetailByShowTimes(int idShowTimes) {
         return this.showTimesDetailRepository.countShowTimesDetailByShowTimes(idShowTimes);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "ShowTimesDetailService",key ="'getTimeStart'")
+    public List<String> getTimeStart() {
+        return this.showTimesDetailRepository.getTimeStart();
     }
 
 }

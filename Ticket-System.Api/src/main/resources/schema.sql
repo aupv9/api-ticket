@@ -52,8 +52,12 @@ create table media
 
 create table movie
 (
-    id int auto_increment
-        primary key
+    id        int auto_increment
+        primary key,
+    name      varchar(255) null,
+    thumbnail varchar(255) null,
+    image     varchar(255) null,
+    active    int          null
 );
 
 create table movie_media
@@ -98,14 +102,6 @@ create table payment
 
 create index FK_payment_paymentmethod
     on payment (payment_method_id);
-
-create table principle_groups
-(
-    id   int auto_increment
-        primary key,
-    code varchar(254) null,
-    name varchar(254) null
-);
 
 create table promotion
 (
@@ -159,14 +155,21 @@ create table promo_media
 create index media_id
     on promo_media (media_id);
 
+create table role
+(
+    id   int auto_increment
+        primary key,
+    code varchar(254) null,
+    name varchar(254) null
+);
+
 create table showtimes
 (
-    id            int auto_increment
-        primary key,
-    dayshowtimes  date      null,
     creation_date timestamp null,
-    end_date      timestamp null,
-    start_date    timestamp null
+    end_date      datetime  null,
+    start_date    timestamp null,
+    id            int auto_increment
+        primary key
 );
 
 create table theater
@@ -180,19 +183,19 @@ create table theater
     longitude   varchar(255) null,
     thumbnail   varchar(255) null,
     image       varchar(255) null,
+    address     varchar(255) null,
     constraint theater_ibfk_1
         foreign key (location_id) references location (id)
 );
 
 create table room
 (
-    id              int auto_increment
+    id         int auto_increment
         primary key,
-    code            varchar(255) null,
-    name            varchar(255) null,
-    theater_id      int          not null,
-    horizontal_size int          null,
-    vertical_size   int          null,
+    code       varchar(255) null,
+    name       varchar(255) null,
+    theater_id int          not null,
+    type       varchar(255) null,
     constraint room_ibfk_1
         foreign key (theater_id) references theater (id)
 );
@@ -202,40 +205,34 @@ create table seat
     price     float        null,
     id        int auto_increment
         primary key,
-    name      varchar(100) null,
     seat_type varchar(100) null,
     room_id   int          not null,
     tier      varchar(25)  null,
     numbers   int          null,
-    constraint seat_room_id_numbers_uindex
-        unique (room_id, numbers),
-    constraint seat_ibfk_1
+    constraint seat_room_id_tier_numbers_uindex
+        unique (room_id, tier, numbers),
+    constraint seat_room_id_fk
         foreign key (room_id) references room (id)
 );
 
+create index seat_ibfk_1
+    on seat (seat_type);
+
 create table showtimes_detail
 (
-    showtimes_id int          not null,
-    movie_id     int          not null,
-    location_id  int          not null,
-    theater_id   int          not null,
-    room_id      int          not null,
-    time_start   varchar(100) null,
-    id           int auto_increment
+    movie_id   int  not null,
+    room_id    int  not null,
+    id         int auto_increment
         primary key,
-    time_end     varchar(255) null,
-    constraint showtimes_id
-        unique (showtimes_id, room_id, theater_id, location_id, movie_id, time_start),
-    constraint showtimes_detail_ibfk_1
-        foreign key (showtimes_id) references showtimes (id),
-    constraint showtimes_detail_ibfk_2
+    time_end   time null,
+    time_start time null,
+    date       date null,
+    constraint showtimes_detail_movie_id_room_id_date_start_time_start_uindex
+        unique (movie_id, room_id, date, time_start),
+    constraint showtimes_detail_movie_id_fk
         foreign key (movie_id) references movie (id),
-    constraint showtimes_detail_ibfk_3
-        foreign key (room_id) references room (id),
-    constraint showtimes_detail_ibfk_4
-        foreign key (theater_id) references theater (id),
-    constraint showtimes_detail_ibfk_5
-        foreign key (location_id) references location (id)
+    constraint showtimes_detail_room_id_fk
+        foreign key (room_id) references room (id)
 );
 
 create table theater_media
@@ -262,12 +259,13 @@ create table user_info
 (
     id              int auto_increment
         primary key,
-    first_name      varchar(255) null,
-    last_name       varchar(255) null,
-    full_name       varchar(500) null,
-    email           varchar(255) null,
-    time_zone       varchar(100) null,
-    is_login_social tinyint(1)   null
+    first_name      varchar(255)                                                                       null,
+    last_name       varchar(255)                                                                       null,
+    full_name       varchar(500)                                                                       null,
+    email           varchar(255)                                                                       null,
+    time_zone       varchar(100)                                                                       null,
+    is_login_social tinyint(1)                                                                         null,
+    role            enum ('ROLE_USER', 'ROLE_STAFF', 'ROLE_MANAGER', 'ROLE_ADMIN') default 'ROLE_USER' not null
 );
 
 create table gift_card
@@ -311,13 +309,15 @@ create table orders
 (
     id                  int auto_increment
         primary key,
-    user_id             int          not null,
-    ticket_date         date         null,
-    showtimes_detail_id int          not null,
-    total_amount        float        not null,
-    tax                 float        not null,
-    create_date         date         null,
-    note                varchar(255) null,
+    user_id             int                                          not null,
+    ticket_date         date                                         null,
+    showtimes_detail_id int                                          not null,
+    total_amount        float                                        not null,
+    tax                 float                                        not null,
+    create_date         datetime                                     null,
+    note                varchar(255)                                 null,
+    creation            int                                          null,
+    type_user           enum ('user', 'non_user') default 'non_user' null,
     constraint orders_ibfk_1
         foreign key (user_id) references user_info (id),
     constraint ticket_showtimes_detail_id_fk
@@ -362,36 +362,37 @@ create index seat_id
 
 create table user_account
 (
+    user_account_status_id   int          null,
+    user_info_id             int          not null,
+    email_confirmation_token varchar(255) null,
+    password_reminder_expire datetime(6)  null,
     userInfoId               int          not null
         primary key,
     userName                 varchar(255) null,
     email                    varchar(255) null,
     password                 varchar(255) null,
-    user_account_status_id   int          null,
-    user_info_id             int          not null,
-    email_confirmation_token varchar(255) null,
-    password_reminder_expire datetime(6)  null,
     password_reminder_token  varchar(255) null,
     user_name                varchar(255) null,
+    active                   bit          null,
     constraint FK_user_account_user_account_status
         foreign key (user_account_status_id) references user_account_status (id),
     constraint FK_user_account_user_info
         foreign key (userInfoId) references user_info (id)
 );
 
-create table user_groups
+create table user_role
 (
     user_id  int not null,
     group_id int not null,
     primary key (user_id, group_id),
-    constraint user_groups_ibfk_1
+    constraint user_role_ibfk_1
         foreign key (user_id) references user_info (id),
-    constraint user_groups_ibfk_2
-        foreign key (group_id) references principle_groups (id)
+    constraint user_role_ibfk_2
+        foreign key (group_id) references role (id)
 );
 
 create index group_id
-    on user_groups (group_id);
+    on user_role (group_id);
 
 create
 definer = root@localhost procedure clockSeatRoom(IN idSeat int, IN statusParam varchar(255), OUT idSeatRoom int)
