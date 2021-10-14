@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.response.TimePick;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -32,6 +33,10 @@ public interface ShowTimesDetailRepository {
     @Select("Select count(*) from showtimes_detail  where id = #{id}")
     int countShowTimesDetailByShowTimes(@Param("id") int idShowTimes);
 
-    List<String> getTimeStart();
+    List<TimePick> getTimeStart();
+
+    int update(@Param("entity") ShowTimesDetail showTimesDetail) ;
+
+    void delete(@Param("id") Integer id);
 
 }

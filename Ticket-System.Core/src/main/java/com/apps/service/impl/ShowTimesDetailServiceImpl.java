@@ -3,7 +3,10 @@ package com.apps.service.impl;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
+import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
+import com.apps.response.TimePick;
+import com.apps.service.RoomService;
 import com.apps.service.ShowTimesDetailService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +31,10 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Autowired
     private ShowTimesDetailsCustomRepository repository;
+
+    @Autowired
+    private RoomService roomService;
+
 
     @Override
 //    @Cacheable(cacheNames = "ShowTimesDetailService",
@@ -42,13 +52,23 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     }
 
     @Override
+    @Cacheable(cacheNames = "ShowTimesDetailService",key = "'findByIdShowTimesDetail_'+#id")
     public ShowTimesDetail findById(int id) {
-        return this.showTimesDetailRepository.findById(id);
+        var showTimesDetail = this.showTimesDetailRepository.findById(id);
+        if(showTimesDetail == null){
+            throw new NotFoundException("Not Found Object have Id:"+id);
+        }
+        var room = this.roomService.findById(showTimesDetail.getRoomId());
+        if(room == null){
+            throw new NotFoundException("Not Found Object have Id:"+id);
+        }
+        showTimesDetail.setTheaterId(room.getTheaterId());
+        return showTimesDetail;
     }
 
     @Override
     public int insert(ShowTimesDetail showTimesDetail) throws SQLException {
-        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end,dayshowtimes) values(?,?,?,?,?,?)";
+        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end) values(?,?,?,?)";
         return this.repository.insert(showTimesDetail,sql);
     }
 
@@ -78,14 +98,41 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     }
 
     @Override
+    public int update(ShowTimesDetail showTimesDetail) {
+        ShowTimesDetail showTimesDetail1 = this.findById(showTimesDetail.getId());
+        if(showTimesDetail1.getTimeStart() != null && !showTimesDetail1.getTimeStart().isEmpty()){
+            Instant instantFromTimeStamp = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toInstant();
+            if(!instantFromTimeStamp.toString().equals(showTimesDetail.getTimeStart())){
+                Instant instant = Instant.parse(showTimesDetail.getTimeStart());
+                Timestamp timestamp = Timestamp.from(instant);
+                showTimesDetail1.setTimeStart(timestamp.toString());
+            }
+        }else{
+            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
+            Timestamp timestamp = Timestamp.from(instant);
+            showTimesDetail1.setTimeStart(timestamp.toString());
+        }
+        showTimesDetail1.setMovieId(showTimesDetail.getMovieId());
+        showTimesDetail1.setRoomId(showTimesDetail.getRoomId());
+        int result = this.showTimesDetailRepository.update(showTimesDetail1);
+        return result;
+    }
+
+    @Override
     public int countShowTimesDetailByShowTimes(int idShowTimes) {
         return this.showTimesDetailRepository.countShowTimesDetailByShowTimes(idShowTimes);
     }
 
     @Override
     @Cacheable(cacheNames = "ShowTimesDetailService",key ="'getTimeStart'")
-    public List<String> getTimeStart() {
+    public List<TimePick> getTimeStart() {
         return this.showTimesDetailRepository.getTimeStart();
+    }
+
+    @Override
+    public void delete(Integer id) {
+        var showTimesDetail = this.findById(id);
+        this.showTimesDetailRepository.delete(id);
     }
 
 }

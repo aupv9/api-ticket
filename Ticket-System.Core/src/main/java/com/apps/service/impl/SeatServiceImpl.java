@@ -105,7 +105,23 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public List<Seat> findByRoom(Integer room) {
-        return this.seatRepository.findByRoom(room);
+    public List<Seat> findByRoom(Integer room,Integer showTimes) {
+        var arrSeat = this.seatRepository.findByRoom(room);
+        var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
+        List<Integer> arrIdSeatAvailable = new ArrayList<>();
+        for (Seat seat : arrSeatAvailable){
+            arrIdSeatAvailable.add(seat.getId());
+        }
+        for (int i = 0; i < arrSeat.size() ; i++) {
+            Seat seat = arrSeat.get(0);
+            if(arrIdSeatAvailable.contains(seat.getId())){
+                seat.setIsSelected(true);
+                seat.setStatus(2);
+            }else{
+                seat.setIsSelected(false);
+                seat.setStatus(1);
+            }
+        }
+        return arrSeat;
     }
 }

@@ -1,10 +1,7 @@
 package com.apps.controllers;
 
-import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
-import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.response.RAResponseUpdate;
-import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +51,17 @@ public class SeatController {
                 .totalElements(totalElement)
                 .build();
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("seats-room")
+    public ResponseEntity<?> getSeatByRoom(@RequestParam("showTimesId") Integer id,
+                                           @RequestParam("room") Integer room){
+        var result  = seatService.findByRoom(room,id);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
+                .build();
         return ResponseEntity.ok(response);
     }
 

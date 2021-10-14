@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.response.TimePick;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,7 +19,8 @@ public interface ShowTimesDetailService {
     List<ShowTimesDetail> findByShowTimes(int idShowTimes);
     List<List<ShowTimesDetailMini>> findShowTimesDetailByLocationAndDate(@Param("location") int location,
                                                                          @Param("date") String date);
+    int update(ShowTimesDetail showTimesDetail) ;
     int countShowTimesDetailByShowTimes(int idShowTimes);
-    List<String> getTimeStart();
-
+    List<TimePick> getTimeStart();
+    void delete(Integer id);
 }

@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -49,6 +51,11 @@ public class ShowTimesDetailController {
         return ResponseEntity.ok(this.showTimesDetailService.findById(id));
     }
 
+    @DeleteMapping("showTimesDetails/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id){
+        this.showTimesDetailService.delete(id);
+        return ResponseEntity.ok(id);
+    }
 
     @GetMapping("showTimesDetails-showtimes/{id}")
     public ResponseEntity<?> getShowTimesDetails(@PathVariable("id") Integer id){
@@ -72,11 +79,23 @@ public class ShowTimesDetailController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping(value = "showTimesDetails/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> updateShowTimes(@PathVariable("id")Integer idShowTimes,
+                                             @RequestBody ShowTimesDetail showTimes) throws SQLException {
+        showTimes.setId(idShowTimes);
+        int id = this.showTimesDetailService.update(showTimes);
+        showTimes.setId(id);
+        return ResponseEntity.ok(showTimes);
+    }
+
     @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimesDetail showTimes) throws SQLException {
+        Instant instant = Instant.parse(showTimes.getTimeStart());
+        Timestamp timestamp = Timestamp.from(instant);
+        showTimes.setTimeStart(timestamp.toString());
         int id = this.showTimesDetailService.insert(showTimes);
-        log.info("Id return : "+ id);
-        return ResponseEntity.ok(id);
+        showTimes.setId(id);
+        return ResponseEntity.ok(showTimes);
     }
 
     @GetMapping("count-showTimesDetails/{id}")

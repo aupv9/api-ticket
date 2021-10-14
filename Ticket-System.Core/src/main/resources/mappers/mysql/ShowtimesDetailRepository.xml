@@ -100,8 +100,28 @@
 
     </select>
 
-    <select id="getTimeStart" resultType="String">
-        select distinct time_start from showtimes_detail where time_start is not null ;
+    <select id="getTimeStart" resultType="com.apps.response.TimePick">
+        select value as name from timepick;
     </select>
 
+    <update id="update" >
+        update showtimes_detail
+        <set>
+            <if test="entity.movieId != null">
+                movie_id = #{entity.movieId},
+            </if>
+            <if test="entity.roomId != null">
+                room_id = #{entity.roomId},
+            </if>
+            <if test="entity.timeStart != null">
+                time_start = #{entity.timeStart}
+            </if>
+        </set>
+        where id = #{entity.id}
+    </update>
+
+    <delete id="delete">
+        delete from showtimes_detail
+        where id = #{id}
+    </delete>
 </mapper>

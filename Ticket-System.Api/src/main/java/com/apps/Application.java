@@ -3,6 +3,7 @@ package com.apps;
 import com.apps.utils.CommonUtils;
 
 import com.paypal.api.payments.PaymentCard;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.boot.ApplicationRunner;
@@ -18,6 +19,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -82,41 +86,12 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
-            DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
-            Instant instant = Instant.parse("2021-10-15T06:20:00.000Z");
+            DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+            Instant instant = Instant.parse("2021-10-14T06:40:04.813Z");
             ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
             ZonedDateTime zdt = instant.atZone(zoneId);
-            System.out.println(zdt.toLocalDateTime().format(simpleDateFormat));
-            String[] arr = zdt.toLocalDateTime().format(simpleDateFormat).split("\\ ");
-            StringBuilder hour = new StringBuilder("");
-            if(arr.length > 0){
-                if(arr[2].equals("AM")){
-                    switch (arr[1].substring(0,2)){
-                        case "12":
-                            hour.append("00");
-                        case "13":
-                            hour.append("01");
-                        case "14":
-                            hour.append("02");
-                        case "15":
-                            hour.append("03");
-                        case "16":
-                            hour.append("03");
-                        case "17":
-                            hour.append("03");
-                        case "18":
-                            hour.append("03");
-                        case "19":
-                            hour.append("03");
-
-                        default:
-                            break;
-                    }
-                }else{
-
-                }
-            }
-
+            Timestamp  timestamp = Timestamp.from(instant);
+            System.out.println(timestamp);
         };
     }
 

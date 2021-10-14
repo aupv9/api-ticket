@@ -11,6 +11,7 @@ public interface SeatService {
     List<Seat> findAll(Integer page, Integer size,String sort ,String order, String search, Integer room);
     int findCountAll(String search, Integer room);
 
+
     int insert(Seat seat) throws SQLException;
     int update(Seat seat);
 
@@ -19,6 +20,6 @@ public interface SeatService {
     List<List<Seat>> findSeatInRoomByShowTimesDetail( Integer showTimesDetailId,Integer roomId);
     Boolean validateSeat( Integer room, String tier, Integer numbers);
     void delete(Integer id);
-    List<Seat> findByRoom(Integer room);
+    List<Seat> findByRoom(Integer room,Integer showTimes);
 
 }
