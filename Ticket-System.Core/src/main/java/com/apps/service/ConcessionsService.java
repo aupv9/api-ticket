@@ -1,18 +1,17 @@
 package com.apps.service;
 
-import com.apps.domain.entity.Category;
-import com.apps.domain.entity.Concessions;
+import com.apps.domain.entity.Concession;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ConcessionsService {
-    List<Category> findAll(int limit, int offset,
-                           String sort, String order,
-                           String name, double price, int categoryId);
+    List<Concession> findAll(int page, int size,
+                             String sort, String order,
+                             String name, int categoryId);
     int findCountAll(String name,int categoryId);
-    Concessions findById(Integer id);
-    int update(Concessions concessions);
+    Concession findById(Integer id);
+    int update(Concession concession);
     void delete(Integer id);
-    int insert(Concessions concessions) throws SQLException;
+    int insert(Concession concession) throws SQLException;
 }

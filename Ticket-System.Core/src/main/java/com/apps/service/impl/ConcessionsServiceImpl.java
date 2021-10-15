@@ -1,14 +1,11 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
-import com.apps.domain.entity.Category;
-import com.apps.domain.entity.Concessions;
+import com.apps.domain.entity.Concession;
 import com.apps.domain.repository.ConcessionsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ConcessionRepository;
-import com.apps.mybatis.mysql.ConcessionsRepository;
 import com.apps.service.ConcessionsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -18,69 +15,61 @@ import java.util.List;
 @Service
 public class ConcessionsServiceImpl implements ConcessionsService {
 
-//    private final FoodRepository foodsRepository;
-//    private final FoodsCustomRepository foodsCustomRepository;
-//    private final ApplicationCacheManager cacheManager;
-//
-//    public FoodsServiceImpl(FoodRepository foodsRepository, FoodsCustomRepository foodsCustomRepository, ApplicationCacheManager cacheManager) {
-//        this.foodsRepository = foodsRepository;
-//        this.foodsCustomRepository = foodsCustomRepository;
-//        this.cacheManager = cacheManager;
-//    }
-    @Autowired
-    private ConcessionsRepository concessionsRepository;
-    @Autowired
-    private ConcessionsCustomRepository concessionsCustomRepository;
-    @Autowired
-    private  ApplicationCacheManager cacheManager;
+    private final ConcessionRepository concessionRepository;
+    private final ConcessionsCustomRepository concessionsCustomRepository;
+    private final ApplicationCacheManager cacheManager;
 
-    @Autowired
-    private ConcessionRepository concessionRepository;
+    public ConcessionsServiceImpl(ConcessionRepository concessionRepository, ConcessionsCustomRepository concessionsCustomRepository, ApplicationCacheManager cacheManager) {
+        this.concessionRepository = concessionRepository;
+        this.concessionsCustomRepository = concessionsCustomRepository;
+        this.cacheManager = cacheManager;
+    }
+
 
     @Override
-    @Cacheable(cacheNames = "FoodsService", key = "'FoodsList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name +'-'+#price+'-'+#categoryId")
-    public List<Category> findAll(int page, int size, String sort, String order, String name, double price, int categoryId) {
-        return this.concessionsRepository.findAll(size, page * size,sort,order,name,price,categoryId);
+    @Cacheable(cacheNames = "FoodsService", key = "'FoodsList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name +#categoryId")
+    public List<Concession> findAll(int page, int size, String sort, String order, String name, int categoryId) {
+        return this.concessionRepository.findAll(size, page * size,sort,order,name,categoryId);
     }
 
     @Override
     @Cacheable(cacheNames = "FoodsService", key = "'findCountAllFoodsList_'+#name +'-'+#categoryId")
     public int findCountAll(String name, int categoryId) {
-        return this.concessionsRepository.findCountAll(name,categoryId);
+        return this.concessionRepository.findCountAll(name,categoryId);
     }
 
     @Override
     @Cacheable(cacheNames = "FoodsService", key = "'findByIdFoods_'+#id")
-    public Concessions findById(Integer id) {
-        Concessions concessions = this.concessionsRepository.findById(id);
-        if(concessions == null){
+    public Concession findById(Integer id) {
+        Concession concession = this.concessionRepository.findById(id);
+        if(concession == null){
             throw new NotFoundException("Not Found Object have Id:" + id);
         }
-        return concessions;
+        return concession;
     }
 
     @Override
-    public int update(Concessions concessions) {
-        Concessions concessions1 = this.concessionsRepository.findById(concessions.getId());
-        concessions1.setName(concessions.getName());
-        concessions1.setPrice(concessions.getPrice());
-        concessions1.setCategoryId(concessions.getCategoryId());
-        int result = this.concessionsRepository.update(concessions1);
+    public int update(Concession concession) {
+        Concession concession1 = this.concessionRepository.findById(concession.getId());
+        concession1.setName(concession.getName());
+//        concessions1.setPrice(concessions.getPrice());
+//        concessions1.setCategoryId(concessions.getCategoryId());
+        int result = this.concessionRepository.update(concession1);
         cacheManager.clearCache("FoodsService");
         return result;
     }
 
     @Override
     public void delete(Integer id) {
-        Concessions concessions = this.concessionsRepository.findById(id);
-        this.concessionsRepository.delete(concessions.getId());
+        Concession concession = this.concessionRepository.findById(id);
+        this.concessionRepository.delete(concession.getId());
         cacheManager.clearCache("FoodsService");
     }
 
     @Override
-    public int insert(Concessions concessions) throws SQLException {
+    public int insert(Concession concession) throws SQLException {
         String sql = "Insert into concession(name,price,category_id) values(?,?,?)";
-        int id = this.concessionsCustomRepository.insert(concessions,sql);
+        int id = this.concessionsCustomRepository.insert(concession,sql);
         cacheManager.clearCache("FoodsService");
         return id;
     }

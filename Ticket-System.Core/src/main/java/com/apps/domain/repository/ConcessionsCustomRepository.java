@@ -1,13 +1,13 @@
 package com.apps.domain.repository;
 
-import com.apps.domain.entity.Concessions;
+import com.apps.domain.entity.Concession;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
 @Component
-public class ConcessionsCustomRepository implements Repository<Concessions> {
+public class ConcessionsCustomRepository implements Repository<Concession> {
     private final DataSource dataSource;
 
     PreparedStatement stmt = null;
@@ -24,11 +24,11 @@ public class ConcessionsCustomRepository implements Repository<Concessions> {
         try{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            if(!(object instanceof Concessions) ) return 0;
-            Concessions concessions = (Concessions) object;
-            stmt.setString(1, concessions.getName());
-            stmt.setDouble(2, concessions.getPrice());
-            stmt.setInt(3, concessions.getCategoryId());
+//            if(!(object instanceof Concessions) ) return 0;
+//            Concessions concessions = (Concessions) object;
+//            stmt.setString(1, concessions.getName());
+//            stmt.setDouble(2, concessions.getPrice());
+//            stmt.setInt(3, concessions.getCategoryId());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

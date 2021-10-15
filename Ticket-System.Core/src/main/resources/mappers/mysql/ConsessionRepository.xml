@@ -1,9 +1,79 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.apps.mybatis.mysql.">
+<mapper namespace="com.apps.mybatis.mysql.ConcessionRepository">
 
-    <select id="" >
+        <select id="findAll" resultType="com.apps.domain.entity.Concession" >
+            select * from concession
+            <where>
+                <if test="name != null">
+                    name like concat('%',#{name},'%')
+                </if>
+                <if test="categoryId != null and categoryId != 0">
+                    and category_id = #{categoryId}
+                </if>
+            </where>
+            <if test="sort != null">
+                order by
+                <choose>
+                    <when test="sort == 'id'">
+                        id
+                    </when>
+                    <when test="sort == 'name'">
+                        name
+                    </when>
+                    <when test="sort == 'categoryId'">
+                        category_id
+                    </when>
+                    <otherwise>
+                        price
+                    </otherwise>
+                </choose>
+            </if>
 
+            <if test="order != 'ASC' and sort != null" >
+                DESC
+            </if>
+            limit #{limit} offset #{offset}
+        </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from concession
+                <where>
+                    <if test="name != null">
+                        name like concat('%',#{name},'%')
+                    </if>
+                    <if test="categoryId != null and categoryId != 0">
+                        and category_id = #{categoryId}
+                    </if>
+                </where>
     </select>
+
+    <update id="update" >
+        update concession
+        <set>
+            <if test="name != null">
+                name = #{entity.name},
+            </if>
+            <if test="price != null">
+                price = #{entity.price},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{entity.categoryId}
+            </if>
+            <if test="image != null">
+                image = #{entity.image}
+            </if>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from concession
+        <where>
+            id = #{id}
+        </where>
+    </delete>
 </mapper>

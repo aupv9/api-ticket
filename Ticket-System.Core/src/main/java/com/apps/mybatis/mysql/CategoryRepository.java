@@ -15,5 +15,6 @@ public interface CategoryRepository {
     int update(@Param("entity") Category category);
     void delete(@Param("id") Integer id);
     Category findById(@Param("id") Integer id);
+
 }
 
