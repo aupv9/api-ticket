@@ -9,8 +9,8 @@
                 <if test="name != null">
                     name like concat('%',#{name},'%')
                 </if>
-                <if test="categoryId != null and categoryId != 0">
-                    and category_id = #{categoryId}
+                <if test="category != null">
+                    and category_id = #{category}
                 </if>
             </where>
             <if test="sort != null">
@@ -21,9 +21,6 @@
                     </when>
                     <when test="sort == 'name'">
                         name
-                    </when>
-                    <when test="sort == 'categoryId'">
-                        category_id
                     </when>
                     <otherwise>
                         price
@@ -43,8 +40,8 @@
                     <if test="name != null">
                         name like concat('%',#{name},'%')
                     </if>
-                    <if test="categoryId != null and categoryId != 0">
-                        and category_id = #{categoryId}
+                    <if test="category != null ">
+                        and category_id = #{category}
                     </if>
                 </where>
     </select>

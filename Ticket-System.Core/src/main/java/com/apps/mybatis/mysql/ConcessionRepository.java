@@ -11,9 +11,8 @@ import java.util.List;
 public interface ConcessionRepository {
     List<Concession> findAll(@Param("limit") int limit, @Param("offset") int offset,
                              @Param("sort")String sort, @Param("order") String order,
-                             @Param("name")String name,
-                             @Param("categoryId") int categoryId);
-    int findCountAll(@Param("name")String name, @Param("categoryId") int categoryId);
+                             @Param("name")String name, @Param("category") int categoryId);
+    int findCountAll(@Param("name")String name, @Param("category") int categoryId);
     int update(@Param("entity") Concession concession);
     void delete(@Param("id") Integer id);
     @Select("SELECT * FROM CONCESSION WHERE ID = #{id}")

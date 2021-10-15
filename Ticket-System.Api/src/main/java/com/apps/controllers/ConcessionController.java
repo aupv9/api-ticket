@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -31,10 +32,11 @@ public class ConcessionController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false)String sort,
                                           @RequestParam(value = "order", required = false)String order,
-                                          @RequestParam(value = "name", required = false)String name,
+                                          @RequestParam(value = "search", required = false)String name,
                                           @RequestParam(value = "category_id", required = false) Integer categoryId){
-        var resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,categoryId);
-        var totalElements = this.concessionsService.findCountAll(name,categoryId);
+        System.out.println(categoryId);
+        List<Concession> resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,categoryId);
+        int totalElements = this.concessionsService.findCountAll(name,categoryId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)

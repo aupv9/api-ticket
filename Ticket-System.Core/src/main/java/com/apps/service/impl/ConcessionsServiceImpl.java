@@ -25,21 +25,20 @@ public class ConcessionsServiceImpl implements ConcessionsService {
         this.cacheManager = cacheManager;
     }
 
-
     @Override
-    @Cacheable(cacheNames = "FoodsService", key = "'FoodsList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name +#categoryId")
+//    @Cacheable(cacheNames = "ConcessionsService", key = "'ConcessionsList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name+'-'+#categoryId")
     public List<Concession> findAll(int page, int size, String sort, String order, String name, int categoryId) {
         return this.concessionRepository.findAll(size, page * size,sort,order,name,categoryId);
     }
 
     @Override
-    @Cacheable(cacheNames = "FoodsService", key = "'findCountAllFoodsList_'+#name +'-'+#categoryId")
+    @Cacheable(cacheNames = "ConcessionsService", key = "'findCountAllConcessionsList_'+#name +'-'+#categoryId")
     public int findCountAll(String name, int categoryId) {
         return this.concessionRepository.findCountAll(name,categoryId);
     }
 
     @Override
-    @Cacheable(cacheNames = "FoodsService", key = "'findByIdFoods_'+#id")
+    @Cacheable(cacheNames = "ConcessionsService", key = "'findByIdConcessions_'+#id")
     public Concession findById(Integer id) {
         Concession concession = this.concessionRepository.findById(id);
         if(concession == null){
@@ -55,7 +54,7 @@ public class ConcessionsServiceImpl implements ConcessionsService {
 //        concessions1.setPrice(concessions.getPrice());
 //        concessions1.setCategoryId(concessions.getCategoryId());
         int result = this.concessionRepository.update(concession1);
-        cacheManager.clearCache("FoodsService");
+        cacheManager.clearCache("ConcessionsService");
         return result;
     }
 
@@ -63,14 +62,14 @@ public class ConcessionsServiceImpl implements ConcessionsService {
     public void delete(Integer id) {
         Concession concession = this.concessionRepository.findById(id);
         this.concessionRepository.delete(concession.getId());
-        cacheManager.clearCache("FoodsService");
+        cacheManager.clearCache("ConcessionsService");
     }
 
     @Override
     public int insert(Concession concession) throws SQLException {
         String sql = "Insert into concession(name,price,category_id) values(?,?,?)";
         int id = this.concessionsCustomRepository.insert(concession,sql);
-        cacheManager.clearCache("FoodsService");
+        cacheManager.clearCache("ConcessionsService");
         return id;
     }
 }
