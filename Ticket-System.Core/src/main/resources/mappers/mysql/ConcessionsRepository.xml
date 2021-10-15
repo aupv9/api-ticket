@@ -1,0 +1,83 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.ConcessionsRepository">
+
+<!--    <select id="findAll" resultType="com.apps.domain.entity.Category" >-->
+<!--        select * from category-->
+<!--&lt;!&ndash;        <where>&ndash;&gt;-->
+<!--&lt;!&ndash;            <if test="name != null">&ndash;&gt;-->
+<!--&lt;!&ndash;                name like concat('%',#{name},'%')&ndash;&gt;-->
+<!--&lt;!&ndash;            </if>&ndash;&gt;-->
+<!--&lt;!&ndash;            <if test="price != null">&ndash;&gt;-->
+<!--&lt;!&ndash;                and price = #{price}&ndash;&gt;-->
+<!--&lt;!&ndash;            </if>&ndash;&gt;-->
+<!--&lt;!&ndash;            <if test="categoryId != null">&ndash;&gt;-->
+<!--&lt;!&ndash;                and category_id = #{categoryId}&ndash;&gt;-->
+<!--&lt;!&ndash;            </if>&ndash;&gt;-->
+<!--&lt;!&ndash;        </where>&ndash;&gt;-->
+<!--&lt;!&ndash;        <if test="sort != null">&ndash;&gt;-->
+<!--&lt;!&ndash;            order by&ndash;&gt;-->
+<!--&lt;!&ndash;            <choose>&ndash;&gt;-->
+<!--&lt;!&ndash;                <when test="sort == 'id'">&ndash;&gt;-->
+<!--&lt;!&ndash;                    id&ndash;&gt;-->
+<!--&lt;!&ndash;                </when>&ndash;&gt;-->
+<!--&lt;!&ndash;                <when test="sort == 'name'">&ndash;&gt;-->
+<!--&lt;!&ndash;                    name&ndash;&gt;-->
+<!--&lt;!&ndash;                </when>&ndash;&gt;-->
+<!--&lt;!&ndash;                <when test="sort == 'categoryId'">&ndash;&gt;-->
+<!--&lt;!&ndash;                    category_id&ndash;&gt;-->
+<!--&lt;!&ndash;                </when>&ndash;&gt;-->
+<!--&lt;!&ndash;                <otherwise>&ndash;&gt;-->
+<!--&lt;!&ndash;                    price&ndash;&gt;-->
+<!--&lt;!&ndash;                </otherwise>&ndash;&gt;-->
+<!--&lt;!&ndash;            </choose>&ndash;&gt;-->
+<!--&lt;!&ndash;        </if>&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <if test="order != 'ASC' and sort != null" >&ndash;&gt;-->
+<!--&lt;!&ndash;            DESC&ndash;&gt;-->
+<!--&lt;!&ndash;        </if>&ndash;&gt;-->
+<!--&lt;!&ndash;        limit #{limit} offset #{offset}&ndash;&gt;-->
+<!--    </select>-->
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from concessions
+        <where>
+            <if test="name != null">
+                name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" >
+        update concession
+        <set>
+            <if test="name != null">
+                name = #{entity.name},
+            </if>
+            <if test="price != null">
+                price = #{entity.price},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{entity.categoryId}
+            </if>
+            <if test="image != null">
+                image = #{entity.image}
+            </if>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from concession
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+</mapper>

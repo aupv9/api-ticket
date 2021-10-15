@@ -4,8 +4,7 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
-        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
-        date
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id
         from showtimes_detail
         <if test="search != null">
             inner join movie m on showtimes_detail.movie_id = m.id

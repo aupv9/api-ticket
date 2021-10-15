@@ -10,7 +10,7 @@ create table category
     type        varchar(100) null
 );
 
-create table foods
+create table concessions
 (
     id          int auto_increment
         primary key,
@@ -25,7 +25,7 @@ create table foods
 );
 
 create index category_id
-    on foods (category_id);
+    on concessions (category_id);
 
 create table location
 (
@@ -335,7 +335,7 @@ create table orders_detail
     orders_id int   not null,
     amount    float null,
     constraint orders_detail_ibfk_1
-        foreign key (food_id) references foods (id),
+        foreign key (food_id) references concessions (id),
     constraint orders_detail_ibfk_2
         foreign key (orders_id) references orders (id)
 );

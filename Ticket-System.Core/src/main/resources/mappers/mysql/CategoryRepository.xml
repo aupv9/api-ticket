@@ -3,10 +3,77 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.CategoryRepository">
 
-<!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
-<!--        select * from room limit #{limit} offset #{offset};-->
-<!--    </select>-->
+    <select id="findAll" resultType="com.apps.domain.entity.Category">
+        select * from category
+        <where>
+            <if test="name != null">
+                name like concat('%',#{name},'%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <otherwise>
+                    type
+                </otherwise>
+            </choose>
+        </if>
 
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from category
+        <where>
+            <if test="name != null">
+                name like concat('%',#{name},'%')
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" >
+        update category
+        <set>
+            <if test="name != null">
+                name = #{entity.name},
+            </if>
+            <if test="description != null">
+                description = #{entity.description},
+            </if>
+            <if test="type != null">
+                type = #{entity.type}
+            </if>
+            <if test="image != null">
+                image = #{entity.image}
+            </if>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from category
+        <where>
+            id = #{id}
+        </where>
+    </delete>
     <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
     <!--        INSERT INTO booksystem.room (code, name, theater_id)-->
     <!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->
