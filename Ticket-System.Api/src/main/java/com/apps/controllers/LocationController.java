@@ -24,8 +24,8 @@ public class LocationController {
     private LocationService locationService;
 
     @GetMapping("locations")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) int size,
+                                          @RequestParam(value = "page", required = false)int page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search",  required = false) String search){
@@ -39,13 +39,13 @@ public class LocationController {
     }
 
     @GetMapping("locations/{id}")
-    public ResponseEntity<?> getLocations(@PathVariable(value = "id", required = false) Integer idLocation){
+    public ResponseEntity<?> getLocations(@PathVariable(value = "id", required = false) int idLocation){
         var resultLocation = this.locationService.findById(idLocation);
         return ResponseEntity.ok(resultLocation);
     }
 
     @GetMapping("location-theater/{id}")
-    public ResponseEntity<?> getCountTheaterByLocation(@PathVariable(value = "id", required = false) Integer idLocation){
+    public ResponseEntity<?> getCountTheaterByLocation(@PathVariable(value = "id", required = false) int idLocation){
         var count = this.locationService.countTheaterByLocation(idLocation);
         var response = ResponseCount.builder().id(idLocation)
                 .count(count).build();
@@ -61,7 +61,7 @@ public class LocationController {
     }
 
     @PutMapping("locations/{id}")
-    public ResponseEntity<?> updateLocations(@PathVariable(value = "id") Integer idLocation,@RequestBody Location location){
+    public ResponseEntity<?> updateLocations(@PathVariable(value = "id") int idLocation,@RequestBody Location location){
         location.setId(idLocation);
         var resultUpdate = this.locationService.update(location);
         var response = RAResponseUpdate.builder()
@@ -72,7 +72,7 @@ public class LocationController {
     }
 
     @DeleteMapping ("locations/{id}")
-    public ResponseEntity<?> deleteLocations(@PathVariable(value = "id", required = false) Integer idLocation){
+    public ResponseEntity<?> deleteLocations(@PathVariable(value = "id", required = false) int idLocation){
         return ResponseEntity.ok(this.locationService.delete(idLocation));
     }
 }

@@ -27,14 +27,27 @@ public class ConcessionsServiceImpl implements ConcessionsService {
 
     @Override
 //    @Cacheable(cacheNames = "ConcessionsService", key = "'ConcessionsList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name+'-'+#categoryId")
-    public List<Concession> findAll(int page, int size, String sort, String order, String name, int categoryId) {
-        return this.concessionRepository.findAll(size, page * size,sort,order,name,categoryId);
+    public List<Concession> findAll(int page, int size, String sort, String order, String name, Integer categoryId) {
+        List<Concession> result = null;
+        try{
+            result = this.concessionRepository.findAll(size, page * size,sort,order,name,categoryId);
+        }catch (NullPointerException nullPointerException){
+            result = this.concessionRepository.findAll(size, page * size,sort,order,name,null);
+        }
+
+        return result;
     }
 
     @Override
     @Cacheable(cacheNames = "ConcessionsService", key = "'findCountAllConcessionsList_'+#name +'-'+#categoryId")
-    public int findCountAll(String name, int categoryId) {
-        return this.concessionRepository.findCountAll(name,categoryId);
+    public int findCountAll(String name, Integer categoryId) {
+        int result = 0;
+        try{
+            result = this.concessionRepository.findCountAll(name,categoryId);
+        }catch (NullPointerException nullPointerException){
+            result = this.concessionRepository.findCountAll(name,null);
+        }
+        return result;
     }
 
     @Override

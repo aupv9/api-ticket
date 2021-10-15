@@ -19,53 +19,53 @@ import java.util.stream.Collectors;
 @Aspect
 @Slf4j
 public class PerformanceAspect {
-    @Value("${application.aop.warnningExecutionTime:1000}")
-    private long warnningExecutionTime;
-
-    @Around("execution(* *(..)) &&" +
-            "(" +
-            "    within(com.apps.*) " +
-            ")")
-    public Object performce(ProceedingJoinPoint joinPoint) throws Throwable {
-        long start = System.currentTimeMillis();
-
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        final String username = auth != null ? auth.getName() : "";
-
-        try {
-            return joinPoint.proceed();
-        } finally {
-            long executionTime = System.currentTimeMillis() - start;
-            if (executionTime > warnningExecutionTime) {
-                String level = "ok";
-                if(executionTime >= ( 1000*60)) {
-                    level = "highest";
-                } else if (executionTime >= (1000*30)) {
-                    level = "high";
-                } else if (executionTime >= (1000*15)) {
-                    level = "medium";
-                }
-
-                log.info(" {} executed in {} ({})", joinPoint.getSignature(), CommonUtils.toHumanReadableDuration(executionTime), level);
-            }
-        }
-
-    }
-
-    @Before("execution(* com.apps.controllers.*.*(..))")
-    public void beforeControllers(JoinPoint joinPoint) {
-        List<String> args = new ArrayList<>();
-
-        if (joinPoint.getArgs() != null) {
-            args = Arrays.stream(joinPoint.getArgs()).map(a -> a!=null ? a.toString() : null).collect(Collectors.toList());
-        }
-
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        final String username = auth.getName();
-        log.debug(" execute ({}) {}",
-//                username,
-                joinPoint.getSignature(),
-                CommonUtils.isNullOrEmpty(args) ? "" : "message: " + String.join(", ", args));
-
-    }
+//    @Value("${application.aop.warnningExecutionTime:1000}")
+//    private long warnningExecutionTime;
+//
+//    @Around("execution(* *(..)) &&" +
+//            "(" +
+//            "    within(com.apps.*) " +
+//            ")")
+//    public Object performce(ProceedingJoinPoint joinPoint) throws Throwable {
+//        long start = System.currentTimeMillis();
+//
+////        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+////        final String username = auth != null ? auth.getName() : "";
+//
+//        try {
+//            return joinPoint.proceed();
+//        } finally {
+//            long executionTime = System.currentTimeMillis() - start;
+//            if (executionTime > warnningExecutionTime) {
+//                String level = "ok";
+//                if(executionTime >= ( 1000*60)) {
+//                    level = "highest";
+//                } else if (executionTime >= (1000*30)) {
+//                    level = "high";
+//                } else if (executionTime >= (1000*15)) {
+//                    level = "medium";
+//                }
+//
+//                log.info(" {} executed in {} ({})", joinPoint.getSignature(), CommonUtils.toHumanReadableDuration(executionTime), level);
+//            }
+//        }
+//
+//    }
+//
+//    @Before("execution(* com.apps.controllers.*.*(..))")
+//    public void beforeControllers(JoinPoint joinPoint) {
+//        List<String> args = new ArrayList<>();
+//
+//        if (joinPoint.getArgs() != null) {
+//            args = Arrays.stream(joinPoint.getArgs()).map(a -> a!=null ? a.toString() : null).collect(Collectors.toList());
+//        }
+//
+////        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+////        final String username = auth.getName();
+//        log.debug(" execute ({}) {}",
+////                username,
+//                joinPoint.getSignature(),
+//                CommonUtils.isNullOrEmpty(args) ? "" : "message: " + String.join(", ", args));
+//
+//    }
 }

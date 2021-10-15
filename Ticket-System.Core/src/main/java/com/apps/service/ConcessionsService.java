@@ -8,8 +8,8 @@ import java.util.List;
 public interface ConcessionsService {
     List<Concession> findAll(int page, int size,
                              String sort, String order,
-                             String name, int categoryId);
-    int findCountAll(String name,int categoryId);
+                             String name, Integer categoryId);
+    int findCountAll(String name, Integer categoryId);
     Concession findById(Integer id);
     int update(Concession concession);
     void delete(Integer id);

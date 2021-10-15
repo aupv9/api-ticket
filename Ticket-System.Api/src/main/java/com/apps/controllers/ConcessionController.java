@@ -20,6 +20,7 @@ import java.util.List;
 @CrossOrigin(value = "*")
 public class ConcessionController {
 
+
     private final ConcessionsService concessionsService;
 
     public ConcessionController(ConcessionsService concessionsService) {
@@ -28,15 +29,22 @@ public class ConcessionController {
 
 
     @GetMapping("foods")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) int size,
+                                          @RequestParam(value = "page", required = false)int page,
                                           @RequestParam(value = "sort", required = false)String sort,
                                           @RequestParam(value = "order", required = false)String order,
                                           @RequestParam(value = "search", required = false)String name,
                                           @RequestParam(value = "category_id", required = false) Integer categoryId){
-        System.out.println(categoryId);
-        List<Concession> resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,categoryId);
-        int totalElements = this.concessionsService.findCountAll(name,categoryId);
+        List<Concession> resultList = null;
+        int totalElements = 0;
+        try{
+            resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,categoryId);
+            totalElements = this.concessionsService.findCountAll(name,categoryId);
+        }catch (NullPointerException nullPointerException){
+            resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,null);
+            totalElements = this.concessionsService.findCountAll(name,null);
+        }
+
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
