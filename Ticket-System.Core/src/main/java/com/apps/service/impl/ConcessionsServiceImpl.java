@@ -80,7 +80,7 @@ public class ConcessionsServiceImpl implements ConcessionsService {
 
     @Override
     public int insert(Concession concession) throws SQLException {
-        String sql = "Insert into concession(name,price,category_id) values(?,?,?)";
+        String sql = "Insert into concession(name,price,category_id,image,thumbnail) values(?,?,?,?,?)";
         int id = this.concessionsCustomRepository.insert(concession,sql);
         cacheManager.clearCache("ConcessionsService");
         return id;

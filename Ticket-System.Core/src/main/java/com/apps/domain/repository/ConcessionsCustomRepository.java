@@ -24,11 +24,14 @@ public class ConcessionsCustomRepository implements Repository<Concession> {
         try{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            if(!(object instanceof Concessions) ) return 0;
-//            Concessions concessions = (Concessions) object;
-//            stmt.setString(1, concessions.getName());
-//            stmt.setDouble(2, concessions.getPrice());
-//            stmt.setInt(3, concessions.getCategoryId());
+            if(!(object instanceof Concession) ) return 0;
+            Concession concessions = (Concession) object;
+            stmt.setString(1, concessions.getName());
+            stmt.setDouble(2, concessions.getPrice());
+            stmt.setInt(3, concessions.getCategoryId());
+            stmt.setString(4, concessions.getImage());
+            stmt.setString(5, concessions.getThumbnail());
+
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

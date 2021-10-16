@@ -3,6 +3,7 @@ package com.apps.mybatis.mysql;
 import com.apps.domain.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface CategoryRepository {
     int findCountAll(@Param("name")String name, @Param("type")String type);
     int update(@Param("entity") Category category);
     void delete(@Param("id") Integer id);
+
     Category findById(@Param("id") Integer id);
 
 }

@@ -1,21 +1,21 @@
 package com.apps.domain.repository;
 
 import com.apps.domain.entity.Category;
-import com.apps.domain.entity.ShowTimesDetail;
+import com.apps.domain.entity.Orders;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
 @Component
-public class CategoryCustomRepository implements Repository<Category> {
+public class OrdersCustomRepository implements Repository<Orders>{
 
     private final DataSource dataSource;
 
     PreparedStatement stmt = null;
     ResultSet rs = null;
 
-    public CategoryCustomRepository(DataSource dataSource) {
+    public OrdersCustomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -26,13 +26,16 @@ public class CategoryCustomRepository implements Repository<Category> {
         try{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            if(!(object instanceof Category) ) return 0;
-            Category category = (Category) object;
-            stmt.setString(1,category.getName());
-            stmt.setString(2,category.getDescription());
-            stmt.setString(3,category.getType());
-            stmt.setString(4,category.getImage());
-            stmt.setString(5,category.getThumbnail());
+            if(!(object instanceof Orders) ) return 0;
+            Orders category = (Orders) object;
+            stmt.setInt(1,category.getUserId());
+            stmt.setInt(2,category.getShowTimesDetailId());
+            stmt.setDouble(3,category.getTax());
+            stmt.setString(4,category.getCreateDate());
+            stmt.setString(5,category.getNote());
+            stmt.setInt(6,category.getCreation());
+            stmt.setString(7,category.getTypeUser());
+            stmt.setString(8,category.getStatus());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

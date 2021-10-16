@@ -11,4 +11,6 @@ public class Concession implements Serializable {
     private String name;
     private Double price;
     private Integer categoryId;
+    private String image;
+    private String thumbnail;
 }

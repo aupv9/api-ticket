@@ -1,12 +1,9 @@
-package com.apps.domain.entity;
+package com.apps.mapper;
 
 import lombok.Data;
-import java.io.Serializable;
-
 
 @Data
-public class Orders implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class OrderDto {
     private int id;
     private double totalAmount;
     private double tax;

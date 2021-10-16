@@ -38,6 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
         return this.categoryRepository.findCountAll(name,type);
     }
 
+
     @Override
     @Cacheable(cacheNames = "CategoryService", key = "'findByIdCategory_'+#id")
     public Category findById(Integer id) {
@@ -69,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public int insert(Category category) throws SQLException {
-        String sql = "Insert into category(name,description,type) values(?,?,?)";
+        String sql = "Insert into category(name,description,type,image,thumbnail) values(?,?,?,?,?)";
         int id = this.categoryCustomRepository.insert(category,sql);
         this.cacheManager.clearCache("CategoryService");
         return id;

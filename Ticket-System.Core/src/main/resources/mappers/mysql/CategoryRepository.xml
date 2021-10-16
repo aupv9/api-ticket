@@ -63,6 +63,9 @@
             <if test="image != null">
                 image = #{entity.image}
             </if>
+            <if test="thumbnail != null">
+                thumbnail = #{entity.thumbnail}
+            </if>
         </set>
         <where>
             id = #{entity.id}
@@ -76,4 +79,7 @@
         </where>
     </delete>
 
+    <select id="findById" resultType="com.apps.domain.entity.Category">
+        select * from category where id = #{id}
+    </select>
 </mapper>

@@ -2,12 +2,11 @@ create table category
 (
     id          int auto_increment
         primary key,
-    name        varchar(255) null,
-    description varchar(500) null,
-    create_date timestamp    null,
-    start_date  timestamp    null,
-    end_date    timestamp    null,
-    type        varchar(100) null
+    name        varchar(255)                                 null,
+    description varchar(500)                                 null,
+    image       varchar(255)                                 null,
+    type        enum ('combos', 'foods', 'others', 'drinks') null,
+    thumbnail   varchar(255)                                 null
 );
 
 create table concession
@@ -15,17 +14,13 @@ create table concession
     id          int auto_increment
         primary key,
     name        varchar(255) null,
-    create_date timestamp    null,
-    start_date  timestamp    null,
-    end_date    timestamp    null,
-    price       float        null,
-    category_id int          not null,
-    constraint foods_ibfk_1
+    price       double       null,
+    category_id int          null,
+    image       varchar(255) null,
+    thumbnail   varchar(255) null,
+    constraint concession_category_id_fk
         foreign key (category_id) references category (id)
 );
-
-create index category_id
-    on concession (category_id);
 
 create table location
 (
@@ -91,11 +86,10 @@ create table payment
     status            enum ('Complete', 'Pending', 'Verified') null,
     transaction_id    varchar(255)                             null,
     createtion_date   date                                     null,
-    start_date        date                                     null,
-    end_date          date                                     null,
     note              varchar(254)                             null,
     use_for           enum ('Ticket', 'Gift')                  null,
     part_id           int                                      null,
+    creation          int                                      null,
     constraint payment_ibfk_1
         foreign key (payment_method_id) references payment_method (id)
 );
@@ -220,17 +214,19 @@ create index seat_ibfk_1
 
 create table showtimes_detail
 (
-    movie_id   int  not null,
-    room_id    int  not null,
-    id         int auto_increment
+    movie_id     int       not null,
+    room_id      int       not null,
+    id           int auto_increment
         primary key,
-    time_end   time null,
-    time_start time null,
-    date       date null,
+    time_end     time      null,
+    time_start   timestamp null,
+    promotion_id int       null,
     constraint showtimes_detail_movie_id_room_id_date_start_time_start_uindex
-        unique (movie_id, room_id, date, time_start),
+        unique (movie_id, room_id, time_start),
     constraint showtimes_detail_movie_id_fk
         foreign key (movie_id) references movie (id),
+    constraint showtimes_detail_promotion_id_fk
+        foreign key (promotion_id) references promotion (id),
     constraint showtimes_detail_room_id_fk
         foreign key (room_id) references room (id)
 );
@@ -246,6 +242,12 @@ create table theater_media
 
 create index media_id
     on theater_media (media_id);
+
+create table timepick
+(
+    value time not null
+        primary key
+);
 
 create table user_account_status
 (
@@ -309,15 +311,14 @@ create table orders
 (
     id                  int auto_increment
         primary key,
-    user_id             int                                          not null,
-    ticket_date         date                                         null,
+    user_id             int                                          null,
     showtimes_detail_id int                                          not null,
-    total_amount        float                                        not null,
-    tax                 float                                        not null,
+    tax                 float                                        null,
     create_date         datetime                                     null,
     note                varchar(255)                                 null,
     creation            int                                          null,
     type_user           enum ('user', 'non_user') default 'non_user' null,
+    status              enum ('ordered', 'cancelled')                null,
     constraint orders_ibfk_1
         foreign key (user_id) references user_info (id),
     constraint ticket_showtimes_detail_id_fk
@@ -329,22 +330,14 @@ create index user_id
 
 create table orders_detail
 (
-    id        int auto_increment
-        primary key,
-    food_id   int   not null,
-    orders_id int   not null,
-    amount    float null,
-    constraint orders_detail_ibfk_1
-        foreign key (food_id) references concession (id),
-    constraint orders_detail_ibfk_2
+    concession_id int not null,
+    orders_id     int not null,
+    primary key (concession_id, orders_id),
+    constraint orders_detail_concession_id_fk
+        foreign key (concession_id) references concession (id),
+    constraint orders_detail_orders_id_fk
         foreign key (orders_id) references orders (id)
 );
-
-create index food_id
-    on orders_detail (food_id);
-
-create index orders_id
-    on orders_detail (orders_id);
 
 create table orders_seat
 (

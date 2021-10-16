@@ -3,16 +3,79 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.OrdersRepository">
 
-<!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
+    <select id="findAll" resultType="com.apps.domain.entity.Orders">
+        select * from orders
+        <where>
+            <if test="showTimes != null">
+                showtimes_detail_id = #{showTimes}
+            </if>
+            <if test="typeUser != null">
+                and type_user = #{typeUser}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'user'">
+                    user_id
+                </when>
+                <when test="sort == 'create_date'">
+                    create_date
+                </when>
+                <when test="sort == 'creation'">
+                    creation
+                </when>
+                <when test="sort == 'showTimes'">
+                    showtimes_detail_id
+                </when>
+                <otherwise>
+                    type_user
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from orders
+        <where>
+            <if test="showTimes != null">
+                showtimes_detail_id = #{showTimes}
+            </if>
+            <if test="typeUser != null">
+                and type_user = #{typeUser}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
 <!--        select * from room limit #{limit} offset #{offset};-->
 <!--    </select>-->
+    <insert id="insertOrderConcession">
+        insert into orders_detail(concession_id,orders_id) values(#{concessionId},#{ordersId})
+    </insert>
 
-    <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
-    <!--        INSERT INTO booksystem.room (code, name, theater_id)-->
-    <!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->
-    <!--        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >-->
-    <!--            SELECT LAST_INSERT_ID();-->
-    <!--        </selectKey>-->
-    <!--    </insert>-->
-
+    <insert id="insertOrderSeat">
+        insert into orders_seat(orders_id,seat_id) values(#{ordersId},#{seatId})
+    </insert>
 </mapper>
