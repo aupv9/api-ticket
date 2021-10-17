@@ -1,6 +1,5 @@
 package com.apps.controllers;
 
-import com.apps.domain.entity.Category;
 import com.apps.domain.entity.Orders;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
@@ -33,14 +32,15 @@ public class OrdersController {
                                           @RequestParam(value = "user_id",  required = false) Integer userId,
                                           @RequestParam(value = "type",  required = false) String type,
                                           @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
-                                          @RequestParam(value = "status", required = false) String status
+                                          @RequestParam(value = "status", required = false) String status,
+                                          @RequestParam(value = "creation", required = false) Integer creation
                                           ){
-        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status);
-        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status);
+        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation);
+        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation);
         var response = ResponseRA.builder()
-                .content(resultList)
-                .totalElements(totalElements)
-                .build();
+                                    .content(resultList)
+                                    .totalElements(totalElements)
+                                    .build();
         return ResponseEntity.ok(response);
     }
 

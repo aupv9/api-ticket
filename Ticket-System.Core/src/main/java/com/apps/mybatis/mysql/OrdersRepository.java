@@ -15,10 +15,12 @@ public interface OrdersRepository {
     List<Orders> findAll(@Param("limit") int limit, @Param("offset") int offset,
                          @Param("sort")String sort, @Param("order") String order,
                          @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
-                         @Param("userId")Integer userId,@Param("status")String status);
+                         @Param("userId")Integer userId,@Param("status")String status
+                        ,@Param("creation") Integer creation);
 
     int findCountAll(@Param("showTimes")Integer showTimes, @Param("typeUser")String type,
-                     @Param("userId")Integer userId,@Param("status")String status);
+                     @Param("userId")Integer userId,@Param("status")String status
+                    ,@Param("creation") Integer creation);
 
     @Select("select * from orders")
     Orders findById(@Param("id")Integer id);

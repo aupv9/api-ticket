@@ -18,6 +18,9 @@
             <if test="status != null">
                 and status = #{status}
             </if>
+            <if test="creation != null">
+                and creation = #{creation}
+            </if>
         </where>
         <if test="sort != null">
             order by
@@ -64,6 +67,9 @@
             </if>
             <if test="status != null">
                 and status = #{status}
+            </if>
+            <if test="creation != null">
+                and creation = #{creation}
             </if>
         </where>
     </select>

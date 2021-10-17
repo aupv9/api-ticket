@@ -24,13 +24,14 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId,String status) {
-        return this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status);
+    public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
+                                String type, Integer userId,String status,Integer creation) {
+        return this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation);
     }
 
     @Override
-    public int findAllCount(Integer showTimes, String type, Integer userId,String status) {
-        return this.ordersRepository.findCountAll(showTimes,type,userId,status);
+    public int findAllCount(Integer showTimes, String type, Integer userId,String status,Integer creation) {
+        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation);
     }
 
     @Override
