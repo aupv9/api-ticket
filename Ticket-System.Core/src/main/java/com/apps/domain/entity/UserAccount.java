@@ -20,4 +20,5 @@ public class UserAccount implements Serializable {
     private Timestamp passwordReminderExpire;
     private String emailConfirmationToken;
     private int userAccountStatusId;
+    private String status;
 }

@@ -74,14 +74,11 @@
         </where>
     </select>
 
-    <!--    <select id="findAll" resultType="com.apps.domain.entity.Room">-->
-<!--        select * from room limit #{limit} offset #{offset};-->
-<!--    </select>-->
     <insert id="insertOrderConcession">
         insert into orders_detail(concession_id,orders_id) values(#{concessionId},#{ordersId})
     </insert>
 
     <insert id="insertOrderSeat">
-        insert into orders_seat(orders_id,seat_id) values(#{ordersId},#{seatId})
+        insert into orders_seat(orders_id,seat_id,type) values(#{ordersId},#{seatId},#{type})
     </insert>
 </mapper>

@@ -51,6 +51,18 @@ public class MovieController {
         return ResponseEntity.ok(response);
     }
 
+//    @GetMapping("movies-theater")
+//    public ResponseEntity<?> getMovies(@RequestParam(value = "pageSize", required = false) Integer size) {
+//        var resultList = this.movieService.findAll(page - 1, size, search, sort, order);
+//        var totalElements = this.movieService.findAllCount(search);
+//        var response = ResponseRA.builder()
+//                .content(resultList)
+//                .totalElements(totalElements)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
+
+
     @GetMapping("movies/{id}")
     public ResponseEntity<?> getMovieById(@PathVariable(value = "id", required = false) Integer id) {
         if(id == null) return ResponseEntity.ok(null);
