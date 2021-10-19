@@ -1,13 +1,72 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.apps.jpa.repository.UserAccountRepository">
+<mapper namespace="com.apps.mybatis.mysql.UserAccountRepository">
 
     <select id="findById" resultType="com.apps.domain.entity.UserAccount">
         select * from user_account where user_info_id = #{id}
     </select>
+    <insert id="insert">
+        <if test="user.emailConfirmationToken != null">
+            insert into user_account(user_info_id,email,password,email_confirmation_token)
+            values (#{user.userInfoId},#{user.email},#{user.password},#{user.emailConfirmationToken})
+        </if>
+        <if test="user.emailConfirmationToken == null">
+            insert into user_account(user_info_id,email,password)
+            values (#{user.userInfoId},#{user.email},#{user.password})
+        </if>
+    </insert>
 
+    <select id="findAllUser" resultType="com.apps.domain.entity.User" >
+        select user_info.id,full_name,ua.email,ua.active,r2.name
+        from user_info
+        join user_account ua on ua.user_info_id = user_info.id
+        join user_role r on user_info.id = r.user_id
+        join role r2 on r.role_id = r2.id
+        <where>
+            <if test="role != null">
+               role_id = #{role}
+            </if>
+            <if test="search != null">
+               and full_name like concat('%',#{search},'%')
+            </if>
+        </where>
 
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'fullName'">
+                    full_name
+                </when>
+                <otherwise>
+                    role_id
+                </otherwise>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*) from user_info
+        join user_account ua on ua.user_info_id = user_info.id
+        join user_role r on user_info.id = r.user_id
+        join role r2 on r.role_id = r2.id
+        <where>
+            <if test="role != null">
+                role_id = #{role}
+            </if>
+            <if test="search != null">
+                and full_name like concat('%',#{search},'%')
+            </if>
+        </where>
+
+    </select>
 <!--    <insert id="insert">-->
 <!--        insert into user_account_status (id,code, name) values(#{entity.id},#{entity.code},#{entity.name})-->
 <!--    </insert>-->

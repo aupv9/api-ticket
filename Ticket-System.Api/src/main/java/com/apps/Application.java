@@ -2,13 +2,13 @@ package com.apps;
 
 import com.apps.utils.CommonUtils;
 
-import com.paypal.api.payments.PaymentCard;
-import lombok.Data;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -17,6 +17,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.filter.DelegatingFilterProxy;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Time;
@@ -28,7 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableCaching
 @EnableConfigurationProperties
 @Slf4j

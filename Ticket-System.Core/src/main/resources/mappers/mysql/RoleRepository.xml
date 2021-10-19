@@ -16,4 +16,12 @@
         select * from privileges where id = #{id}
     </select>
 
+    <insert id="insertUserRole">
+        insert into user_role(user_id,role_id) values (#{userId},#{roleId})
+    </insert>
+
+    <insert id="insertRolePrivilege">
+        insert into roles_privileges(role_id,privilege_id) values (#{roleId},#{privilegeId})
+    </insert>
+
 </mapper>

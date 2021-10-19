@@ -13,7 +13,15 @@ import java.util.List;
 
 @Mapper
 public interface RoleRepository {
+
+    int insertUserRole(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
+    int insertRolePrivilege(@Param("roleId")Integer roleId,@Param("privilegeId")Integer privilegeId);
+
     List<Role> findById(@Param("id")Integer id);
+
+    @Select("select * from role where name = #{name}")
+    Role findByName(@Param("name")String name);
+
     List<UserRole> findUserRoleById(@Param("userId")Integer userId);
     List<RolePrivileges> findPrivilegesByRole(@Param("roleId")Integer roleId);
     List<Privilege> findPrivilegesById(@Param("id")Integer id);
@@ -30,4 +38,5 @@ public interface RoleRepository {
 
     @Delete("delete from roles_privileges where role_id = #{roleId} and privilege_id = #{privilegeId}")
     void deleteRolePrivilege(@Param("roleId")Integer roleId, @Param("privilegeId")Integer privilegeId);
+
 }

@@ -19,7 +19,6 @@ import java.util.Date;
 @Slf4j
 public class JWTServiceImp implements JWTService{
 
-
     RSAKey rsaJWK ;
     char[] keyId = new char[]{'1','6','3','6','9'};
     final int EXPIRE_TIME = 15000;

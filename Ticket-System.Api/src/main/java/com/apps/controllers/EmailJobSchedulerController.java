@@ -27,7 +27,6 @@ public class EmailJobSchedulerController {
     @Autowired
     private Scheduler scheduler;
 
-
     @PostMapping("/scheduleEmail")
     public ResponseEntity<ScheduleEmailResponse> scheduleEmail(@Valid @RequestBody ScheduleEmailRequest scheduleEmailRequest) {
         try {
