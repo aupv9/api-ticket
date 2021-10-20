@@ -16,8 +16,13 @@ public interface RoleRepository {
 
     int insertUserRole(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
     int insertRolePrivilege(@Param("roleId")Integer roleId,@Param("privilegeId")Integer privilegeId);
+    int updateRoleByUser(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
 
-    List<Role> findById(@Param("id")Integer id);
+    List<Role> findAll();
+    @Select("select count(*) from role")
+    int findAllCountRole();
+
+    Role findRoleById(@Param("id")Integer id);
 
     @Select("select * from role where name = #{name}")
     Role findByName(@Param("name")String name);

@@ -12,10 +12,8 @@ import java.io.Serializable;
 public class UserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
-    private String firstName;
-    private String lastName;
-    private String fullName;
-    private String email;
+    private String firstName,email, lastName,activeDate, registeredAt, fullName, photo;
     private String timeZone;
     private Boolean isLoginSocial;
+
 }

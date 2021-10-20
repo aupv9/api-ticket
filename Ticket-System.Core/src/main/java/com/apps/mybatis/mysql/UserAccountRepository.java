@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserAccount;
+import com.apps.domain.entity.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,4 +16,8 @@ public interface UserAccountRepository {
                            @Param("sort") String sort, @Param("order") String order,
                            @Param("search") String name,@Param("role") Integer role);
     int findCountAll( @Param("search") String name,@Param("role") Integer role);
+    User findUserById(@Param("id")Integer id);
+
+    int updateUserAccount(@Param("user")UserAccount userAccount);
+    int updateUserInfo(@Param("user")UserInfo userInfo);
 }

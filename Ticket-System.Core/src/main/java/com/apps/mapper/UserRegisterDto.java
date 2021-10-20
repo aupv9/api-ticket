@@ -4,13 +4,9 @@ import lombok.Data;
 
 @Data
 public class UserRegisterDto {
-    private Integer id;
-    private String firstName;
-    private String lastName;
-    private String fullName;
-    private String email;
+    private Integer id, createBy,modifiedBy;
+    private String email,firstName,lastName,password,phoneNumber,photo;
     private String timeZone;
     private Boolean isLoginSocial = false;
-    private String password;
-    private String phoneNumber;
+    private String address, city, state;
 }

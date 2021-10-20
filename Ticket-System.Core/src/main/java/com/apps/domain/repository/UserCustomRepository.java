@@ -34,6 +34,7 @@ public class UserCustomRepository implements Repository<UserInfo>{
             stmt.setString(3,userInfo.getLastName());
             stmt.setString(4,userInfo.getFullName());
             stmt.setBoolean(5,userInfo.getIsLoginSocial());
+            stmt.setString(6,userInfo.getPhoto());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

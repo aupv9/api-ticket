@@ -15,8 +15,8 @@
         delete from user_account_status where id = #{id}
     </delete>
 
-    <select id="findAll" resultType="com.apps.domain.entity.UserAccountStatus">
-        select * from user_account_status
-    </select>
+<!--    <select id="findAll" resultType="com.apps.domain.entity.UserAccountStatus">-->
+<!--        select * from user_account_status-->
+<!--    </select>-->
 
 </mapper>

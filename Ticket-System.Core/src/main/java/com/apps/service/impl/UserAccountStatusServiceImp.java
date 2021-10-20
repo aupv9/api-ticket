@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @Slf4j
@@ -71,5 +73,15 @@ public class UserAccountStatusServiceImp implements UserAccountStatusService {
             status.setStatus(ResponseStatus.StatusType.FAIL);
         }
         return status;
+    }
+
+    @Override
+    public List<UserAccountStatus> findAll() {
+        return this.statusRepository.findAll();
+    }
+
+    @Override
+    public int findAllCount() {
+        return this.statusRepository.findAllCount();
     }
 }

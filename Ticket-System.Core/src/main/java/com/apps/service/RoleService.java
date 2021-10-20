@@ -9,8 +9,9 @@ import com.apps.domain.entity.UserRole;
 import java.util.List;
 
 public interface RoleService {
-    List<Role> findById(Integer id);
-
+    Role findRoleById(Integer id);
+    List<Role> findAllRole();
+    int findAllCountRole();
     List<UserRole> findUserRoleById(Integer userId);
 
     List<RolePrivileges> findPrivilegesByRole(Integer roleId);

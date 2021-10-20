@@ -1,10 +1,12 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.UserAccountStatus;
+import com.apps.response.ResponseRA;
 import com.apps.response.ResponseStatus;
 import com.apps.service.UserAccountStatusService;
 import com.apps.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -15,12 +17,29 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/authenticate")
+@RequestMapping("/api/v1/")
 @Slf4j
 public class UserAccountStatusController {
 
     @Autowired
     private UserAccountStatusService accountStatusService;
+
+    @GetMapping("uas")
+    public ResponseEntity<?> getRoles(){
+        var resultList = this.accountStatusService.findAll();
+        var totalElements = this.accountStatusService.findAllCount();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("uas/{id}")
+    public ResponseEntity<?> getUAS(@PathVariable("id")Integer id){
+        return ResponseEntity.ok(this.accountStatusService.findById(id));
+    }
+
 
 
     @GetMapping(value = "/account-status-id",produces = { MediaType.APPLICATION_JSON_VALUE })

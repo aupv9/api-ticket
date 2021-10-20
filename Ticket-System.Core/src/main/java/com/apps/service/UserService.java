@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserAccount;
+import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
 
 import java.sql.SQLException;
@@ -12,5 +13,7 @@ public interface UserService {
     int activeUserAccount(UserAccount userAccount);
      List<User> findAllUser(int limit, int offset, String sort, String order, String name, Integer role);
     int findCountAll(String name,Integer role);
+    User findById(int id);
+    int update(UserDto userDto);
 
 }

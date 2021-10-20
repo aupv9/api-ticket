@@ -1,7 +1,6 @@
 package com.apps.controllers;
 
-import com.apps.domain.entity.Category;
-import com.apps.response.RAResponseUpdate;
+
 import com.apps.response.ResponseRA;
 import com.apps.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import lombok.var;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -23,28 +21,22 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-//    @GetMapping("categories")
-//    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
-//                                          @RequestParam(value = "page", required = false)Integer page,
-//                                          @RequestParam(value = "sort", required = false) String sort,
-//                                          @RequestParam(value = "order", required = false) String order,
-//                                          @RequestParam(value = "name",  required = false) String name,
-//                                          @RequestParam(value = "type",  required = false) String type
-//    ){
-//        var resultList = this.categoryService.findAll(page - 1 ,size,sort,order,name,type);
-//        var totalElements = this.categoryService.findCountAll(name,type);
-//        var response = ResponseRA.builder()
-//                .content(resultList)
-//                .totalElements(totalElements)
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @GetMapping("categories/{id}")
-//    public ResponseEntity<?> getCategory(@PathVariable(value = "id", required = false) Integer id){
-//        var result = this.categoryService.findById(id);
-//        return ResponseEntity.ok(result);
-//    }
+    @GetMapping("roles")
+    public ResponseEntity<?> getRoles(){
+        var resultList = this.roleService.findAllRole();
+        var totalElements = this.roleService.findAllCountRole();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("roles/{id}")
+    public ResponseEntity<?> getRole(@PathVariable(value = "id", required = false) Integer id){
+        var result = this.roleService.findRoleById(id);
+        return ResponseEntity.ok(result);
+    }
 //
 //    @PostMapping("categories")
 //    public ResponseEntity<?> createCategory(@RequestBody Category category) throws SQLException {

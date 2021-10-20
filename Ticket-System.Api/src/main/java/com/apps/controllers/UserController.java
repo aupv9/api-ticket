@@ -1,6 +1,8 @@
 package com.apps.controllers;
 
+import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.UserService;
 import lombok.var;
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping("users")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+    public ResponseEntity<?> findAllUser(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
@@ -38,13 +40,26 @@ public class UserController {
     }
 
     @PostMapping("users")
-    public ResponseEntity<?> createCategory(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
+    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
         int idReturned = this.userService.registerAccountUser(userRegisterDto);
         userRegisterDto.setId(idReturned);
         return ResponseEntity.ok(userRegisterDto);
     }
 
+    @GetMapping("users/{id}")
+    public ResponseEntity<?> findUserById(@PathVariable(value = "id",required = false) Integer id) {
+        return ResponseEntity.ok(this.userService.findById(id));
+    }
 
-
+    @PutMapping("users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id")Integer id,@RequestBody UserDto userDto) {
+        userDto.setId(id);
+        var resultUpdate = this.userService.update(userDto);
+        var response = RAResponseUpdate.builder()
+                .id(resultUpdate)
+                .previousData(userDto)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
 }

@@ -3,7 +3,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.RoleRepository">
 
-    <select id="findById" resultType="com.apps.domain.entity.Role">
+    <select id="findAll" resultType="com.apps.domain.entity.Role">
+        select * from role
+    </select>
+
+    <select id="findRoleById" resultType="com.apps.domain.entity.Role">
         select * from role where id = #{id}
     </select>
     <select id="findUserRoleById" resultType="com.apps.domain.entity.UserRole">
@@ -24,4 +28,16 @@
         insert into roles_privileges(role_id,privilege_id) values (#{roleId},#{privilegeId})
     </insert>
 
+    <update id="updateRoleByUser">
+        update user_role
+        <set>
+            <if test="roleId != null">
+                role_id = #{roleId}
+            </if>
+        </set>
+        <where>
+            user_id = #{userId}
+            and role_id = #{roleId}
+        </where>
+    </update>
 </mapper>

@@ -10,13 +10,11 @@ import java.sql.Timestamp;
 @Builder
 public class UserAccount implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int userInfoId;
-    private String email;
-    private String password;
-    private String passwordReminderToken;
+    private int userInfoId, modifiedBy, createdBy;
+    private String email, password, passwordReminderToken, emailConfirmationToken,
+             createdDate,modifiedDate,address, city, state, activeDate, registeredAt;
     private Timestamp passwordReminderExpire;
-    private String emailConfirmationToken;
     private int userAccountStatusId;
-    private String status;
     private Boolean active;
+
 }

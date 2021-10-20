@@ -8,21 +8,46 @@
     </select>
     <insert id="insert">
         <if test="user.emailConfirmationToken != null">
-            insert into user_account(user_info_id,email,password,email_confirmation_token)
-            values (#{user.userInfoId},#{user.email},#{user.password},#{user.emailConfirmationToken})
+            insert into user_account(user_info_id,email,password,email_confirmation_token,createdBy,
+                                     createdDate,address,state,city,registeredAt)
+            values (#{user.userInfoId},#{user.email},#{user.password},#{user.emailConfirmationToken},#{user.createdBy},#{user.createdDate},
+                    #{user.address},#{user.state},#{user.city},#{user.registeredAt})
         </if>
         <if test="user.emailConfirmationToken == null">
-            insert into user_account(user_info_id,email,password)
-            values (#{user.userInfoId},#{user.email},#{user.password})
+            insert into user_account(user_info_id,email,password,createdBy,createdDate,address,state,city)
+            values (#{user.userInfoId},#{user.email},#{user.password},#{user.createdBy},
+                    #{user.createdDate},#{user.address},#{user.state},#{user.city})
         </if>
     </insert>
 
+    <select id="findUserById" resultType="com.apps.domain.entity.User" >
+        select user_info.id,first_name,last_name,ua.email,r2.name,r.role_id,
+               last_login,createdBy,createdDate,modifiedBy,modifiedDate,
+               address, city, state, activeDate, registeredAt,uas.id as uasId,
+               user_info.current_logged as currentLogged
+        from user_info
+                 join user_account ua on ua.user_info_id = user_info.id
+                 join user_role r on user_info.id = r.user_id
+                 join role r2 on r.role_id = r2.id
+                 join user_account_status uas on ua.user_account_status_id = uas.id
+        <where>
+            <if test="id != null">
+                user_info.id = #{id}
+            </if>
+        </where>
+    </select>
+
+
     <select id="findAllUser" resultType="com.apps.domain.entity.User" >
-        select user_info.id,full_name,ua.email,ua.active,r2.name
+        select user_info.id,full_name,ua.email,r2.name,r.role_id,
+        last_login,createdBy,createdDate,modifiedBy,modifiedDate,
+        address, city, state, activeDate, registeredAt,uas.id as uasId,
+        user_info.current_logged as currentLogged
         from user_info
         join user_account ua on ua.user_info_id = user_info.id
         join user_role r on user_info.id = r.user_id
         join role r2 on r.role_id = r2.id
+        join user_account_status uas on ua.user_account_status_id = uas.id
         <where>
             <if test="role != null">
                role_id = #{role}
@@ -57,6 +82,7 @@
         join user_account ua on ua.user_info_id = user_info.id
         join user_role r on user_info.id = r.user_id
         join role r2 on r.role_id = r2.id
+        join user_account_status uas on ua.user_account_status_id = uas.id
         <where>
             <if test="role != null">
                 role_id = #{role}
@@ -67,6 +93,59 @@
         </where>
 
     </select>
+
+    <update id="updateUserAccount">
+        update user_account
+        <set>
+            <if test="user.address != null">
+                address = #{user.address},
+            </if>
+            <if test="user.state != null">
+                state = #{user.state},
+            </if>
+            <if test="user.city != null">
+                city = #{user.city},
+            </if>
+            <if test="user.userAccountStatusId != null">
+                user_account_status_id = #{user.userAccountStatusId},
+            </if>
+            <if test="user.password != null">
+                password = #{user.password},
+            </if>
+            <if test="user.modifiedBy != null">
+                modifiedBy = #{user.modifiedBy},
+            </if>
+            <if test="user.modifiedDate != null">
+                modifiedDate = #{user.modifiedDate}
+            </if>
+        </set>
+        <where>
+            user_info_id = #{user.userInfoId}
+        </where>
+    </update>
+
+    <update id="updateUserInfo" >
+        update user_info
+        <set>
+            <if test="user.firstName != null">
+                first_name = #{user.firstName},
+            </if>
+            <if test="user.lastName != null">
+                last_name = #{user.lastName},
+            </if>
+            <if test="user.fullName != null">
+                full_name = #{user.fullName},
+            </if>
+            <if test="user.photo != null">
+                photo = #{user.photo}
+            </if>
+        </set>
+        <where>
+            id = #{user.id}
+        </where>
+    </update>
+
+
 <!--    <insert id="insert">-->
 <!--        insert into user_account_status (id,code, name) values(#{entity.id},#{entity.code},#{entity.name})-->
 <!--    </insert>-->
