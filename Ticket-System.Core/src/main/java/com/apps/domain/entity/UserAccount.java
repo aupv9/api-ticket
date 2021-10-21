@@ -15,6 +15,4 @@ public class UserAccount implements Serializable {
              createdDate,modifiedDate,address, city, state, activeDate, registeredAt;
     private Timestamp passwordReminderExpire;
     private int userAccountStatusId;
-    private Boolean active;
-
 }

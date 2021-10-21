@@ -7,8 +7,13 @@ import com.apps.domain.entity.UserRole;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.service.RoleService;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -26,13 +31,13 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<Role> findAllRole() {
-        return this.roleRepository.findAll();
+    public List<Role> findAllRole(Integer roleId) {
+        return this.roleRepository.findAll(roleId);
     }
 
     @Override
-    public int findAllCountRole() {
-        return this.roleRepository.findAllCountRole();
+    public int findAllCountRole(Integer roleId) {
+        return this.roleRepository.findAllCountRole(roleId);
     }
 
     @Override
@@ -72,5 +77,32 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void deleteRolePrivilege(Integer roleId, Integer privilegeId) {
         this.roleRepository.deleteRolePrivilege(roleId,privilegeId);
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities(final List<UserRole> roles) {
+        return getGrantedAuthorities(getPrivileges(roles));
+    }
+    private List<String> getPrivileges(final List<UserRole> roles) {
+        final List<String> privileges = new ArrayList<>();
+        final List<RolePrivileges> collection = new ArrayList<>();
+        for (final UserRole role : roles) {
+            Role role1 = this.roleRepository.findRoleById(role.getRoleId());
+            List<RolePrivileges> privilege = this.roleRepository.findPrivilegesByRole(role1.getId());
+            collection.addAll(privilege);
+        }
+        for (final RolePrivileges item : collection) {
+            Privilege privilege = this.roleRepository.findPrivilegeById(item.getPrivilegeId());
+            privileges.add(privilege.getName());
+        }
+
+        return privileges;
+    }
+
+    private List<GrantedAuthority> getGrantedAuthorities(final List<String> privileges) {
+        final List<GrantedAuthority> authorities = new ArrayList<>();
+        for (final String privilege : privileges) {
+            authorities.add(new SimpleGrantedAuthority(privilege));
+        }
+        return authorities;
     }
 }

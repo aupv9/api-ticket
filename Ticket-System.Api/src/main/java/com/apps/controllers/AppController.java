@@ -1,6 +1,6 @@
 package com.apps.controllers;
 
-import com.apps.config.security.jwt.JWTService;
+import com.apps.filter.JWTService;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +25,7 @@ public class AppController {
     @GetMapping("/testCreateToken")
     @ResponseBody
     public String generateToken() throws JOSEException {
-        return jwtService.generatorToken();
+        return jwtService.generatorToken("");
     }
 
     @GetMapping("/verifyToken")

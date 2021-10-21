@@ -5,6 +5,20 @@
 
     <select id="findAll" resultType="com.apps.domain.entity.Role">
         select * from role
+        <where>
+            <if test="roleId != null">
+                id = #{roleId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllCountRole" resultType="INT">
+        SELECT COUNT(*) FROM role
+        <where>
+            <if test="roleId != null">
+                id = #{roleId}
+            </if>
+        </where>
     </select>
 
     <select id="findRoleById" resultType="com.apps.domain.entity.Role">

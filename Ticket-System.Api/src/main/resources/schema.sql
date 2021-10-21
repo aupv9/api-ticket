@@ -97,6 +97,13 @@ create table payment
 create index FK_payment_paymentmethod
     on payment (payment_method_id);
 
+create table privilege
+(
+    id   int auto_increment
+        primary key,
+    name varchar(255) null
+);
+
 create table promotion
 (
     id                int auto_increment
@@ -157,13 +164,11 @@ create table role
     name varchar(254) null
 );
 
-create table showtimes
+create table roles_privileges
 (
-    creation_date timestamp null,
-    end_date      datetime  null,
-    start_date    timestamp null,
-    id            int auto_increment
-        primary key
+    role_id      int not null,
+    privilege_id int not null,
+    primary key (role_id, privilege_id)
 );
 
 create table theater
@@ -196,7 +201,6 @@ create table room
 
 create table seat
 (
-    price     float        null,
     id        int auto_increment
         primary key,
     seat_type varchar(100) null,
@@ -243,12 +247,6 @@ create table theater_media
 create index media_id
     on theater_media (media_id);
 
-create table timepick
-(
-    value time not null
-        primary key
-);
-
 create table user_account_status
 (
     id   int auto_increment
@@ -261,14 +259,59 @@ create table user_info
 (
     id              int auto_increment
         primary key,
-    first_name      varchar(255)                                                                       null,
-    last_name       varchar(255)                                                                       null,
-    full_name       varchar(500)                                                                       null,
-    email           varchar(255)                                                                       null,
-    time_zone       varchar(100)                                                                       null,
-    is_login_social tinyint(1)                                                                         null,
-    role            enum ('ROLE_USER', 'ROLE_STAFF', 'ROLE_MANAGER', 'ROLE_ADMIN') default 'ROLE_USER' not null
+    first_name      varchar(255)     null,
+    last_name       varchar(255)     null,
+    full_name       varchar(500)     null,
+    email           varchar(255)     null,
+    time_zone       varchar(100)     null,
+    is_login_social bit              null,
+    last_login      datetime         null,
+    photo           varchar(255)     null,
+    current_logged  bit default b'0' null
 );
+
+create table employee
+(
+    id         int auto_increment
+        primary key,
+    theater_id int                                                         not null,
+    userId     int                                                         not null,
+    roleId     int                                                         not null,
+    createdBy  int                                                         not null,
+    updatedBy  int                                                         not null,
+    code       varchar(100)                                                not null,
+    status     enum ('New', 'Approved', 'Active', 'Blocked', 'Terminated') null,
+    createdAt  datetime                                                    not null,
+    updatedAt  datetime                                                    null,
+    startsAt   datetime                                                    null,
+    endsAt     datetime                                                    null,
+    notes      text                                                        null,
+    constraint fk_employee_creator
+        foreign key (createdBy) references user_info (id),
+    constraint fk_employee_modifier
+        foreign key (updatedBy) references user_info (id),
+    constraint fk_employee_role
+        foreign key (roleId) references role (id),
+    constraint fk_employee_theater
+        foreign key (theater_id) references theater (id),
+    constraint fk_employee_user
+        foreign key (userId) references user_info (id)
+);
+
+create index idx_employee_creator
+    on employee (createdBy);
+
+create index idx_employee_modifier
+    on employee (updatedBy);
+
+create index idx_employee_role
+    on employee (roleId);
+
+create index idx_employee_theater
+    on employee (theater_id);
+
+create index idx_employee_user
+    on employee (userId);
 
 create table gift_card
 (
@@ -309,16 +352,16 @@ create index user_id
 
 create table orders
 (
+    showtimes_detail_id int                           not null,
+    tax                 float                         null,
+    create_date         datetime                      null,
+    note                varchar(255)                  null,
+    creation            int                           null,
+    status              enum ('ordered', 'cancelled') null,
     id                  int auto_increment
         primary key,
-    user_id             int                                          null,
-    showtimes_detail_id int                                          not null,
-    tax                 float                                        null,
-    create_date         datetime                                     null,
-    note                varchar(255)                                 null,
-    creation            int                                          null,
-    type_user           enum ('user', 'non_user') default 'non_user' null,
-    status              enum ('ordered', 'cancelled')                null,
+    user_id             int                           null,
+    non_profile         decimal(1)                    null,
     constraint orders_ibfk_1
         foreign key (user_id) references user_info (id),
     constraint ticket_showtimes_detail_id_fk
@@ -341,8 +384,9 @@ create table orders_detail
 
 create table orders_seat
 (
-    orders_id int not null,
-    seat_id   int not null,
+    orders_id int                                                          not null,
+    seat_id   int                                                          not null,
+    type      enum ('Adult', 'Child', 'Student', 'Senior') default 'Adult' not null,
     primary key (orders_id, seat_id),
     constraint FKgi0g5nsmkdaoyc25unogm3rry
         foreign key (orders_id) references orders (id),
@@ -353,39 +397,60 @@ create table orders_seat
 create index seat_id
     on orders_seat (seat_id);
 
+create table theater_manager
+(
+    theater_id  int not null,
+    employee_id int not null,
+    constraint theater_manager_ibfk_1
+        foreign key (theater_id) references theater (id),
+    constraint theater_manager_ibfk_2
+        foreign key (employee_id) references employee (id)
+);
+
+create index employee_id
+    on theater_manager (employee_id);
+
+create index theater_id
+    on theater_manager (theater_id);
+
 create table user_account
 (
-    user_account_status_id   int          null,
-    user_info_id             int          not null,
-    email_confirmation_token varchar(255) null,
-    password_reminder_expire datetime(6)  null,
-    userInfoId               int          not null
+    user_account_status_id   int default 1 null,
+    email                    varchar(255)  null,
+    password                 varchar(255)  null,
+    password_reminder_token  varchar(255)  null,
+    user_info_id             int           not null
         primary key,
-    userName                 varchar(255) null,
-    email                    varchar(255) null,
-    password                 varchar(255) null,
-    password_reminder_token  varchar(255) null,
-    user_name                varchar(255) null,
-    active                   bit          null,
+    activeDate               datetime      null,
+    registeredAt             datetime      null,
+    email_confirmation_token varchar(255)  null,
+    password_reminder_expire datetime(6)   null,
+    createdBy                int           null,
+    createdDate              datetime      null,
+    modifiedBy               int           null,
+    modifiedDate             datetime      null,
+    address                  text          null,
+    state                    text          null,
+    city                     text          null,
     constraint FK_user_account_user_account_status
         foreign key (user_account_status_id) references user_account_status (id),
     constraint FK_user_account_user_info
-        foreign key (userInfoId) references user_info (id)
+        foreign key (user_info_id) references user_info (id)
 );
 
 create table user_role
 (
-    user_id  int not null,
-    group_id int not null,
-    primary key (user_id, group_id),
+    user_id int not null,
+    role_id int not null,
+    primary key (user_id, role_id),
     constraint user_role_ibfk_1
         foreign key (user_id) references user_info (id),
     constraint user_role_ibfk_2
-        foreign key (group_id) references role (id)
+        foreign key (role_id) references role (id)
 );
 
 create index group_id
-    on user_role (group_id);
+    on user_role (role_id);
 
 create
 definer = root@localhost procedure clockSeatRoom(IN idSeat int, IN statusParam varchar(255), OUT idSeatRoom int)

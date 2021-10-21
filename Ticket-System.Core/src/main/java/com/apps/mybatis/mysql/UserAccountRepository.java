@@ -5,6 +5,7 @@ import com.apps.domain.entity.UserAccount;
 import com.apps.domain.entity.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface UserAccountRepository {
 
     int updateUserAccount(@Param("user")UserAccount userAccount);
     int updateUserInfo(@Param("user")UserInfo userInfo);
+
+    User findUserByEmail(@Param("email")String email);
 }

@@ -1,17 +1,34 @@
 package com.apps.controllers;
 
-import com.apps.domain.entity.Category;
+
+import com.apps.filter.JWTService;
+import com.apps.filter.JwtAuthenticationTokenFilter;
+import com.apps.request.UserLoginDto;
+import com.apps.response.UserLoginResponse;
+import com.apps.service.UserService;
+import com.nimbusds.jose.JOSEException;
+import lombok.var;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
-
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/v1/")
 @CrossOrigin("*")
 public class AuthenticateController {
 
+    private final UserService userService;
+
+    public AuthenticateController(UserService userService) {
+        this.userService = userService;
+    }
 
 
+    @PostMapping("authenticate")
+    public ResponseEntity<?> createLocation(@RequestBody UserLoginDto userLoginDto) throws JOSEException {
+        var response = this.userService.authenticate(userLoginDto.getEmail(),userLoginDto.getPassword());
+        if(response.getToken() == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(response);
+    }
 
 }

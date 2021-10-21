@@ -62,4 +62,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("users/{id}")
+    public ResponseEntity<?> delete(@PathVariable(value = "id",required = false) Integer id) {
+        return ResponseEntity.ok(this.userService.findById(id));
+    }
 }

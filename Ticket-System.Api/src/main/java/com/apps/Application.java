@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import java.net.InetAddress;
@@ -35,6 +36,7 @@ import java.util.Date;
 @EnableConfigurationProperties
 @Slf4j
 @EnableScheduling
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class Application extends SpringBootServletInitializer {
 
     @Override

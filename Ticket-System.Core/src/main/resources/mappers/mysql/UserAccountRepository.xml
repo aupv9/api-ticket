@@ -21,7 +21,7 @@
     </insert>
 
     <select id="findUserById" resultType="com.apps.domain.entity.User" >
-        select user_info.id,first_name,last_name,ua.email,r2.name,r.role_id,
+        select user_info.id,first_name,last_name,full_name,ua.email,r2.name,r.role_id,
                last_login,createdBy,createdDate,modifiedBy,modifiedDate,
                address, city, state, activeDate, registeredAt,uas.id as uasId,
                user_info.current_logged as currentLogged
@@ -41,7 +41,7 @@
     <select id="findAllUser" resultType="com.apps.domain.entity.User" >
         select user_info.id,full_name,ua.email,r2.name,r.role_id,
         last_login,createdBy,createdDate,modifiedBy,modifiedDate,
-        address, city, state, activeDate, registeredAt,uas.id as uasId,
+        address, city, state, activeDate, registeredAt,uas.id as uasId,password,
         user_info.current_logged as currentLogged
         from user_info
         join user_account ua on ua.user_info_id = user_info.id
@@ -145,21 +145,12 @@
         </where>
     </update>
 
+    <select id="findUserByEmail" resultType="com.apps.domain.entity.User">
+        select password,user_info_id as id, uas.id as uasId
+        from user_account
+        join user_account_status uas on user_account.user_account_status_id = uas.id
+        where email = #{email}
 
-<!--    <insert id="insert">-->
-<!--        insert into user_account_status (id,code, name) values(#{entity.id},#{entity.code},#{entity.name})-->
-<!--    </insert>-->
-
-<!--    <update id="update">-->
-<!--        update user_account_status set code = #{entity.code}, name = #{entity.name} where id =#{entity.id}-->
-<!--    </update>-->
-
-<!--    <delete id="deleteById">-->
-<!--        delete from user_account_status where id =#{id}-->
-<!--    </delete>-->
-
-<!--    <select id="findAll" resultType="com.apps.domain.entity.UserAccountStatus">-->
-<!--        select * from user_account_status-->
-<!--    </select>-->
+    </select>
 
 </mapper>

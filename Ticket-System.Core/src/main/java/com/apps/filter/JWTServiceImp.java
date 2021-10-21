@@ -1,4 +1,4 @@
-package com.apps.config.security.jwt;
+package com.apps.filter;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -8,20 +8,20 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 
 
-@Service
+@Component
 @Slf4j
 public class JWTServiceImp implements JWTService{
 
     RSAKey rsaJWK ;
     char[] keyId = new char[]{'1','6','3','6','9'};
-    final int EXPIRE_TIME = 15000;
+    final int EXPIRE_TIME = 1500000;
     public JWTServiceImp() throws JOSEException {
         this.rsaJWK = new RSAKeyGenerator(2048)
                 .keyID(Arrays.toString(keyId))
@@ -29,7 +29,7 @@ public class JWTServiceImp implements JWTService{
     }
 
     @Override
-    public String generatorToken() throws JOSEException {
+    public String generatorToken(String email) throws JOSEException {
         // RSA signatures require a public and private RSA key pair, the public key
         // must be made known to the JWS recipient in order to verify the signatures
 
@@ -39,8 +39,9 @@ public class JWTServiceImp implements JWTService{
 
         // Prepare JWT with claims set
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("alice")
-                .issuer("https://c2id.com")
+                .subject("author")
+                .issuer("author")
+                .claim("email",email)
                 .expirationTime(this.generateExpirationDate())
                 .build();
 
@@ -55,16 +56,29 @@ public class JWTServiceImp implements JWTService{
     }
 
     @Override
-    public boolean verifyToken(String token) throws ParseException, JOSEException {
+    public boolean verifyToken(String token) {
         // On the consumer side, parse the JWS and verify its RSA signature
         RSAKey rsaPublicJWK = this.rsaJWK.toPublicJWK();
-        JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
-        log.info("Token Exprired: " + this.isTokenExpired(token));
-        return this.getSignedJWT(token).verify(verifier) && this.isTokenExpired(token);
+
+        boolean isVerified = false;
+        try{
+            JWSVerifier verifier =new RSASSAVerifier(rsaPublicJWK);
+            isVerified = this.getSignedJWT(token).verify(verifier) && this.isTokenExpired(token) ;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  isVerified;
     }
 
     @Override
-    public Object getClaims(String token) throws ParseException {
+    public String getEmailFromToken(String token) {
+        JWTClaimsSet jwtClaimsSet = null;
+        try{
+            jwtClaimsSet =  this.getSignedJWT(token).getJWTClaimsSet();
+            return jwtClaimsSet.getStringClaim("email");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -74,8 +88,6 @@ public class JWTServiceImp implements JWTService{
 
     private Boolean isTokenExpired(String token) throws ParseException {
         Date expiration = this.getSignedJWT(token).getJWTClaimsSet().getExpirationTime();
-        log.info("expiration: "+ expiration);
-        log.info("now: "+ new Date());
         return expiration.after(new Date());
     }
 

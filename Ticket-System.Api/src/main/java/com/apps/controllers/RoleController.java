@@ -22,9 +22,9 @@ public class RoleController {
     }
 
     @GetMapping("roles")
-    public ResponseEntity<?> getRoles(){
-        var resultList = this.roleService.findAllRole();
-        var totalElements = this.roleService.findAllCountRole();
+    public ResponseEntity<?> getRoles(@RequestParam(value = "roleId",required = false)Integer roleId){
+        var resultList = this.roleService.findAllRole(roleId);
+        var totalElements = this.roleService.findAllCountRole(roleId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)

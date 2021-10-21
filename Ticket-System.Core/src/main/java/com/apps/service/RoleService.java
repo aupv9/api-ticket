@@ -5,13 +5,12 @@ import com.apps.domain.entity.Role;
 import com.apps.domain.entity.RolePrivileges;
 import com.apps.domain.entity.UserRole;
 
-
 import java.util.List;
 
 public interface RoleService {
     Role findRoleById(Integer id);
-    List<Role> findAllRole();
-    int findAllCountRole();
+    List<Role> findAllRole(Integer roleId);
+    int findAllCountRole( Integer roleId);
     List<UserRole> findUserRoleById(Integer userId);
 
     List<RolePrivileges> findPrivilegesByRole(Integer roleId);
