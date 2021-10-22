@@ -1,0 +1,117 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.EmployeeRepository">
+
+    <select id="findAll" resultType="com.apps.domain.entity.Employee" >
+        select id, user_id, role_id, theater_id, createdBy,
+               createdAt, status,updatedAt,startsAt, endsAt, notes
+        from employee
+        <where>
+            <if test="roleId != null">
+                role_id = #{roleId}
+            </if>
+            <if test="theaterId != null">
+                and theater_id = #{theaterId}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'roleId'">
+                    role_id
+                </when>
+                <when test="sort == 'userId'">
+                    user_id
+                </when>
+                <when test="sort == 'theater_id'">
+                    theater_id
+                </when>
+                <when test="sort == 'startsAt'">
+                    startsAt
+                </when>
+                <when test="sort == 'endsAt'">
+                    endsAt
+                </when>
+                <otherwise>
+                    status
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAll" resultType="INT">
+        select count(*)
+        from employee
+        <where>
+            <if test="roleId != null ">
+                role_id = #{roleId}
+            </if>
+            <if test="theaterId != null ">
+                and theater_id = #{theaterId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultType="com.apps.domain.entity.Employee" >
+        select id, user_id, role_id, theater_id, createdBy,
+               createdAt, status,updatedAt,startsAt, endsAt, notes
+        from employee
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <insert id="insert">
+        insert into employee(user_id,role_id,createdBy,status)
+        values (#{userId},#{roleId},#{createdBy},#{status})
+    </insert>
+
+    <update id="update" >
+        update employee
+        <set>
+            <if test="employee.theaterId != null">
+                theater_id = #{employee.theaterId},
+            </if>
+            <if test="employee.roleId != null">
+                role_id = #{employee.roleId},
+            </if>
+            <if test="employee.updatedBy != null">
+                updatedBy = #{employee.updatedBy},
+            </if>
+            <if test="employee.status != null">
+                status = #{employee.status}
+            </if>
+            <if test="employee.updatedAt != null">
+                updatedAt = #{employee.updatedAt}
+            </if>
+            <if test="employee.startsAt != null">
+                startsAt = #{employee.startsAt}
+            </if>
+            <if test="employee.endsAt != null">
+                endsAt = #{employee.endsAt}
+            </if>
+            <if test="employee.notes != null">
+                notes = #{employee.notes}
+            </if>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+<!--    <delete id="delete">-->
+<!--        delete from concession-->
+<!--        <where>-->
+<!--            id = #{id}-->
+<!--        </where>-->
+<!--    </delete>-->
+</mapper>

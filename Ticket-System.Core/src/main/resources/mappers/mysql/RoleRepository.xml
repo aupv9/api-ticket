@@ -51,7 +51,6 @@
         </set>
         <where>
             user_id = #{userId}
-            and role_id = #{roleId}
         </where>
     </update>
 </mapper>

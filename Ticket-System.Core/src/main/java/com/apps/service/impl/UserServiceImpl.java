@@ -10,11 +10,11 @@ import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.response.UserLoginResponse;
+import com.apps.service.EmployeeService;
 import com.apps.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
 
     private final JWTService jwtService;
 
+    private final EmployeeService employeeService;
 
 //    @Value("${email.confirm.length}")
 //    private Integer lengthEmailConfirmationToken;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 //    @Value("${email.confirm.letters}")
 //    private Boolean isLetters;
 
-    public UserServiceImpl(UserCustomRepository userCustomRepository, UserAccountRepository userAccountRepository, PasswordEncoder encoder, RoleRepository roleRepository, UserAccountStatusRepository statusRepository, RoleServiceImpl roleService, JWTService jwtService) {
+    public UserServiceImpl(UserCustomRepository userCustomRepository, UserAccountRepository userAccountRepository, PasswordEncoder encoder, RoleRepository roleRepository, UserAccountStatusRepository statusRepository, RoleServiceImpl roleService, JWTService jwtService, EmployeeService employeeService) {
         this.userCustomRepository = userCustomRepository;
         this.userAccountRepository = userAccountRepository;
         this.encoder = encoder;
@@ -63,6 +64,7 @@ public class UserServiceImpl implements UserService {
         this.statusRepository = statusRepository;
         this.roleService = roleService;
         this.jwtService = jwtService;
+        this.employeeService = employeeService;
     }
 
     @Override
@@ -90,10 +92,11 @@ public class UserServiceImpl implements UserService {
                 String email = userDetails.getUsername();
                 createdBy = this.userAccountRepository.findUserByEmail(email).getId();
             }
+            String passwordEncode = encoder.encode(userRegisterDto.getPassword());
             UserAccount userAccount = UserAccount.builder()
                     .userInfoId(idReturned)
                     .email(userRegisterDto.getEmail())
-                    .password(encoder.encode(userRegisterDto.getPassword()))
+                    .password(passwordEncode)
                     .emailConfirmationToken(generatedToken)
                     .createdBy(createdBy)
                     .createdDate(createDate.format(simpleDateFormat))
@@ -155,8 +158,18 @@ public class UserServiceImpl implements UserService {
         this.userAccountRepository.updateUserAccount(userAccount);
         Role role  = roleRepository.findRoleById(userDto.getRoleId());
         if(role == null) throw new NotFoundException("Not Role Have Id:" + role.getId());
+
         this.roleRepository.updateRoleByUser(userDto.getId(),userDto.getRoleId());
 
+        if(role.getName().equals("ROLE_STAFF") || role.getName().equals("Manager_Theater")){
+            var employee = this.employeeService.findByUserId(userInfo.getId());
+            if(employee != null){
+                employee.setRoleId(role.getId());
+                this.employeeService.update(employee);
+            }else{
+                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New");
+            }
+        }
         return 1;
     }
 
