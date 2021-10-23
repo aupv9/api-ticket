@@ -12,6 +12,6 @@ public interface EmployeeService {
     Employee findById(Integer id);
     Employee findByUserId(Integer userId);
     int insert(Integer userId, Integer roleId,
-               Integer createdBy, String status);
+               Integer createdBy, String status,String createdAt);
     int update(Employee employee);
 }

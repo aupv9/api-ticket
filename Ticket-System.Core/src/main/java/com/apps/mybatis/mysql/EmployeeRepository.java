@@ -21,7 +21,8 @@ public interface EmployeeRepository {
     Employee findByUserId(@Param("id")Integer id);
 
     int insert(@Param("userId")Integer userId,@Param("roleId")Integer roleId,
-               @Param("createdBy")Integer createBy,@Param("status")String status);
+               @Param("createdBy")Integer createBy,@Param("status")String status,
+               @Param("createdAt")String createdAt);
 
     int update(@Param("employee")Employee employee);
 }

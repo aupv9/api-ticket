@@ -16,4 +16,6 @@ public interface UserService {
     User findById(int id);
     int update(UserDto userDto);
     UserLoginResponse authenticate(String email, String password) throws JOSEException;
+    UserLoginResponse authenticateWithSocial(int socialId) throws JOSEException;
+
 }

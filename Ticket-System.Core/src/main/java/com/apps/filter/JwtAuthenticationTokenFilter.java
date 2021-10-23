@@ -59,7 +59,7 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
                     var roles = this.roleRepository.findUserRoleById(user.getId());
                     var authorities= roleService.getAuthorities(roles);
                     var userDetail = new User(email, user.getPassword(),
-                            user.getUasId() == 2, true,
+                            user.getUasId() >= 2, true,
                             true, true,authorities );
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetail,
                             null, userDetail.getAuthorities());

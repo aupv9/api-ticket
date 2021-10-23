@@ -71,8 +71,8 @@
     </select>
 
     <insert id="insert">
-        insert into employee(user_id,role_id,createdBy,status)
-        values (#{userId},#{roleId},#{createdBy},#{status})
+        insert into employee(user_id,role_id,createdBy,status,createdAt)
+        values (#{userId},#{roleId},#{createdBy},#{status},#{createdAt})
     </insert>
 
     <update id="update" >
@@ -88,23 +88,23 @@
                 updatedBy = #{employee.updatedBy},
             </if>
             <if test="employee.status != null">
-                status = #{employee.status}
+                status = #{employee.status},
             </if>
             <if test="employee.updatedAt != null">
-                updatedAt = #{employee.updatedAt}
+                updatedAt = #{employee.updatedAt},
             </if>
             <if test="employee.startsAt != null">
-                startsAt = #{employee.startsAt}
+                startsAt = #{employee.startsAt},
             </if>
             <if test="employee.endsAt != null">
-                endsAt = #{employee.endsAt}
+                endsAt = #{employee.endsAt},
             </if>
             <if test="employee.notes != null">
                 notes = #{employee.notes}
             </if>
         </set>
         <where>
-            id = #{entity.id}
+            id = #{employee.id}
         </where>
     </update>
 

@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
                 employee.setRoleId(role.getId());
                 this.employeeService.update(employee);
             }else{
-                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New");
+                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New",localDateTime.format(simpleDateFormat));
             }
         }
         return 1;
@@ -179,7 +179,7 @@ public class UserServiceImpl implements UserService {
         if(user == null){
             throw new NotFoundException("Invalid email or password");
         }
-        if(encoder.matches(password,user.getPassword())){
+        if(encoder.matches(password,user.getPassword()) && user.getUasId() >= 2 && user.getUasId() <= 3){
             var roles = this.roleRepository.findUserRoleById(user.getId());
             String token = this.jwtService.generatorToken(email);
             var privilege = roleService.getAuthorities(roles);
@@ -188,6 +188,20 @@ public class UserServiceImpl implements UserService {
                     .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                     .build();
         }
+        return  UserLoginResponse.builder()
+                .build();
+    }
+
+    @Override
+    public UserLoginResponse authenticateWithSocial(int socialId) throws JOSEException {
+
+//        var roles = this.roleRepository.findUserRoleById(user.getId());
+//        String token = this.jwtService.generatorToken(email);
+//        var privilege = roleService.getAuthorities(roles);
+//        return UserLoginResponse.builder()
+//                .token(token)
+//                .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+//                .build();
         return  UserLoginResponse.builder()
                 .build();
     }

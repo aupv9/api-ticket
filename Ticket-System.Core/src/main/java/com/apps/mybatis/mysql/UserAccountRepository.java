@@ -1,5 +1,6 @@
 package com.apps.mybatis.mysql;
 
+import com.apps.domain.entity.AccountGoogle;
 import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserAccount;
 import com.apps.domain.entity.UserInfo;
@@ -23,4 +24,6 @@ public interface UserAccountRepository {
     int updateUserInfo(@Param("user")UserInfo userInfo);
 
     User findUserByEmail(@Param("email")String email);
+
+    AccountGoogle findUserByGoogleAccount();
 }

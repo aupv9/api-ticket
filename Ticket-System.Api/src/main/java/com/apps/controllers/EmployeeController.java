@@ -1,12 +1,16 @@
 package com.apps.controllers;
 
 
+import com.apps.domain.entity.Employee;
+import com.apps.domain.entity.Location;
 import com.apps.mapper.UserRegisterDto;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -42,5 +46,16 @@ public class EmployeeController {
     @GetMapping("employees/{id}")
     public ResponseEntity<?> findEmployees( @PathVariable(value = "id") Integer id)  {
         return ResponseEntity.ok(this.employeeService.findById(id));
+    }
+
+    @PutMapping("employees/{id}")
+    public ResponseEntity<?> updateLocations(@PathVariable(value = "id") int id,@RequestBody Employee employee){
+        employee.setId(id);
+        var resultUpdate = this.employeeService.update(employee);
+        var response = RAResponseUpdate.builder()
+                .id(resultUpdate)
+                .previousData(employee)
+                .build();
+        return ResponseEntity.ok(response);
     }
 }
