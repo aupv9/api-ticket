@@ -77,6 +77,40 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="findAllUserSocial" resultType="com.apps.domain.entity.UserInfo" >
+        select user_info.id,email,
+               last_login, full_name, photo, ur.role_id,current_logged
+        from user_info
+            join user_role ur on user_id = user_info.id
+        <where>
+            <if test="role != null">
+                user_role.role_id = #{role}
+            </if>
+            <if test="search != null">
+                and full_name like concat('%',#{search},'%')
+            </if>
+        </where>
+
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'fullName'">
+                    full_name
+                </when>
+                <otherwise>
+                    role_id
+                </otherwise>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        limit #{limit} offset #{offset}
+    </select>
+
     <select id="findCountAll" resultType="INT">
         select count(*) from user_info
         join user_account ua on ua.user_info_id = user_info.id
@@ -151,6 +185,12 @@
         join user_account_status uas on user_account.user_account_status_id = uas.id
         where email = #{email}
 
+    </select>
+
+    <select id="findUserInfoByEmail" resultType="com.apps.domain.entity.UserInfo">
+        select *
+        from user_info
+        where email = #{email}
     </select>
 
 </mapper>

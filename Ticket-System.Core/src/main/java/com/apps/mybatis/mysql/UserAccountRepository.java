@@ -17,13 +17,23 @@ public interface UserAccountRepository {
     List<User> findAllUser(@Param("limit") int limit, @Param("offset") int offset,
                            @Param("sort") String sort, @Param("order") String order,
                            @Param("search") String name,@Param("role") Integer role);
+    List<UserInfo> findAllUserSocial(@Param("limit") int limit, @Param("offset") int offset,
+                                   @Param("sort") String sort, @Param("order") String order,
+                                   @Param("search") String name,@Param("role") Integer role);
+
     int findCountAll( @Param("search") String name,@Param("role") Integer role);
+
+    @Select("select count(*) from user_info")
+    int findCountAllSocial( @Param("search") String name,@Param("role") Integer role);
+
     User findUserById(@Param("id")Integer id);
 
     int updateUserAccount(@Param("user")UserAccount userAccount);
     int updateUserInfo(@Param("user")UserInfo userInfo);
 
     User findUserByEmail(@Param("email")String email);
+    UserInfo findUserInfoByEmail(@Param("email")String email);
 
-    AccountGoogle findUserByGoogleAccount();
+    @Select("select * from google_account where google_id = #{googleId}")
+    AccountGoogle findUserByGoogleAccount(@Param("googleId")String googleId);
 }

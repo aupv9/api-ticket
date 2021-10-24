@@ -1,11 +1,13 @@
 package com.apps.filter;
 
+import com.apps.domain.entity.UserInfo;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.service.UserService;
 import com.apps.service.impl.RoleServiceImpl;
 import io.lettuce.core.ScriptOutputType;
 import lombok.var;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,14 +54,14 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
             if(jwtService.verifyToken(authToken)){
                 var email = jwtService.getEmailFromToken(authToken);
                 try {
-                    com.apps.domain.entity.User user = this.userAccountRepository.findUserByEmail(email);
+                    UserInfo user = this.userAccountRepository.findUserInfoByEmail(email);
                     if (user == null) {
                         throw new UsernameNotFoundException("No user found with username: " + email);
                     }
                     var roles = this.roleRepository.findUserRoleById(user.getId());
                     var authorities= roleService.getAuthorities(roles);
-                    var userDetail = new User(email, user.getPassword(),
-                            user.getUasId() >= 2, true,
+                    var userDetail = new User(email, RandomStringUtils.random(15, true, true),
+                            true, true,
                             true, true,authorities );
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetail,
                             null, userDetail.getAuthorities());

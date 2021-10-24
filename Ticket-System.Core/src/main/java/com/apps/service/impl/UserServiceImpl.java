@@ -7,8 +7,10 @@ import com.apps.filter.JWTService;
 import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
 import com.apps.mybatis.mysql.RoleRepository;
+import com.apps.mybatis.mysql.SocialRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
+import com.apps.request.GoogleLoginRequest;
 import com.apps.response.UserLoginResponse;
 import com.apps.service.EmployeeService;
 import com.apps.service.UserService;
@@ -47,6 +49,11 @@ public class UserServiceImpl implements UserService {
 
     private final EmployeeService employeeService;
 
+    private final SocialRepository socialRepository;
+
+    private DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+    private String sqlInsertUserInfo = "insert into user_info(email,first_name,last_name,full_name,is_login_social,photo) values(?,?,?,?,?,?)";
+
 //    @Value("${email.confirm.length}")
 //    private Integer lengthEmailConfirmationToken;
 //
@@ -56,7 +63,7 @@ public class UserServiceImpl implements UserService {
 //    @Value("${email.confirm.letters}")
 //    private Boolean isLetters;
 
-    public UserServiceImpl(UserCustomRepository userCustomRepository, UserAccountRepository userAccountRepository, PasswordEncoder encoder, RoleRepository roleRepository, UserAccountStatusRepository statusRepository, RoleServiceImpl roleService, JWTService jwtService, EmployeeService employeeService) {
+    public UserServiceImpl(UserCustomRepository userCustomRepository, UserAccountRepository userAccountRepository, PasswordEncoder encoder, RoleRepository roleRepository, UserAccountStatusRepository statusRepository, RoleServiceImpl roleService, JWTService jwtService, EmployeeService employeeService, SocialRepository socialRepository) {
         this.userCustomRepository = userCustomRepository;
         this.userAccountRepository = userAccountRepository;
         this.encoder = encoder;
@@ -65,11 +72,11 @@ public class UserServiceImpl implements UserService {
         this.roleService = roleService;
         this.jwtService = jwtService;
         this.employeeService = employeeService;
+        this.socialRepository = socialRepository;
     }
 
     @Override
     public int registerAccountUser(UserRegisterDto userRegisterDto) throws SQLException {
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
         UserInfo userInfo = UserInfo.builder()
                 .email(userRegisterDto.getEmail())
@@ -79,7 +86,6 @@ public class UserServiceImpl implements UserService {
                 .fullName(userRegisterDto.getFirstName() + " " + userRegisterDto.getLastName())
                 .photo(userRegisterDto.getPhoto())
                 .build();
-        String sqlInsertUserInfo = "insert into user_info(email,first_name,last_name,full_name,is_login_social,photo) values(?,?,?,?,?,?)";
         int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
         if(idReturned > 0){
             LocalDateTime createDate = LocalDateTime.now();
@@ -120,8 +126,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserInfo> findAllUserSocial(int limit, int offset, String sort, String order, String name, Integer role) {
+        return this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null);
+    }
+
+    @Override
     public int findCountAll(String name,Integer role) {
         return this.userAccountRepository.findCountAll(name,role > 0 ? role : null);
+    }
+
+    @Override
+    public int findCountAllSocial(String name, Integer role) {
+        return this.userAccountRepository.findCountAllSocial(name,role > 0 ? role : null);
     }
 
     @Override
@@ -144,7 +160,15 @@ public class UserServiceImpl implements UserService {
         int modifiedBy = 0;
         if(userDetails != null){
             String email = userDetails.getUsername();
-            modifiedBy = this.userAccountRepository.findUserByEmail(email).getId();
+            var user = this.userAccountRepository.findUserByEmail(email);
+            if( user!= null){
+                modifiedBy = user.getId();
+            }else{
+                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
+                if(userInfo1 != null){
+                    modifiedBy = userInfo1.getId();
+                }
+            }
         }
         UserAccount userAccount = UserAccount.builder()
                 .userInfoId(userInfo.getId())
@@ -193,17 +217,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserLoginResponse authenticateWithSocial(int socialId) throws JOSEException {
+    public UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
 
-//        var roles = this.roleRepository.findUserRoleById(user.getId());
-//        String token = this.jwtService.generatorToken(email);
-//        var privilege = roleService.getAuthorities(roles);
-//        return UserLoginResponse.builder()
-//                .token(token)
-//                .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-//                .build();
-        return  UserLoginResponse.builder()
-                .build();
+          var accountGoogle = this.userAccountRepository.findUserByGoogleAccount(googleLoginRequest.getGoogleId());
+          if(accountGoogle != null){
+              var roles = this.roleRepository.findUserRoleById(accountGoogle.getUserInfoId());
+              var privilege = roleService.getAuthorities(roles);
+              String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
+              return UserLoginResponse.builder()
+                    .token(token)
+                    .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                    .build();
+          }else{
+              UserInfo userInfo = UserInfo.builder()
+                      .email(googleLoginRequest.getEmail())
+                      .isLoginSocial(true)
+                      .firstName(googleLoginRequest.getFamilyName())
+                      .lastName(googleLoginRequest.getGivenName())
+                      .fullName(googleLoginRequest.getName())
+                      .photo(googleLoginRequest.getImageUrl())
+                      .build();
+              int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
+              Role role = this.roleRepository.findByName("ROLE_USER");
+              this.roleRepository.insertUserRole(idReturned,role.getId());
+
+              this.socialRepository.insertGoogleAccount(idReturned,googleLoginRequest.getGoogleId());
+
+              assert accountGoogle != null;
+              var roles = this.roleRepository.findUserRoleById(idReturned);
+              var privilege = roleService.getAuthorities(roles);
+              String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
+              return UserLoginResponse.builder()
+                      .token(token)
+                      .privileges(privilege.stream()
+                              .map(GrantedAuthority::getAuthority)
+                              .collect(Collectors.toList()))
+                      .build();
+          }
     }
 
 

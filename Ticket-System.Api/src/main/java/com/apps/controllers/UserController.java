@@ -40,8 +40,8 @@ public class UserController {
                     .build();
             return ResponseEntity.ok(response);
         }else{
-            var resultList = this.userService.findAllUser(size,size * (page - 1),sort,order,name,role);
-            var totalElements = this.userService.findCountAll(name,role);
+            var resultList = this.userService.findAllUserSocial(size,size * (page - 1),sort,order,name,role);
+            var totalElements = this.userService.findCountAllSocial(name,role);
             var response = ResponseRA.builder()
                     .content(resultList)
                     .totalElements(totalElements)
