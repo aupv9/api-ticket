@@ -3,6 +3,7 @@ package com.apps.filter;
 import com.apps.domain.entity.UserInfo;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
+import com.apps.response.entity.UserSocial;
 import com.apps.service.UserService;
 import com.apps.service.impl.RoleServiceImpl;
 import io.lettuce.core.ScriptOutputType;
@@ -54,7 +55,7 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
             if(jwtService.verifyToken(authToken)){
                 var email = jwtService.getEmailFromToken(authToken);
                 try {
-                    UserInfo user = this.userAccountRepository.findUserInfoByEmail(email);
+                    UserSocial user = this.userAccountRepository.findUserInfoByEmail(email);
                     if (user == null) {
                         throw new UsernameNotFoundException("No user found with username: " + email);
                     }

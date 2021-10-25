@@ -12,4 +12,5 @@ import java.util.List;
 public class UserLoginResponse {
     private String token;
     private List<String> privileges;
+    private String email;
 }

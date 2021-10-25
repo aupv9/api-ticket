@@ -4,6 +4,7 @@ import com.apps.domain.entity.AccountGoogle;
 import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserAccount;
 import com.apps.domain.entity.UserInfo;
+import com.apps.response.entity.UserSocial;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -17,9 +18,10 @@ public interface UserAccountRepository {
     List<User> findAllUser(@Param("limit") int limit, @Param("offset") int offset,
                            @Param("sort") String sort, @Param("order") String order,
                            @Param("search") String name,@Param("role") Integer role);
-    List<UserInfo> findAllUserSocial(@Param("limit") int limit, @Param("offset") int offset,
-                                   @Param("sort") String sort, @Param("order") String order,
-                                   @Param("search") String name,@Param("role") Integer role);
+    List<UserSocial> findAllUserSocial(@Param("limit") int limit, @Param("offset") int offset,
+                                       @Param("sort") String sort, @Param("order") String order,
+                                       @Param("search") String name, @Param("role") Integer role,
+                                       @Param("social") Integer social);
 
     int findCountAll( @Param("search") String name,@Param("role") Integer role);
 
@@ -32,7 +34,7 @@ public interface UserAccountRepository {
     int updateUserInfo(@Param("user")UserInfo userInfo);
 
     User findUserByEmail(@Param("email")String email);
-    UserInfo findUserInfoByEmail(@Param("email")String email);
+    UserSocial findUserInfoByEmail(@Param("email")String email);
 
     @Select("select * from google_account where google_id = #{googleId}")
     AccountGoogle findUserByGoogleAccount(@Param("googleId")String googleId);

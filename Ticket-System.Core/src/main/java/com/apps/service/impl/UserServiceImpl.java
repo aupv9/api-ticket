@@ -12,6 +12,7 @@ import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.request.GoogleLoginRequest;
 import com.apps.response.UserLoginResponse;
+import com.apps.response.entity.UserSocial;
 import com.apps.service.EmployeeService;
 import com.apps.service.UserService;
 import com.nimbusds.jose.JOSEException;
@@ -126,8 +127,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserInfo> findAllUserSocial(int limit, int offset, String sort, String order, String name, Integer role) {
-        return this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null);
+    public List<UserSocial> findAllUserSocial(int limit, int offset, String sort, String order, String name, Integer role) {
+        return this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null,1);
     }
 
     @Override
@@ -209,6 +210,7 @@ public class UserServiceImpl implements UserService {
             var privilege = roleService.getAuthorities(roles);
             return UserLoginResponse.builder()
                     .token(token)
+                    .email(email)
                     .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                     .build();
         }
@@ -226,6 +228,7 @@ public class UserServiceImpl implements UserService {
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
               return UserLoginResponse.builder()
                     .token(token)
+                      .email(googleLoginRequest.getEmail())
                     .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                     .build();
           }else{
@@ -249,6 +252,7 @@ public class UserServiceImpl implements UserService {
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
               return UserLoginResponse.builder()
                       .token(token)
+                      .email(googleLoginRequest.getEmail())
                       .privileges(privilege.stream()
                               .map(GrantedAuthority::getAuthority)
                               .collect(Collectors.toList()))

@@ -46,8 +46,9 @@ public class UserController {
                     .content(resultList)
                     .totalElements(totalElements)
                     .build();
+            return ResponseEntity.ok(response);
+
         }
-        return ResponseEntity.ok(null);
     }
 
     @PostMapping("users")

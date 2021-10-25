@@ -77,17 +77,21 @@
         limit #{limit} offset #{offset}
     </select>
 
-    <select id="findAllUserSocial" resultType="com.apps.domain.entity.UserInfo" >
-        select user_info.id,email,
+    <select id="findAllUserSocial" resultType="com.apps.response.entity.UserSocial" >
+        select user_info.id as id,email,
                last_login, full_name, photo, ur.role_id,current_logged
         from user_info
             join user_role ur on user_id = user_info.id
         <where>
+
             <if test="role != null">
                 user_role.role_id = #{role}
             </if>
             <if test="search != null">
                 and full_name like concat('%',#{search},'%')
+            </if>
+            <if test="social != null">
+                and is_login_social = true
             </if>
         </where>
 
@@ -187,8 +191,9 @@
 
     </select>
 
-    <select id="findUserInfoByEmail" resultType="com.apps.domain.entity.UserInfo">
-        select *
+    <select id="findUserInfoByEmail" resultType="com.apps.response.entity.UserSocial">
+        select user_info.id as id,email,
+               last_login, full_name, photo,current_logged
         from user_info
         where email = #{email}
     </select>
