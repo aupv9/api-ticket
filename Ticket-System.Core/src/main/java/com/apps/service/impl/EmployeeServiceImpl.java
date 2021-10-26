@@ -49,7 +49,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee findByUserId(Integer userId) {
         var empl = this.employeeRepository.findByUserId(userId);
+        if(empl == null){
+            throw new NotFoundException("Not Found Employee :"+ userId);
+        }
         empl.setUserId(userId);
+
         return empl;
     }
 

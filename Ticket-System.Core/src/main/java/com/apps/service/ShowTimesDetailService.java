@@ -12,8 +12,15 @@ import java.util.List;
 public interface ShowTimesDetailService {
     List<ShowTimesDetail> findAll(int page, int size, String sort, String order,
                                   Integer movieId, Integer roomid, String timeStart,String search,String dateStart);
+
+    List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order,
+                                  Integer movieId, Integer roomid, String timeStart,String search,String dateStart);
+
     int findCountAll(
                      Integer movieId, Integer room_id, String time_start,String search,String dateStart);
+    int findCountAllShow(
+            Integer movieId, Integer room_id, String time_start,String search,String dateStart);
+
     ShowTimesDetail findById(int id);
     int insert(ShowTimesDetail showTimesDetail) throws SQLException;
     List<ShowTimesDetail> findByShowTimes(int idShowTimes);

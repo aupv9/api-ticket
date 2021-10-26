@@ -5,12 +5,18 @@ import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
+import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.TimePick;
+import com.apps.service.EmployeeService;
 import com.apps.service.RoomService;
 import com.apps.service.ShowTimesDetailService;
+import com.apps.service.UserService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -35,6 +41,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private UserAccountRepository userAccountRepository;
 
     @Override
 //    @Cacheable(cacheNames = "ShowTimesDetailService",
@@ -42,14 +53,50 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     public List<ShowTimesDetail> findAll(int page, int size,String sort, String order,
                                          Integer movieId, Integer room_id, String time_start,String search
             ,String dateStart) {
-        return this.showTimesDetailRepository.findAll(size, page * size
-        ,sort,order,movieId,room_id,time_start,search,dateStart);
+        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id,time_start,search,dateStart,null);
     }
 
     @Override
     public int findCountAll( Integer movieId, Integer room_id, String time_start,String search,String dateStart) {
-        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart);
+        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart, null);
     }
+    private int getTheaterByUser(){
+        var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+        var userDetails = (UserDetails)authentication.getPrincipal();
+        int userId = 0;
+        if(userDetails != null){
+            String email = userDetails.getUsername();
+            var user = this.userAccountRepository.findUserByEmail(email);
+            if( user!= null){
+                userId = user.getId();
+            }else{
+                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
+                if(userInfo1 != null){
+                    userId = userInfo1.getId();
+                }
+            }
+        }
+        int theaterId = 0;
+        if(userId > 0){
+            var employee = this.employeeService.findByUserId(userId);
+            theaterId = employee.getTheaterId();
+        }
+        return theaterId;
+    }
+
+    @Override
+    public List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order, Integer movieId, Integer roomid, String timeStart,String search,String dateStart){
+        int theaterId = this.getTheaterByUser();
+        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId > 0 ? movieId : null,roomid > 0 ? roomid : null,timeStart,search,dateStart,theaterId > 0 ? theaterId : null);
+    }
+
+
+    @Override
+    public int findCountAllShow(Integer movieId, Integer roomid, String time_start,String search,String dateStart){
+        int theaterId = this.getTheaterByUser();
+        return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,roomid > 0 ? roomid : null,time_start,search, dateStart, theaterId > 0 ? theaterId : null);
+    }
+
 
     @Override
     @Cacheable(cacheNames = "ShowTimesDetailService",key = "'findByIdShowTimesDetail_'+#id")

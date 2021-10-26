@@ -5,10 +5,17 @@
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
         select movie_id,room_id,time_start,time_end, showtimes_detail.id as id
+        <if test="theaterId != null">
+            ,r.theater_id  as theaterId
+        </if>
         from showtimes_detail
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
+        </if>
         <if test="search != null">
             inner join movie m on showtimes_detail.movie_id = m.id
         </if>
+
         <where>
             <if test="movieId != null">
                 and movie_id = #{movieId}
@@ -16,14 +23,14 @@
             <if test="roomId != null">
                 and room_id = #{roomId}
             </if>
-            <if test="timeStart != null">
-                and time_start = #{timeStart}
-            </if>
             <if test="dateStart != null">
-                and date = #{dateStart}
+                and date(time_start)= #{dateStart}
             </if>
             <if test="search != null">
                 and m.name like concat('%',#{search},'%')
+            </if>
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
             </if>
         </where>
         <if test="sort != null">
@@ -57,9 +64,13 @@
     </select>
 
     <select id="findCountAll" resultType="INT">
-        select count(*) from showtimes_detail
+        select count(*)
+        from showtimes_detail
         <if test="search != null">
-            left join movie m on showtimes_detail.movie_id = m.id
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
         </if>
         <where>
             <if test="movieId != null">
@@ -68,11 +79,11 @@
             <if test="roomId != null">
                 and room_id = #{roomId}
             </if>
-            <if test="timeStart != null">
-                and time_start = #{timeStart}
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
             </if>
             <if test="dateStart != null">
-                and date = #{dateStart}
+                and date(time_start)= #{dateStart}
             </if>
             <if test="search != null">
                 and m.name like concat('%',#{search},'%')
