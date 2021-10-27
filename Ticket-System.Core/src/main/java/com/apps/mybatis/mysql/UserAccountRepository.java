@@ -23,10 +23,14 @@ public interface UserAccountRepository {
                                        @Param("search") String name, @Param("role") Integer role,
                                        @Param("social") Integer social);
 
+    UserSocial findUserSocialById(@Param("id")Integer id);
+
+
     int findCountAll( @Param("search") String name,@Param("role") Integer role);
 
     @Select("select count(*) from user_info")
     int findCountAllSocial( @Param("search") String name,@Param("role") Integer role);
+
 
     User findUserById(@Param("id")Integer id);
 

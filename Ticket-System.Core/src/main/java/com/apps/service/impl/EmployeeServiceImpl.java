@@ -49,11 +49,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee findByUserId(Integer userId) {
         var empl = this.employeeRepository.findByUserId(userId);
-        if(empl == null){
-            throw new NotFoundException("Not Found Employee :"+ userId);
-        }
-        empl.setUserId(userId);
-
         return empl;
     }
 
@@ -73,7 +68,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         int modifiedBy = 0;
         if(userDetails != null){
             String email = userDetails.getUsername();
-            modifiedBy = this.userAccountRepository.findUserByEmail(email).getId();
+            var user = this.userAccountRepository.findUserByEmail(email);
+            if( user!= null){
+                modifiedBy = user.getId();
+            }else{
+                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
+                if(userInfo1 != null){
+                    modifiedBy = userInfo1.getId();
+                }
+            }
         }
         employee1.setStartsAt(employee.getStartsAt());
         employee1.setEndsAt(employee.getEndsAt());
@@ -83,7 +86,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee1.setNotes(employee.getNotes());
         employee1.setRoleId(employee.getRoleId());
         employee1.setUpdatedBy(modifiedBy);
-        System.out.println(employee1);
         return this.employeeRepository.update(employee);
     }
 }

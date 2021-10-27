@@ -79,7 +79,7 @@
 
     <select id="findAllUserSocial" resultType="com.apps.response.entity.UserSocial" >
         select user_info.id as id,email,
-               last_login, full_name, photo, ur.role_id,current_logged
+               last_login, full_name, photo, ur.role_id,current_logged,is_login_social as isLoginSocial
         from user_info
             join user_role ur on user_id = user_info.id
         <where>
@@ -114,6 +114,18 @@
         </if>
         limit #{limit} offset #{offset}
     </select>
+
+    <select id="findUserSocialById" resultType="com.apps.response.entity.UserSocial" >
+        select user_info.id as id,email,
+               last_login, full_name, photo,current_logged,
+               is_login_social as isLoginSocial
+        from user_info
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+
 
     <select id="findCountAll" resultType="INT">
         select count(*) from user_info
@@ -195,7 +207,7 @@
         select user_info.id as id,email,
                last_login, full_name, photo,current_logged
         from user_info
-        where email = #{email}
+        where email = #{email} and is_login_social = true
     </select>
 
 </mapper>

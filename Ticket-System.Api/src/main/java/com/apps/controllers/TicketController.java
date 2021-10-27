@@ -1,11 +1,14 @@
 package com.apps.controllers;
 
 import com.apps.response.ResponseRA;
+import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 
 @RestController
@@ -14,9 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class TicketController {
 
     private final ShowTimesDetailService showTimesDetailService;
-
-    public TicketController(ShowTimesDetailService showTimesDetailService) {
+    private final SeatService seatService;
+    public TicketController(ShowTimesDetailService showTimesDetailService, SeatService seatService) {
         this.showTimesDetailService = showTimesDetailService;
+        this.seatService = seatService;
     }
     @GetMapping("shows")
     public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -37,4 +41,28 @@ public class TicketController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("shows/{id}")
+    public ResponseEntity<?> showTimesDetail(@PathVariable("id") Integer id){
+        return ResponseEntity.ok(this.showTimesDetailService.findById(id));
+    }
+
+
+//    @GetMapping("shows/{id}")
+//    public ResponseEntity<?> getSeatByRoom(@PathVariable("id") Integer id){
+//        var result  = seatService.findByShowTimes(id);
+//        if(result != null){
+//            var response = ResponseRA.builder()
+//                    .content(result)
+//                    .totalElements(result.size())
+//                    .build();
+//            return ResponseEntity.ok(response);
+//        }
+//        var response = ResponseRA.builder()
+//                .content(new ArrayList<>())
+//                .totalElements(0)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
+
 }

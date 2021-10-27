@@ -143,7 +143,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(int id) {
-        return this.userAccountRepository.findUserById(id);
+        var user =  this.userAccountRepository.findUserById(id);
+        if(user == null) {
+            var userSocial = this.userAccountRepository.findUserSocialById(id);
+            if (userSocial.getIsLoginSocial()) {
+                user = new User();
+                var roleId = this.roleRepository.findUserRoleById(id);
+                user.setEmail(userSocial.getEmail());
+                user.setRoleId(roleId.get(0).getRoleId());
+                user.setUasId(2);
+                user.setId(userSocial.getId());
+                user.setFirstName(userSocial.getFirstName());
+                user.setLastName(userSocial.getLastName());
+                user.setFullName(userSocial.getFullName());
+                user.setCurrentLogged(userSocial.getCurrentLogged());
+            }
+        }
+        return user;
     }
 
     @Override

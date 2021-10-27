@@ -21,5 +21,6 @@ public interface SeatService {
     Boolean validateSeat( Integer room, String tier, Integer numbers);
     void delete(Integer id);
     List<Seat> findByRoom(Integer room,Integer showTimes);
+    List<Seat> findByShowTimes(int showTimes);
 
 }

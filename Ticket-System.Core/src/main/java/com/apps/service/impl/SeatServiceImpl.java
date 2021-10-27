@@ -6,6 +6,7 @@ import com.apps.domain.repository.SeatCustomRepository;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
+import com.apps.service.ShowTimesDetailService;
 import javafx.application.Application;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class SeatServiceImpl implements SeatService {
@@ -30,6 +28,9 @@ public class SeatServiceImpl implements SeatService {
 
     @Autowired
     private ApplicationCacheManager cacheManager;
+
+    @Autowired
+    private ShowTimesDetailService showTimesDetailService;
 
     @Override
     @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
@@ -123,5 +124,15 @@ public class SeatServiceImpl implements SeatService {
             }
         }
         return arrSeat;
+    }
+
+    @Override
+    public List<Seat> findByShowTimes(int showTimes) {
+        var showTimesDetail = this.showTimesDetailService.findById(showTimes);
+        if(showTimesDetail != null){
+
+           return this.findByRoom(showTimesDetail.getRoomId(),showTimes);
+        }
+        return new ArrayList<>();
     }
 }
