@@ -30,6 +30,6 @@ public class Seat implements Serializable {
 
     private Integer numbers;
     private String tier;
-    private Boolean isSelected = true;
+    private Boolean isSelected = false;
     private Integer status;
 }

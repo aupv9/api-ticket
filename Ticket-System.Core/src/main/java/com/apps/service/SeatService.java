@@ -22,5 +22,6 @@ public interface SeatService {
     void delete(Integer id);
     List<Seat> findByRoom(Integer room,Integer showTimes);
     List<Seat> findByShowTimes(int showTimes);
+    List<List<Seat>> findByRoomShow( Integer showTimesDetailId,Integer roomId);
 
 }

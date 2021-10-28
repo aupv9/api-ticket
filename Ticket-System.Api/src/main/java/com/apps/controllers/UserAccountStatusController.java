@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 
 
 @RestController
@@ -29,7 +30,7 @@ public class UserAccountStatusController {
         var resultList = this.accountStatusService.findAll();
         var totalElements = this.accountStatusService.findAllCount();
         var response = ResponseRA.builder()
-                .content(resultList)
+                .content(Collections.singletonList(resultList))
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -35,7 +36,7 @@ public class UserController {
             var resultList = this.userService.findAllUser(size,size * (page - 1),sort,order,name,role);
             var totalElements = this.userService.findCountAll(name,role);
             var response = ResponseRA.builder()
-                    .content(resultList)
+                    .content(Collections.singletonList(resultList))
                     .totalElements(totalElements)
                     .build();
             return ResponseEntity.ok(response);

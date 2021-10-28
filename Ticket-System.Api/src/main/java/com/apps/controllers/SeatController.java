@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin("*")
 public class SeatController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class SeatController {
         var result  = seatService.validateSeat( room, tier, numbers);
 
         var response = ResponseRA.builder()
-                .content(result)
+                .content(Collections.singletonList(result))
                 .totalElements(result ? 1 : 0)
                 .build();
         return ResponseEntity.ok(response);
@@ -47,7 +47,7 @@ public class SeatController {
         var result  = seatService.findAll(page - 1, size, sort, order,  search,  room);
         var totalElement = seatService.findCountAll(search,room);
         var response = ResponseRA.builder()
-                .content(result)
+                .content(Collections.singletonList(result))
                 .totalElements(totalElement)
                 .build();
 
@@ -64,6 +64,19 @@ public class SeatController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("seats-room-shows")
+    public ResponseEntity<?> getSeatByRoomShow(@RequestParam("showTimesId") Integer id,
+                                           @RequestParam("room") Integer room){
+        var result  = seatService.findByRoomShow(room,id);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @GetMapping("seats/{id}")
     public ResponseEntity<?> getLocations(@PathVariable("id") Integer id){

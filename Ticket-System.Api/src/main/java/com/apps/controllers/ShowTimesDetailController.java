@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -40,7 +41,7 @@ public class ShowTimesDetailController {
                 movieId,roomId,timeStart,search,dateStart);
         var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
         var response = ResponseRA.builder()
-                .content(result)
+                .content(Collections.singletonList(result))
                 .totalElements(totalElement)
                 .build();
         return ResponseEntity.ok(response);

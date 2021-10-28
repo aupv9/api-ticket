@@ -74,8 +74,12 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public List<List<Seat>> findSeatInRoomByShowTimesDetail(Integer showTimesDetailId, Integer roomId) {
-        Map<String,List<Seat>> map = new HashMap<>();
         var list = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimesDetailId,roomId);
+        return this.seatToSeat(list);
+    }
+
+    private List<List<Seat>> seatToSeat(List<Seat> list) {
+        Map<String,List<Seat>> map = new HashMap<>();
         for (var item:list){
             var key = item.getTier();
             if(!map.containsKey(key)) {
@@ -114,12 +118,12 @@ public class SeatServiceImpl implements SeatService {
             arrIdSeatAvailable.add(seat.getId());
         }
         for (int i = 0; i < arrSeat.size() ; i++) {
-            Seat seat = arrSeat.get(0);
+            Seat seat = arrSeat.get(i);
             if(arrIdSeatAvailable.contains(seat.getId())){
-                seat.setIsSelected(true);
+                seat.setIsSelected(false);
                 seat.setStatus(2);
             }else{
-                seat.setIsSelected(false);
+                seat.setIsSelected(true);
                 seat.setStatus(1);
             }
         }
@@ -134,5 +138,12 @@ public class SeatServiceImpl implements SeatService {
            return this.findByRoom(showTimesDetail.getRoomId(),showTimes);
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<List<Seat>> findByRoomShow(Integer showTimesDetailId, Integer roomId) {
+        var arrSeat = this.findByRoom(showTimesDetailId,roomId);
+        var seatWithRow = this.seatToSeat(arrSeat);
+        return seatWithRow;
     }
 }

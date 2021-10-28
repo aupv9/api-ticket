@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -44,7 +45,7 @@ public class ConcessionController {
         }
 
         var response = ResponseRA.builder()
-                .content(resultList)
+                .content(Collections.singletonList(resultList))
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
