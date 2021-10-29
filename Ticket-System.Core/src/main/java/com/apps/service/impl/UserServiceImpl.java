@@ -91,14 +91,15 @@ public class UserServiceImpl implements UserService {
         if(idReturned > 0){
             LocalDateTime createDate = LocalDateTime.now();
             String generatedToken = RandomStringUtils.random(15, true, true);
-            var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-            var userDetails = (UserDetails)authentication.getPrincipal();
-            int createdBy = 0;
-
-            if(userDetails != null){
-                String email = userDetails.getUsername();
-                createdBy = this.userAccountRepository.findUserByEmail(email).getId();
-            }
+//            var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+//            var userDetails = (UserDetails)authentication.getPrincipal();
+//            int createdBy = 0;
+//
+//            if(userDetails != null){
+//                String email = userDetails.getUsername();
+//                createdBy = this.userAccountRepository.findUserByEmail(email).getId();
+//            }
+            var createdBy = this.getUserFromContext();
             String passwordEncode = encoder.encode(userRegisterDto.getPassword());
             UserAccount userAccount = UserAccount.builder()
                     .userInfoId(idReturned)
@@ -172,21 +173,9 @@ public class UserServiceImpl implements UserService {
                 .fullName(userDto.getFirstName() + " "+ userDto.getLastName())
                 .build();
         this.userAccountRepository.updateUserInfo(userInfo);
-        var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-        var userDetails = (UserDetails)authentication.getPrincipal();
-        int modifiedBy = 0;
-        if(userDetails != null){
-            String email = userDetails.getUsername();
-            var user = this.userAccountRepository.findUserByEmail(email);
-            if( user!= null){
-                modifiedBy = user.getId();
-            }else{
-                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
-                if(userInfo1 != null){
-                    modifiedBy = userInfo1.getId();
-                }
-            }
-        }
+
+        var modifiedBy = this.getUserFromContext();
+
         UserAccount userAccount = UserAccount.builder()
                 .userInfoId(userInfo.getId())
                 .address(userDto.getAddress()).state(userDto.getAddress())
@@ -274,6 +263,26 @@ public class UserServiceImpl implements UserService {
                               .collect(Collectors.toList()))
                       .build();
           }
+    }
+
+    @Override
+    public int getUserFromContext() {
+        var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+        var userDetails = (UserDetails)authentication.getPrincipal();
+        int modifiedBy = 0;
+        if(userDetails != null){
+            String email = userDetails.getUsername();
+            var user = this.userAccountRepository.findUserByEmail(email);
+            if( user!= null){
+                modifiedBy = user.getId();
+            }else{
+                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
+                if(userInfo1 != null){
+                    modifiedBy = userInfo1.getId();
+                }
+            }
+        }
+        return modifiedBy;
     }
 
 

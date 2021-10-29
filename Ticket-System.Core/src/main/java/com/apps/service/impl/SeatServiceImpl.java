@@ -1,12 +1,15 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.domain.entity.Reserved;
 import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.SeatCustomRepository;
+import com.apps.mapper.ReservedDto;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
+import com.apps.service.TicketService;
 import javafx.application.Application;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,9 @@ public class SeatServiceImpl implements SeatService {
 
     @Autowired
     private ShowTimesDetailService showTimesDetailService;
+
+    @Autowired
+    private TicketService ticketService;
 
     @Override
     @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
@@ -75,6 +81,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public List<List<Seat>> findSeatInRoomByShowTimesDetail(Integer showTimesDetailId, Integer roomId) {
         var list = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimesDetailId,roomId);
+        var reservedList = this.ticketService.findByRoomShowTime(roomId,showTimesDetailId);
         return this.seatToSeat(list);
     }
 
@@ -113,20 +120,34 @@ public class SeatServiceImpl implements SeatService {
     public List<Seat> findByRoom(Integer room,Integer showTimes) {
         var arrSeat = this.seatRepository.findByRoom(room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
+        var reservedList = this.ticketService.findByRoomShowTime(room,showTimes);
+        System.out.println(reservedList);
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
+        List<Integer> arrIdSeatReserved = new ArrayList<>();
+
         for (Seat seat : arrSeatAvailable){
             arrIdSeatAvailable.add(seat.getId());
         }
-        for (int i = 0; i < arrSeat.size() ; i++) {
-            Seat seat = arrSeat.get(i);
-            if(arrIdSeatAvailable.contains(seat.getId())){
+        for (ReservedDto reserved : reservedList){
+            arrIdSeatReserved.add(reserved.getSeat());
+        }
+
+        for (Seat seat : arrSeat) {
+            if (arrIdSeatAvailable.contains(seat.getId())) {
                 seat.setIsSelected(false);
                 seat.setStatus(2);
-            }else{
+            } else {
                 seat.setIsSelected(true);
                 seat.setStatus(1);
             }
         }
+        for (Seat seat: arrSeat){
+            if(arrIdSeatReserved.contains(seat.getId())){
+                seat.setIsSelected(true);
+                seat.setStatus(3);
+            }
+        }
+
         return arrSeat;
     }
 

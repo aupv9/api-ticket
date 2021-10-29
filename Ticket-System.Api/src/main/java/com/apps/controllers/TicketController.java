@@ -1,8 +1,11 @@
 package com.apps.controllers;
 
+import com.apps.domain.entity.Reserved;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
+import com.apps.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +20,11 @@ public class TicketController {
 
     private final ShowTimesDetailService showTimesDetailService;
     private final SeatService seatService;
-    public TicketController(ShowTimesDetailService showTimesDetailService, SeatService seatService) {
+    private final TicketService ticketService;
+    public TicketController(ShowTimesDetailService showTimesDetailService, SeatService seatService, TicketService ticketService) {
         this.showTimesDetailService = showTimesDetailService;
         this.seatService = seatService;
+        this.ticketService = ticketService;
     }
     @GetMapping("shows")
     public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -45,6 +50,34 @@ public class TicketController {
     public ResponseEntity<?> showTimesDetail(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.showTimesDetailService.findById(id));
     }
+
+    @GetMapping("reserved")
+    public ResponseEntity<?> reservedSeat(@RequestParam(value = "seat", required = false) Integer seat,
+                                          @RequestParam(value = "showtime", required = false)Integer showtime,
+                                          @RequestParam(value = "room", required = false) Integer room){
+        var result = this.ticketService.findSeatReserved(seat,showtime,room);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result != null ? 1 : 0)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("reserved/{id}")
+    public ResponseEntity<?> reservedSeat(@PathVariable("id")Integer id,
+                                          @RequestBody Reserved reserved){
+
+        int result = this.ticketService.reserved(reserved.getSeats(), reserved.getUser(),
+                reserved.getShowTime(),reserved.getRoom());
+
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(reserved)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 //    @GetMapping("shows/{id}")

@@ -83,6 +83,10 @@
         </where>
     </select>
 
+    <insert id="reserved">
+        insert into reserved(seat_id,user_id,show_time_id,room_id)
+        values (#{seat},#{user},#{showtime},#{room})
+    </insert>
 
 
 

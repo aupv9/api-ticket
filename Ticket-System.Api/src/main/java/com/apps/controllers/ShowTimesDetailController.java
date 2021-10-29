@@ -41,7 +41,7 @@ public class ShowTimesDetailController {
                 movieId,roomId,timeStart,search,dateStart);
         var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
         var response = ResponseRA.builder()
-                .content(Collections.singletonList(result))
+                .content(result)
                 .totalElements(totalElement)
                 .build();
         return ResponseEntity.ok(response);

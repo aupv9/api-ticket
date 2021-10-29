@@ -25,5 +25,5 @@ public interface UserService {
     int update(UserDto userDto);
     UserLoginResponse authenticate(String email, String password) throws JOSEException;
     UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException;
-
+    int getUserFromContext();
 }
