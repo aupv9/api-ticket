@@ -27,15 +27,15 @@ public class OrdersCustomRepository implements Repository<Orders>{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             if(!(object instanceof Orders) ) return 0;
-            Orders category = (Orders) object;
-            stmt.setInt(1,category.getUserId());
-            stmt.setInt(2,category.getShowTimesDetailId());
-            stmt.setDouble(3,category.getTax());
-            stmt.setString(4,category.getCreateDate());
-            stmt.setString(5,category.getNote());
-            stmt.setInt(6,category.getCreation());
-            stmt.setString(7,category.getTypeUser());
-            stmt.setString(8,category.getStatus());
+            Orders orders = (Orders) object;
+            stmt.setInt(1,orders.getUserId());
+            stmt.setInt(2,orders.getShowTimesDetailId());
+            stmt.setDouble(3,orders.getTax());
+            stmt.setString(4,orders.getCreateDate());
+            stmt.setString(5,orders.getNote());
+            stmt.setInt(6,orders.getCreation());
+            stmt.setInt(7,orders.getTypeUser());
+            stmt.setString(8,orders.getStatus());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

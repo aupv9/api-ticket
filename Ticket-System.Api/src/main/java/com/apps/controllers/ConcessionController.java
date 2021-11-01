@@ -45,11 +45,30 @@ public class ConcessionController {
         }
 
         var response = ResponseRA.builder()
-                .content(Collections.singletonList(resultList))
+                .content(resultList)
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("concessions-orders")
+    public ResponseEntity<?> getConcessions(){
+
+        var result =
+
+                //this.concessionsService.findAll(0,10,null,null,null,null);
+
+
+                this.concessionsService.findAll() ;
+        System.out.println(result);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
     @GetMapping("concessions/{id}")

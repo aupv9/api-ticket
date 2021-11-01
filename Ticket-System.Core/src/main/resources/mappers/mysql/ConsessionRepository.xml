@@ -4,7 +4,10 @@
 <mapper namespace="com.apps.mybatis.mysql.ConcessionRepository">
 
         <select id="findAll" resultType="com.apps.domain.entity.Concession" >
-            select * from concession
+            select concession.id  ,price, category_id , concession.image ,
+                   concession.thumbnail,concession.name,
+                c.name as categoryName
+            from concession join category c on c.id = concession.category_id
             <where>
                 <if test="name != null">
                     name like concat('%',#{name},'%')

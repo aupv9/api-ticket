@@ -1,10 +1,12 @@
 package com.apps.domain.entity;
 
+import lombok.Builder;
 import lombok.Data;
 import java.io.Serializable;
 
 
 @Data
+@Builder
 public class Orders implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
@@ -14,7 +16,7 @@ public class Orders implements Serializable {
     private Integer userId;
     private String createDate;
     private String note;
-    private String typeUser;
+    private Integer typeUser;
     private Integer creation;
     private String status;
     private Integer concessionId;

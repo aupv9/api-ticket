@@ -1,6 +1,7 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.Orders;
+import com.apps.mapper.OrderDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.OrdersService;
@@ -51,8 +52,8 @@ public class OrdersController {
     }
 
     @PostMapping("orders")
-    public ResponseEntity<?> createCategory(@RequestBody Orders orders) throws SQLException {
-        int idReturned = this.ordersService.insert(orders);
+    public ResponseEntity<?> createCategory(@RequestBody OrderDto orders) throws SQLException {
+        int idReturned = this.ordersService.orderNonPayment(orders);
         orders.setId(idReturned);
         return ResponseEntity.ok(orders);
     }

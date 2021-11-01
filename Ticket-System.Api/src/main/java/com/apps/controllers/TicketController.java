@@ -6,6 +6,7 @@ import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
 import com.apps.service.TicketService;
+import com.apps.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,12 @@ public class TicketController {
     private final ShowTimesDetailService showTimesDetailService;
     private final SeatService seatService;
     private final TicketService ticketService;
-    public TicketController(ShowTimesDetailService showTimesDetailService, SeatService seatService, TicketService ticketService) {
+    private final UserService userService;
+    public TicketController(ShowTimesDetailService showTimesDetailService, SeatService seatService, TicketService ticketService, UserService userService) {
         this.showTimesDetailService = showTimesDetailService;
         this.seatService = seatService;
         this.ticketService = ticketService;
+        this.userService = userService;
     }
     @GetMapping("shows")
     public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -69,10 +72,11 @@ public class TicketController {
 
         int result = this.ticketService.reserved(reserved.getSeats(), reserved.getUser(),
                 reserved.getShowTime(),reserved.getRoom());
-
+        reserved.setUser(userService.getUserFromContext());
         var response = RAResponseUpdate.builder()
                 .id(result)
                 .previousData(reserved)
+                .data(reserved)
                 .build();
         return ResponseEntity.ok(response);
     }

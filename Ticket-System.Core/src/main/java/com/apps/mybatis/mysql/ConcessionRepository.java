@@ -17,4 +17,10 @@ public interface ConcessionRepository {
     void delete(@Param("id") Integer id);
     @Select("SELECT * FROM CONCESSION WHERE ID = #{id}")
     Concession findById(@Param("id") Integer id);
+
+    @Select("select concession.id  ,price, category_id ,\n" +
+            "       concession.image , concession.thumbnail ,c.name as categoryName\n" +
+            "from concession join category c on c.id = concession.category_id")
+    List<Concession> findAllConcession();
+
 }

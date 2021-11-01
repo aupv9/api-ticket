@@ -84,8 +84,8 @@
     </select>
 
     <insert id="reserved">
-        insert into reserved(seat_id,user_id,show_time_id,room_id)
-        values (#{seat},#{user},#{showtime},#{room})
+        insert into reserved(seat_id,user_id,show_time_id,room_id,time_expire_reserved)
+        values (#{seat},#{user},#{showtime},#{room},DATE_ADD(current_timestamp, INTERVAL 5 MINUTE))
     </insert>
 
 

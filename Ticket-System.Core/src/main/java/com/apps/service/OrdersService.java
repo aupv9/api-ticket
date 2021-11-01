@@ -1,6 +1,7 @@
 package com.apps.service;
 
 import com.apps.domain.entity.Orders;
+import com.apps.mapper.OrderDto;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -16,4 +17,5 @@ public interface OrdersService {
     void delete(int id);
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);
+    int orderNonPayment(OrderDto orderDto) throws SQLException;
 }

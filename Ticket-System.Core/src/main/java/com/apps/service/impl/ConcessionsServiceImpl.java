@@ -2,15 +2,20 @@ package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Concession;
+import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.ConcessionsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.service.ConcessionsService;
+import lombok.var;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ConcessionsServiceImpl implements ConcessionsService {
@@ -84,5 +89,24 @@ public class ConcessionsServiceImpl implements ConcessionsService {
         int id = this.concessionsCustomRepository.insert(concession,sql);
         cacheManager.clearCache("ConcessionsService");
         return id;
+    }
+
+    @Override
+    public List<Concession> findAll() {
+//        Map<Integer,List<Concession>> map = new HashMap<>();
+//        for (var item:concessionList){
+//            var key = item.getCategoryId();
+//            if(!map.containsKey(key)) {
+//                map.put(key, new ArrayList<>());
+//                map.get(key).add(item);
+//            }else{
+//                map.get(key).add(item);
+//            }
+//        }
+//        var listResult = new ArrayList<List<Concession>>();
+//        for (var item: map.entrySet()){
+//            listResult.add(item.getValue());
+//        }
+        return  this.concessionRepository.findAllConcession();
     }
 }

@@ -1,9 +1,11 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.contants.OrderStatus;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
+import com.apps.mapper.OrderDto;
 import com.apps.mybatis.mysql.OrdersRepository;
 import com.apps.service.OrdersService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,12 +54,12 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int insert(Orders orders) throws SQLException {
-        String sql = "Insert into (user_id,showtimes_detail_id,tax,create_date,note,creation,type_user,status) values (?,?,?,?,?,?,?,?)";
+        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,create_date,note,creation,type_user,status) values (?,?,?,?,?,?,?,?)";
         int result = this.ordersCustomRepository.insert(orders,sql);
-        if(result > 0 && orders.getConcessionId() > 0){
-            this.ordersRepository.insertOrderConcession(orders.getConcessionId(),result);
-            this.ordersRepository.insertOrderSeat(orders.getSeatId(),result);
-        }
+//        if(result > 0 && orders.getConcessionId() > 0){
+//            this.ordersRepository.insertOrderConcession(orders.getConcessionId(),result);
+//            this.ordersRepository.insertOrderSeat(orders.getSeatId(),result);
+//        }
         return result;
     }
 
@@ -73,5 +75,32 @@ public class OrdersServiceImpl implements OrdersService {
         orders1.setCreateDate(orders.getCreateDate());
         int result = this.ordersRepository.update(orders1);
         return result;
+    }
+
+    @Override
+    public int orderNonPayment(OrderDto orderDto) throws SQLException {
+
+        Orders orders = Orders.builder()
+                .creation(orderDto.getCreation())
+                .showTimesDetailId(orderDto.getShowTimesDetailId())
+                .totalAmount(orderDto.getTotalAmount())
+                .tax(0)
+                .typeUser(orderDto.getTypeUser())
+                .userId(orderDto.getUserId())
+                .status(OrderStatus.NON_PAYMENT.getStatus())
+                .userId(0)
+                .build();
+        int idOrderCreated = this.insert(orders);
+        if(idOrderCreated > 0){
+            for (Integer seat : orderDto.getSeats()){
+                this.ordersRepository.insertOrderSeat(seat,idOrderCreated);
+            }
+            for (Integer concession : orderDto.getConcessionId() ){
+                this.ordersRepository.insertOrderConcession(concession,idOrderCreated);
+            }
+        }else{
+            return 0;
+        }
+        return 1;
     }
 }

@@ -38,7 +38,7 @@ public class SeatController {
 
 
     @GetMapping("seats")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+    public ResponseEntity<?> getSeats(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
@@ -53,6 +53,8 @@ public class SeatController {
 
         return ResponseEntity.ok(response);
     }
+
+
 
     @GetMapping("seats-room")
     public ResponseEntity<?> getSeatByRoom(@RequestParam("showTimesId") Integer id,

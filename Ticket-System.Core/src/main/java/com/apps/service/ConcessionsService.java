@@ -14,4 +14,5 @@ public interface ConcessionsService {
     int update(Concession concession);
     void delete(Integer id);
     int insert(Concession concession) throws SQLException;
+    List<Concession> findAll();
 }

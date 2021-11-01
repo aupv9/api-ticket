@@ -11,9 +11,10 @@ public class OrderDto {
     private Integer userId;
     private String createDate;
     private String note;
-    private String typeUser;
+    private Integer typeUser;
     private Integer creation;
     private String status;
-    private Integer concessionId;
-    private Integer seatId;
+    private Integer[] concessionId;
+    private Integer[] seats;
+    private Integer room;
 }

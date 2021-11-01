@@ -9,4 +9,5 @@ public class RAResponseUpdate {
     private Integer id;
     private Object data;
     private Object previousData;
+
 }
