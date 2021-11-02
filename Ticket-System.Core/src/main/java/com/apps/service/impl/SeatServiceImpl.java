@@ -120,16 +120,11 @@ public class SeatServiceImpl implements SeatService {
     public List<Seat> findByRoom(Integer room,Integer showTimes) {
         var arrSeat = this.seatRepository.findByRoom(room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
-        var reservedList = this.ticketService.findByRoomShowTime(room,showTimes);
-        System.out.println(reservedList);
+
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
-        List<Integer> arrIdSeatReserved = new ArrayList<>();
 
         for (Seat seat : arrSeatAvailable){
             arrIdSeatAvailable.add(seat.getId());
-        }
-        for (ReservedDto reserved : reservedList){
-            arrIdSeatReserved.add(reserved.getSeat());
         }
 
         for (Seat seat : arrSeat) {
@@ -139,12 +134,6 @@ public class SeatServiceImpl implements SeatService {
             } else {
                 seat.setIsSelected(true);
                 seat.setStatus(1);
-            }
-        }
-        for (Seat seat: arrSeat){
-            if(arrIdSeatReserved.contains(seat.getId())){
-                seat.setIsSelected(true);
-                seat.setStatus(3);
             }
         }
 

@@ -18,11 +18,19 @@ public interface OrdersRepository {
                          @Param("userId")Integer userId,@Param("status")String status
                         ,@Param("creation") Integer creation);
 
+    List<Orders> findAllMyOrders(@Param("limit") int limit, @Param("offset") int offset,
+                                 @Param("sort")String sort, @Param("order") String order,
+                                 @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
+                                 @Param("status")String status,@Param("creation") Integer creation);
+
     int findCountAll(@Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                      @Param("userId")Integer userId,@Param("status")String status
                     ,@Param("creation") Integer creation);
 
-    @Select("select * from orders")
+    int findCountAllMyOrder(@Param("showTimes")Integer showTimes, @Param("typeUser")String type
+                            ,@Param("status")String status,@Param("creation") Integer creation);
+
+
     Orders findById(@Param("id")Integer id);
 
     @Delete("delete from orders where id = #{id}")
@@ -31,7 +39,8 @@ public interface OrdersRepository {
     int update(@Param("entity") Orders orders);
 
     int insertOrderConcession(@Param("concessionId") int concessionId,
-                              @Param("ordersId") int ordersId);
+                              @Param("ordersId") int ordersId,
+                              @Param("quantity") int quantity);
     int insertOrderSeat(@Param("seatId") int seatId,
                               @Param("ordersId") int ordersId);
 }

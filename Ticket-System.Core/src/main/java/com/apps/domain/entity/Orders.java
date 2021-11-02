@@ -10,15 +10,14 @@ import java.io.Serializable;
 public class Orders implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
-    private double totalAmount;
-    private double tax;
+//    private double totalAmount;
+    private float tax;
     private Integer showTimesDetailId;
     private Integer userId;
-    private String createDate;
+    private String createdDate;
     private String note;
-    private Integer typeUser;
+    private Integer typeUser = 0;
     private Integer creation;
     private String status;
-    private Integer concessionId;
-    private Integer seatId;
+    private String expirePayment;
 }

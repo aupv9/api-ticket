@@ -8,28 +8,56 @@ import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
 import com.apps.mybatis.mysql.OrdersRepository;
 import com.apps.service.OrdersService;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.apps.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Slf4j
 public class OrdersServiceImpl implements OrdersService {
 
     private final OrdersRepository ordersRepository;
     private final OrdersCustomRepository ordersCustomRepository;
     private final ApplicationCacheManager cacheManager;
-    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager) {
+    private final UserService userService;
+    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService) {
         this.ordersRepository = ordersRepository;
         this.ordersCustomRepository = ordersCustomRepository;
         this.cacheManager = cacheManager;
+        this.userService = userService;
     }
+    DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+
+    @Scheduled(fixedRate = 5000)
+    public void reportCurrentTime() {
+
+    }
+
 
     @Override
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation) {
         return this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation);
+    }
+
+    @Override
+    public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation) {
+
+        return  this.ordersRepository.findAllMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext());
+    }
+
+    @Override
+    public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation) {
+        return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,type,status,creation > 0 ? creation : null);
     }
 
     @Override
@@ -54,13 +82,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int insert(Orders orders) throws SQLException {
-        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,create_date,note,creation,type_user,status) values (?,?,?,?,?,?,?,?)";
-        int result = this.ordersCustomRepository.insert(orders,sql);
-//        if(result > 0 && orders.getConcessionId() > 0){
-//            this.ordersRepository.insertOrderConcession(orders.getConcessionId(),result);
-//            this.ordersRepository.insertOrderSeat(orders.getSeatId(),result);
-//        }
-        return result;
+        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,created_date,note,creation,non_profile,status) values (?,?,?,?,?,?,?,?)";
+        return this.ordersCustomRepository.insert(orders,sql);
     }
 
     @Override
@@ -72,35 +95,47 @@ public class OrdersServiceImpl implements OrdersService {
         orders1.setTypeUser(orders.getTypeUser());
         orders1.setTax(orders.getTax());
         orders1.setCreation(orders.getCreation());
-        orders1.setCreateDate(orders.getCreateDate());
+        orders1.setCreatedDate(orders.getCreatedDate());
         int result = this.ordersRepository.update(orders1);
         return result;
     }
 
     @Override
     public int orderNonPayment(OrderDto orderDto) throws SQLException {
+        LocalDateTime localDateTime = LocalDateTime.now();
+
 
         Orders orders = Orders.builder()
-                .creation(orderDto.getCreation())
+                .creation(userService.getUserFromContext())
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
-                .totalAmount(orderDto.getTotalAmount())
+//                .totalAmount(orderDto.getTotalAmount())
                 .tax(0)
-                .typeUser(orderDto.getTypeUser())
+                .typeUser(0)
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
                 .userId(0)
+                .createdDate(simpleDateFormat.format(localDateTime))
                 .build();
+
         int idOrderCreated = this.insert(orders);
         if(idOrderCreated > 0){
             for (Integer seat : orderDto.getSeats()){
                 this.ordersRepository.insertOrderSeat(seat,idOrderCreated);
             }
-            for (Integer concession : orderDto.getConcessionId() ){
-                this.ordersRepository.insertOrderConcession(concession,idOrderCreated);
+            Map<Integer, Integer> map = new HashMap<>();
+            for (Integer concession : orderDto.getConcessionId()) {
+                if(map.containsKey(concession)){
+                    map.put(concession,map.get(concession) +  1);
+                }else{
+                    map.put(concession,1);
+                }
+            }
+            for (Map.Entry<Integer,Integer> concession : map.entrySet() ){
+                this.ordersRepository.insertOrderConcession(concession.getKey(),idOrderCreated,concession.getValue());
             }
         }else{
             return 0;
         }
-        return 1;
+        return idOrderCreated;
     }
 }

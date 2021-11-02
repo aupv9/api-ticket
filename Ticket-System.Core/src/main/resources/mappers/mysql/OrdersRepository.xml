@@ -10,7 +10,7 @@
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and type_user = #{typeUser}
+                and non_profile = #{typeUser}
             </if>
             <if test="userId != null">
                 and user_id = #{userId}
@@ -53,6 +53,79 @@
         limit #{limit} offset #{offset}
     </select>
 
+    <select id="findAllMyOrders" resultType="com.apps.domain.entity.Orders">
+        select id,tax,note,creation, expire_payment as expirePayment, status, user_id as userId,
+        non_profile as typeUser, showtimes_detail_id, created_date
+        from orders
+        <where>
+            <if test="showTimes != null">
+                showtimes_detail_id = #{showTimes}
+            </if>
+            <if test="typeUser != null">
+                and non_profile = #{typeUser}
+            </if>
+<!--        <if test="userId != null">-->
+<!--            and user_id = #{userId}-->
+<!--        </if>-->
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="creation != null">
+                and creation = #{creation}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'user'">
+                    user_id
+                </when>
+                <when test="sort == 'create_date'">
+                    create_date
+                </when>
+                <when test="sort == 'creation'">
+                    creation
+                </when>
+                <when test="sort == 'showTimes'">
+                    showtimes_detail_id
+                </when>
+                <otherwise>
+                    type_user
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findCountAllMyOrder" resultType="INT">
+        select count(*) from orders
+        <where>
+            <if test="showTimes != null">
+                showtimes_detail_id = #{showTimes}
+            </if>
+            <if test="typeUser != null">
+                and non_profile = #{typeUser}
+            </if>
+            <!-- <if test="userId != null">-->
+            <!--     and user_id = #{userId}-->
+            <!-- </if>-->
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="creation != null">
+                and creation = #{creation}
+            </if>
+        </where>
+    </select>
+
     <select id="findCountAll" resultType="INT">
         select count(*) from orders
         <where>
@@ -60,7 +133,7 @@
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and type_user = #{typeUser}
+                and non_profile = #{typeUser}
             </if>
             <if test="userId != null">
                 and user_id = #{userId}
@@ -75,10 +148,24 @@
     </select>
 
     <insert id="insertOrderConcession">
-        insert into orders_detail(concession_id,orders_id) values(#{concessionId},#{ordersId})
+        insert into orders_detail(concession_id,orders_id,quantity) values(#{concessionId},#{ordersId},#{quantity})
     </insert>
 
     <insert id="insertOrderSeat">
-        insert into orders_seat(orders_id,seat_id,type) values(#{ordersId},#{seatId},#{type})
+        insert into orders_seat(orders_id,seat_id) values(#{ordersId},#{seatId})
     </insert>
+
+    <select id="findById" resultType="com.apps.domain.entity.Orders">
+        select id,tax,note,creation, expire_payment as expirePayment, status, user_id as userId,
+        non_profile as typeUser, showtimes_detail_id, created_date
+        from orders
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+        </where>
+
+    </select>
+
+
 </mapper>

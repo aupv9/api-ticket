@@ -45,6 +45,33 @@ public class OrdersController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("my-orders")
+    public ResponseEntity<?> getMyOrders( @RequestParam(value = "pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "user_id",  required = false) Integer userId,
+                                          @RequestParam(value = "type",  required = false) String type,
+                                          @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
+                                          @RequestParam(value = "status", required = false) String status,
+                                          @RequestParam(value = "creation", required = false) Integer creation
+    ){
+        var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation);
+        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("my-orders/{id}")
+    public ResponseEntity<?> getMyOrder(@PathVariable(value = "id", required = false) Integer id){
+        var result = this.ordersService.findById(id);
+        return ResponseEntity.ok(result);
+    }
+
+
     @GetMapping("orders/{id}")
     public ResponseEntity<?> getCategory(@PathVariable(value = "id", required = false) Integer id){
         var result = this.ordersService.findById(id);
