@@ -26,4 +26,5 @@ public interface UserService {
     UserLoginResponse authenticate(String email, String password) throws JOSEException;
     UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException;
     int getUserFromContext();
+    String getNowDateTime();
 }

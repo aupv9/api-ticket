@@ -4,9 +4,76 @@
 <mapper namespace="com.apps.mybatis.mysql.PaymentRepository">
 
         <select id="findAll" resultType="com.apps.domain.entity.Payment">
-            select * from payment limit #{limit} offset #{offset};
+            select * from payment
+            <where>
+                <if test="status != null">
+                    status = #{status}
+                </if>
+                <if test="createdDate != null">
+                    and created_date = #{createdDate}
+                </if>
+                <if test="creation != null">
+                    and creation = #{creation}
+                </if>
+                <if test="userFor != null">
+                    and user_for = #{userFor}
+                </if>
+                <if test="method != null">
+                    and payment_method_id = #{method}
+                </if>
+            </where>
+            <if test="sort != null">
+                order by
+                <choose>
+                    <when test="sort == 'id'">
+                        id
+                    </when>
+                    <when test="sort == 'createdDate'">
+                        created_date
+                    </when>
+                    <when test="sort == 'amount'">
+                        amount
+                    </when>
+<!--                    <when test="sort == 'paymentMeth'">-->
+<!--                        creation-->
+<!--                    </when>-->
+<!--                    <when test="sort == 'showTimes'">-->
+<!--                        showtimes_detail_id-->
+<!--                    </when>-->
+<!--                    <otherwise>-->
+<!--                        type_user-->
+<!--                    </otherwise>-->
+                </choose>
+            </if>
+
+            <if test="order != 'ASC' and sort != null" >
+                DESC
+            </if>
+
+            limit #{limit} offset #{offset}
         </select>
 
+        <select id="findAllCount" resultType="INT">
+        select count(*) from payment
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+            <if test="createdDate != null">
+                and created_date = #{createdDate}
+            </if>
+            <if test="creation != null">
+                and creation = #{creation}
+            </if>
+            <if test="userFor != null">
+                and user_for = #{userFor}
+            </if>
+            <if test="method != null">
+                and payment_method_id = #{method}
+            </if>
+        </where>
+
+    </select>
         <insert id="insert" useGeneratedKeys="true" keyProperty="id">
             insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
             values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},

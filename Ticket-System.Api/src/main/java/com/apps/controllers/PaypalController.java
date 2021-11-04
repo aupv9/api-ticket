@@ -67,8 +67,7 @@ public class PaypalController {
                 LocalDate date = LocalDate.now(); // Gets the current date
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
                 String currentDate = date.format(formatter);
-                payment1.setCreatetionDate(currentDate);
-                payment1.setStartDate(currentDate);
+                payment1.setCreatedDate(currentDate);
                 payment1.setUseFor(PaymentFor.TICKET.getValue());
                 payment1.setTransactionId(payment.getId());
                 payment1.setAmount(Double.valueOf(payment.getTransactions().get(0).getAmount().getTotal()));

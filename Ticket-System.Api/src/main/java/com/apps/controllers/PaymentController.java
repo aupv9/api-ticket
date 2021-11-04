@@ -1,16 +1,16 @@
 package com.apps.controllers;
 
 
+import com.apps.domain.entity.Payment;
 import com.apps.response.ResponseRA;
 import com.apps.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -30,13 +30,21 @@ public class PaymentController {
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false) Integer creation){
 
-        var resultList = this.paymentService.findAllPaymentMethod();
-        var totalElements = this.paymentService.findCountPaymentMethod();
+        var resultList = this.paymentService.findAll(size, (page - 1 ) * size,sort,order,createdDate,
+                useFor,status,creation);
+        var totalElements = this.paymentService.findAllCount(createdDate,useFor,status,creation);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("payments")
+    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException {
+        int idReturned = this.paymentService.insertReturnedId(payment);
+        payment.setId(idReturned);
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("payments-method")
@@ -48,6 +56,11 @@ public class PaymentController {
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("payments-method/{id}")
+    public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id){
+        return ResponseEntity.ok(this.paymentService.findPaymentMethodById(id));
     }
 
 

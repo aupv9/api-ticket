@@ -78,7 +78,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int registerAccountUser(UserRegisterDto userRegisterDto) throws SQLException {
-        LocalDateTime localDateTime = LocalDateTime.now();
         UserInfo userInfo = UserInfo.builder()
                 .email(userRegisterDto.getEmail())
                 .isLoginSocial(userRegisterDto.getIsLoginSocial())
@@ -89,16 +88,7 @@ public class UserServiceImpl implements UserService {
                 .build();
         int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
         if(idReturned > 0){
-            LocalDateTime createDate = LocalDateTime.now();
             String generatedToken = RandomStringUtils.random(15, true, true);
-//            var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-//            var userDetails = (UserDetails)authentication.getPrincipal();
-//            int createdBy = 0;
-//
-//            if(userDetails != null){
-//                String email = userDetails.getUsername();
-//                createdBy = this.userAccountRepository.findUserByEmail(email).getId();
-//            }
             var createdBy = this.getUserFromContext();
             String passwordEncode = encoder.encode(userRegisterDto.getPassword());
             UserAccount userAccount = UserAccount.builder()
@@ -107,8 +97,8 @@ public class UserServiceImpl implements UserService {
                     .password(passwordEncode)
                     .emailConfirmationToken(generatedToken)
                     .createdBy(createdBy)
-                    .createdDate(createDate.format(simpleDateFormat))
-                    .registeredAt(localDateTime.format(simpleDateFormat))
+                    .createdDate(getNowDateTime())
+                    .registeredAt(getNowDateTime())
                     .address(userRegisterDto.getAddress())
                     .city(userRegisterDto.getCity()).state(userRegisterDto.getState())
                     .userAccountStatusId(statusRepository.findByName("NONE ACTIVE").getId())
@@ -165,8 +155,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int update(UserDto userDto) {
-        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.now();
         UserInfo userInfo = UserInfo.builder()
                 .id(userDto.getId()).firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName()).photo(userDto.getPhoto())
@@ -180,7 +168,7 @@ public class UserServiceImpl implements UserService {
                 .userInfoId(userInfo.getId())
                 .address(userDto.getAddress()).state(userDto.getAddress())
                 .city(userDto.getCity())
-                .modifiedDate(localDateTime.format(simpleDateFormat))
+                .modifiedDate(getNowDateTime())
                 .userAccountStatusId(userDto.getUasId())
                 .password(userDto.getPassword())
                 .modifiedBy(modifiedBy)
@@ -197,7 +185,8 @@ public class UserServiceImpl implements UserService {
                 employee.setRoleId(role.getId());
                 this.employeeService.update(employee);
             }else{
-                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New",localDateTime.format(simpleDateFormat));
+                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New",
+                        getNowDateTime());
             }
         }
         return 1;
@@ -283,6 +272,13 @@ public class UserServiceImpl implements UserService {
             }
         }
         return modifiedBy;
+    }
+
+    @Override
+    public String getNowDateTime() {
+        DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return simpleDateFormat.format(localDateTime);
     }
 
 
