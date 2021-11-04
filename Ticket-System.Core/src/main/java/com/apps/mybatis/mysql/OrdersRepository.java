@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 
 import com.apps.domain.entity.Orders;
+import com.apps.response.entity.OrderSeats;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -43,4 +44,6 @@ public interface OrdersRepository {
                               @Param("quantity") int quantity);
     int insertOrderSeat(@Param("seatId") int seatId,
                               @Param("ordersId") int ordersId);
+
+    List<OrderSeats> findSeatInOrders(@Param("id")Integer id);
 }

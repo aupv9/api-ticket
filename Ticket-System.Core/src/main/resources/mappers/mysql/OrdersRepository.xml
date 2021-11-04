@@ -54,8 +54,7 @@
     </select>
 
     <select id="findAllMyOrders" resultType="com.apps.domain.entity.Orders">
-        select id,tax,note,creation, expire_payment as expirePayment, status, user_id as userId,
-        non_profile as typeUser, showtimes_detail_id, created_date
+        select *
         from orders
         <where>
             <if test="showTimes != null">
@@ -156,8 +155,7 @@
     </insert>
 
     <select id="findById" resultType="com.apps.domain.entity.Orders">
-        select id,tax,note,creation, expire_payment as expirePayment, status, user_id as userId,
-        non_profile as typeUser, showtimes_detail_id, created_date
+        select *
         from orders
         <where>
             <if test="id != null">
@@ -167,5 +165,13 @@
 
     </select>
 
+    <select id="findSeatInOrders" resultType="com.apps.response.entity.OrderSeats">
+        select orders_id,seat_id, seat_type, tier, numbers,
+               price
+        from
+            orders_seat
+                join seat s on s.id = orders_seat.seat_id
+        where orders_id = #{id}
+    </select>
 
 </mapper>

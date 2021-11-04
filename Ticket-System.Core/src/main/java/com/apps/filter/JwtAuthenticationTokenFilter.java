@@ -60,7 +60,7 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
                         throw new UsernameNotFoundException("No user found with username: " + email);
                     }
                     var roles = this.roleRepository.findUserRoleById(user.getId());
-                    var authorities= roleService.getAuthorities(roles);
+                    var authorities = roleService.getAuthorities(roles);
                     var userDetail = new User(email, RandomStringUtils.random(15, true, true),
                             true, true,
                             true, true,authorities );

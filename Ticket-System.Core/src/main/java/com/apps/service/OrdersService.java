@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.Orders;
 import com.apps.mapper.OrderDto;
+import com.apps.response.entity.MyOrderResponse;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ public interface OrdersService {
 
     int findAllCount(Integer showTimes,String type,
                      Integer userId,String status,Integer creation);
-    Orders findById(int id);
+    MyOrderResponse findById(int id);
     void delete(int id);
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);

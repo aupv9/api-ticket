@@ -6,15 +6,17 @@ import com.apps.domain.entity.Orders;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
+import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.OrdersRepository;
+import com.apps.response.entity.MyOrderResponse;
 import com.apps.service.OrdersService;
 import com.apps.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -29,11 +31,13 @@ public class OrdersServiceImpl implements OrdersService {
     private final OrdersCustomRepository ordersCustomRepository;
     private final ApplicationCacheManager cacheManager;
     private final UserService userService;
-    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService) {
+    private final ConcessionRepository concessionRepository;
+    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService, ConcessionRepository concessionRepository) {
         this.ordersRepository = ordersRepository;
         this.ordersCustomRepository = ordersCustomRepository;
         this.cacheManager = cacheManager;
         this.userService = userService;
+        this.concessionRepository = concessionRepository;
     }
     DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
@@ -51,7 +55,6 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation) {
-
         return  this.ordersRepository.findAllMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext());
     }
 
@@ -66,17 +69,34 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public Orders findById(int id) {
+    public MyOrderResponse findById(int id) {
+
         Orders orders = this.ordersRepository.findById(id);
         if(orders == null){
             throw new NotFoundException("Not Find Object Have Id :" + id);
         }
-        return orders;
+        var concessions = this.concessionRepository.findAllConcessionInOrder(id);
+        var seats = this.ordersRepository.findSeatInOrders(id);
+
+        return MyOrderResponse.builder()
+                .id(id)
+                .expirePayment(orders.getExpirePayment())
+                .concessions(concessions)
+                .seats(seats)
+                .createdDate(orders.getCreatedDate())
+                .tax(orders.getTax())
+                .note(orders.getNote())
+                .creation(orders.getCreation())
+                .showTimesDetailId(orders.getShowTimesDetailId())
+                .status(orders.getStatus())
+                .typeUser(orders.getNonProfile())
+                .userId(orders.getUserId())
+                .build();
     }
 
     @Override
     public void delete(int id) {
-        Orders orders = this.findById(id);
+        var orders = this.findById(id);
         this.ordersRepository.delete(orders.getId());
     }
 
@@ -88,15 +108,15 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int update(Orders orders) {
-        Orders orders1 = this.findById(orders.getId());
-        orders1.setUserId(orders.getUserId());
-        orders1.setShowTimesDetailId(orders.getShowTimesDetailId());
-        orders1.setStatus(orders.getStatus());
-        orders1.setTypeUser(orders.getTypeUser());
-        orders1.setTax(orders.getTax());
-        orders1.setCreation(orders.getCreation());
-        orders1.setCreatedDate(orders.getCreatedDate());
-        int result = this.ordersRepository.update(orders1);
+        var orders1 = this.findById(orders.getId());
+//        orders.setUserId(orders.getUserId());
+//        orders.setShowTimesDetailId(orders.getShowTimesDetailId());
+//        orders.setStatus(orders.getStatus());
+//        orders.setTypeUser(orders.getTypeUser());
+//        orders.setTax(orders.getTax());
+//        orders.setCreation(orders.getCreation());
+//        orders.setCreatedDate(orders.getCreatedDate());
+        int result = this.ordersRepository.update(orders);
         return result;
     }
 
@@ -110,7 +130,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
 //                .totalAmount(orderDto.getTotalAmount())
                 .tax(0)
-                .typeUser(0)
+                .nonProfile(0)
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
                 .userId(0)

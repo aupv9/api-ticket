@@ -30,13 +30,13 @@ public class UserController {
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search",  required = false) String name,
                                           @RequestParam(value = "role", required = false) Integer role,
-                                          @RequestParam(value = "status", required = false) String status
+                                          @RequestParam(value = "status", required = false,defaultValue = "userRegister") String status
     ){
         if(status.equals("userRegister")){
             var resultList = this.userService.findAllUser(size,size * (page - 1),sort,order,name,role);
             var totalElements = this.userService.findCountAll(name,role);
             var response = ResponseRA.builder()
-                    .content(Collections.singletonList(resultList))
+                    .content(resultList)
                     .totalElements(totalElements)
                     .build();
             return ResponseEntity.ok(response);

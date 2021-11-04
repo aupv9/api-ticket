@@ -47,7 +47,7 @@ public class SeatController {
         var result  = seatService.findAll(page - 1, size, sort, order,  search,  room);
         var totalElement = seatService.findCountAll(search,room);
         var response = ResponseRA.builder()
-                .content(Collections.singletonList(result))
+                .content(result)
                 .totalElements(totalElement)
                 .build();
 

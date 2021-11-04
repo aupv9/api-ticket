@@ -34,7 +34,7 @@ public class OrdersCustomRepository implements Repository<Orders>{
             stmt.setString(4,orders.getCreatedDate());
             stmt.setString(5,orders.getNote());
             stmt.setInt(6,orders.getCreation());
-            stmt.setInt(7,orders.getTypeUser());
+            stmt.setInt(7,orders.getNonProfile());
             stmt.setString(8,orders.getStatus());
             stmt.execute();
             rs = stmt.getGeneratedKeys();

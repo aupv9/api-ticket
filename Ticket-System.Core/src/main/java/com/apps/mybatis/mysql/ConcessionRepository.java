@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Concession;
+import com.apps.response.entity.ConcessionMyOrder;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -23,4 +24,5 @@ public interface ConcessionRepository {
             "from concession join category c on c.id = concession.category_id")
     List<Concession> findAllConcession();
 
+    List<ConcessionMyOrder> findAllConcessionInOrder(@Param("id")Integer id);
 }

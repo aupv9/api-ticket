@@ -6,5 +6,5 @@ import lombok.Data;
 public class UserSocial {
     private int id, roleId;
     private String firstName,email, lastName, fullName, photo,lastLogin;
-    private Boolean isLoginSocial, currentLogged;
+    private Boolean isLoginSocial = false, currentLogged;
 }

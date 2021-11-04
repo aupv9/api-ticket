@@ -103,11 +103,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     public ShowTimesDetail findById(int id) {
         var showTimesDetail = this.showTimesDetailRepository.findById(id);
         if(showTimesDetail == null){
-            throw new NotFoundException("Not Found Object have Id:"+id);
+            throw new NotFoundException("Not Found Object have Id:" + id);
         }
         var room = this.roomService.findById(showTimesDetail.getRoomId());
         if(room == null){
-            throw new NotFoundException("Not Found Object have Id:"+id);
+            throw new NotFoundException("Not Found Object have Id:" + id);
         }
         showTimesDetail.setTheaterId(room.getTheaterId());
         return showTimesDetail;
