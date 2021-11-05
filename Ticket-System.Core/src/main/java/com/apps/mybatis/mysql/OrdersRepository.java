@@ -1,6 +1,5 @@
 package com.apps.mybatis.mysql;
 
-
 import com.apps.domain.entity.Orders;
 import com.apps.response.entity.OrderSeats;
 import org.apache.ibatis.annotations.Delete;
@@ -35,7 +34,7 @@ public interface OrdersRepository {
     Orders findById(@Param("id")Integer id);
 
     @Delete("delete from orders where id = #{id}")
-    void delete(@Param("id")Integer id);
+    int delete(@Param("id")Integer id);
 
     int update(@Param("entity") Orders orders);
 
@@ -46,4 +45,19 @@ public interface OrdersRepository {
                               @Param("ordersId") int ordersId);
 
     List<OrderSeats> findSeatInOrders(@Param("id")Integer id);
+
+    @Select("select id from orders where status = 'non_payment' and expire_payment < current_timestamp")
+    List<Integer> findAllOrderExpiredReserved();
+
+    @Select("select orders_id from orders_detail where orders_id =#{ordersId}")
+    List<Integer> findOrderDetailById(@Param("ordersId")Integer id);
+
+    @Select("select orders_id from orders_seat where orders_id =#{ordersId}")
+    List<Integer> findOrderSeatById(@Param("ordersId")Integer id);
+
+    @Delete("delete from orders_detail where orders_id = #{ordersId}")
+    int deleteOrderDetail(@Param("ordersId")Integer id);
+
+    @Delete("delete from orders_seat where orders_id = #{ordersId}")
+    int deleteOrderSeat(@Param("ordersId")Integer id);
 }
