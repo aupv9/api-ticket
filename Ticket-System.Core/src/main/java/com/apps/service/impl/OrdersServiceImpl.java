@@ -41,21 +41,21 @@ public class OrdersServiceImpl implements OrdersService {
     }
     DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
-//    @Scheduled(fixedDelay = 100000)
-//    public void reportCurrentTime() {
-//        var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved();
-//        for (Integer order : listOrderExpire){
-//            var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
-//            for (Integer orderDetail: listOrdersDetail){
-//                int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
-//            }
-//            var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
-//            for (Integer orderSeat: listOrdersDetail){
-//                int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
-//            }
-//            int deleted = this.ordersRepository.delete(order);
-//        }
-//    }
+    @Scheduled(fixedDelay = 100000)
+    public void reportCurrentTime() {
+        var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved();
+        for (Integer order : listOrderExpire){
+            var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
+            for (Integer orderDetail: listOrdersDetail){
+                int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
+            }
+            var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
+            for (Integer orderSeat: listOrdersDetail){
+                int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
+            }
+            int deleted = this.ordersRepository.delete(order);
+        }
+    }
 
 
     @Override
@@ -144,7 +144,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .nonProfile(0)
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
-                .expirePayment(localDateTime.plusMinutes(1).format(simpleDateFormat))
+                .expirePayment(localDateTime.plusMinutes(5).format(simpleDateFormat))
                 .userId(0)
                 .createdDate(simpleDateFormat.format(localDateTime))
                 .build();
