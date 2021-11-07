@@ -43,7 +43,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() {
-        var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved();
+        String currentTime = simpleDateFormat.format(LocalDateTime.now());
+        var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
             for (Integer orderDetail: listOrdersDetail){

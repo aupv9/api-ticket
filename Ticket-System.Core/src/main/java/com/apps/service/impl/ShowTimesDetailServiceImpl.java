@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
@@ -46,6 +47,9 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Autowired
     private UserAccountRepository userAccountRepository;
+
+    @Autowired
+    private ApplicationCacheManager cacheManager;
 
     @Override
 //    @Cacheable(cacheNames = "ShowTimesDetailService",
@@ -147,21 +151,26 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Override
     public int update(ShowTimesDetail showTimesDetail) {
         ShowTimesDetail showTimesDetail1 = this.findById(showTimesDetail.getId());
-        if(showTimesDetail1.getTimeStart() != null && !showTimesDetail1.getTimeStart().isEmpty()){
-            Instant instantFromTimeStamp = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toInstant();
-            if(!instantFromTimeStamp.toString().equals(showTimesDetail.getTimeStart())){
-                Instant instant = Instant.parse(showTimesDetail.getTimeStart());
-                Timestamp timestamp = Timestamp.from(instant);
-                showTimesDetail1.setTimeStart(timestamp.toString());
-            }
-        }else{
-            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
-            Timestamp timestamp = Timestamp.from(instant);
-            showTimesDetail1.setTimeStart(timestamp.toString());
-        }
+        var timeStart = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toString();
+        showTimesDetail1.setTimeStart(timeStart);
+//        if(showTimesDetail1.getTimeStart() != null && !showTimesDetail1.getTimeStart().isEmpty()){
+//            Instant instantFromTimeStamp = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toInstant();
+//
+//            if(!instantFromTimeStamp.toString().equals(showTimesDetail.getTimeStart())){
+//                Instant instant = Instant.parse(showTimesDetail.getTimeStart());
+//                Timestamp timestamp = Timestamp.from(instant);
+//                showTimesDetail1.setTimeStart(timestamp.toString());
+//            }
+//        }else{
+//            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
+//            Timestamp timestamp = Timestamp.from(instant);
+//            showTimesDetail1.setTimeStart(timestamp.toString());
+//        }
+
         showTimesDetail1.setMovieId(showTimesDetail.getMovieId());
         showTimesDetail1.setRoomId(showTimesDetail.getRoomId());
         int result = this.showTimesDetailRepository.update(showTimesDetail1);
+        cacheManager.clearCache("ShowTimesDetailService");
         return result;
     }
 

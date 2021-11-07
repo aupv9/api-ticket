@@ -46,8 +46,8 @@ public interface OrdersRepository {
 
     List<OrderSeats> findSeatInOrders(@Param("id")Integer id);
 
-    @Select("select id from orders where status = 'non_payment' and expire_payment > current_timestamp")
-    List<Integer> findAllOrderExpiredReserved();
+    @Select("select id from orders where status = 'non_payment' and expire_payment < #{currentTime}")
+    List<Integer> findAllOrderExpiredReserved(@Param("currentTime")String time);
 
     @Select("select orders_id from orders_detail where orders_id =#{ordersId}")
     List<Integer> findOrderDetailById(@Param("ordersId")Integer id);

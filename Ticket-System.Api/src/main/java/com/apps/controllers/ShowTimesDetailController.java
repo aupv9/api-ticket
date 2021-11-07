@@ -82,7 +82,7 @@ public class ShowTimesDetailController {
 
     @PutMapping(value = "showTimesDetails/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> updateShowTimes(@PathVariable("id")Integer idShowTimes,
-                                             @RequestBody ShowTimesDetail showTimes) throws SQLException {
+                                             @RequestBody ShowTimesDetail showTimes) {
         showTimes.setId(idShowTimes);
         int id = this.showTimesDetailService.update(showTimes);
         showTimes.setId(id);
