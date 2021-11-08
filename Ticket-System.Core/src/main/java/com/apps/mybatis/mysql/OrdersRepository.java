@@ -20,7 +20,7 @@ public interface OrdersRepository {
                          @Param("userId")Integer userId,@Param("status")String status
                         ,@Param("creation") Integer creation);
 
-    List<Orders> findAllMyOrders(@Param("limit") int limit, @Param("offset") int offset,
+    List<Orders> findMyOrders(@Param("limit") int limit, @Param("offset") int offset,
                                  @Param("sort")String sort, @Param("order") String order,
                                  @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                                  @Param("status")String status,@Param("creation") Integer creation);

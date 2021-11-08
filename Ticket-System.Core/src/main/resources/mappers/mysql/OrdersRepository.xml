@@ -52,9 +52,9 @@
         </if>
 
         limit #{limit} offset #{offset}
-    </select>
+    </select >
 
-    <select id="findAllMyOrders" resultType="com.apps.domain.entity.Orders">
+    <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">
         select *
             from orders
         <where>

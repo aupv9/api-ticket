@@ -73,7 +73,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation) {
-        return  this.ordersRepository.findAllMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext());
+        return  this.ordersRepository.findMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext());
     }
 
     @Override
@@ -112,12 +112,12 @@ public class OrdersServiceImpl implements OrdersService {
 
         return MyOrderResponse.builder()
                 .id(id)
-                .expirePayment(orders.getExpirePayment())
+//                .expirePayment(orders.getExpirePayment())
                 .concessions(concessions)
                 .seats(seats)
-                .createdDate(orders.getCreatedDate())
+//                .createdDate(orders.getCreatedDate())
                 .updatedBy(orders.getUpdatedBy())
-                .updatedDate(orders.getUpdatedAt())
+//                .updatedDate(orders.getUpdatedAt())
                 .tax(orders.getTax())
                 .note(orders.getNote())
                 .creation(orders.getCreation())
@@ -152,7 +152,7 @@ public class OrdersServiceImpl implements OrdersService {
 //        orders.setCreation(orders.getCreation());
 //        orders.setCreatedDate(orders.getCreatedDate());
         orders.setUpdatedBy(userService.getUserFromContext());
-        orders.setUpdatedAt(Utilities.getCurrentTime());
+//        orders.setUpdatedAt(Utilities.getCurrentTime());
         int result = this.ordersRepository.update(orders);
         return result;
     }
@@ -162,21 +162,21 @@ public class OrdersServiceImpl implements OrdersService {
         LocalDateTime localDateTime = LocalDateTime.now();
 
 
-        Orders orders = Orders.builder()
-                .creation(userService.getUserFromContext())
-                .showTimesDetailId(orderDto.getShowTimesDetailId())
-//                .totalAmount(orderDto.getTotalAmount())
-                .tax(0)
-                .profile(orderDto.getTypeUser())
-                .userId(orderDto.getUserId())
-                .status(OrderStatus.NON_PAYMENT.getStatus())
-                .expirePayment(localDateTime.plusMinutes(5).format(simpleDateFormat))
-                .userId(0)
-                .createdDate(simpleDateFormat.format(localDateTime))
-                .note("")
-                .build();
+//        Orders orders = Orders.builder()
+//                .creation(userService.getUserFromContext())
+//                .showTimesDetailId(orderDto.getShowTimesDetailId())
+////                .totalAmount(orderDto.getTotalAmount())
+//                .tax(0)
+//                .profile(orderDto.getTypeUser())
+//                .userId(orderDto.getUserId())
+//                .status(OrderStatus.NON_PAYMENT.getStatus())
+////                .expirePayment(localDateTime.plusMinutes(5).format(simpleDateFormat))
+//                .userId(0)
+////                .createdDate(simpleDateFormat.format(localDateTime))
+//                .note("")
+//                .build();
 
-        int idOrderCreated = this.insert(orders);
+        int idOrderCreated = this.insert(null);
         if(idOrderCreated > 0){
             for (Integer seat : orderDto.getSeats()){
                 this.ordersRepository.insertOrderSeat(seat,idOrderCreated);
@@ -215,15 +215,16 @@ public class OrdersServiceImpl implements OrdersService {
 
     private int updateOrder(MyOrderUpdateDto orders){
         var myOrder = this.findById(orders.getId());
-        var order = Orders.builder()
-                .id(myOrder.getId())
-                .profile(orders.getTypeUser())
-                .userId(orders.getTypeUser() ? orders.getUserId() : 0)
-                .note(orders.getNote())
-                .status(orders.getStatus())
-                .updatedAt(Utilities.getCurrentTime())
-                .updatedBy(userService.getUserFromContext())
-                .build();
+        var order = new Orders();
+
+                order.setId(myOrder.getId());
+                order.setProfile(orders.getTypeUser());
+                order.setUserId(orders.getTypeUser() ? orders.getUserId() : 0);
+                order.setNote(orders.getNote());
+                order.setStatus(orders.getStatus());
+//                .updatedAt(Utilities.getCurrentTime())
+//                .updatedBy(userService.getUserFromContext())
+//                .build();
         return this.ordersRepository.updateMyOrder(order);
     }
 }

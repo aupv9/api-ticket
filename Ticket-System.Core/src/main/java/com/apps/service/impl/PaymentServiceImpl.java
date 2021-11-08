@@ -73,10 +73,9 @@ public class PaymentServiceImpl implements PaymentService {
         if(result > 0){
             var order = this.ordersService.findById(payment.getPartId());
             order.setStatus(PaymentStatus.Verified.getValue());
-            var orders = Orders.builder()
-                    .id(order.getId())
-                    .status(OrderStatus.PAYMENT.getStatus())
-                    .build();
+            var orders = new Orders();
+                    order.setId(order.getId());
+                    order.setStatus(OrderStatus.PAYMENT.getStatus());
             this.ordersService.update(orders);
         }
         return result;
