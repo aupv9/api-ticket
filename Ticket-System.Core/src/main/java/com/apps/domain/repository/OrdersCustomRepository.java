@@ -31,12 +31,12 @@ public class OrdersCustomRepository implements Repository<Orders>{
             stmt.setInt(1,orders.getUserId());
             stmt.setInt(2,orders.getShowTimesDetailId());
             stmt.setDouble(3,orders.getTax());
-            stmt.setString(4,orders.getCreatedDate());
+            stmt.setString(4,orders.getCreatedDate().toString());
             stmt.setString(5,orders.getNote());
             stmt.setInt(6,orders.getCreation());
-            stmt.setInt(7,orders.getNonProfile());
+            stmt.setBoolean(7,orders.isProfile());
             stmt.setString(8,orders.getStatus());
-            stmt.setString(9,orders.getExpirePayment());
+            stmt.setString(9,orders.getExpirePayment().toString());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

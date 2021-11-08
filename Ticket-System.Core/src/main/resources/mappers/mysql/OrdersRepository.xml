@@ -4,13 +4,14 @@
 <mapper namespace="com.apps.mybatis.mysql.OrdersRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Orders">
-        select * from orders
+        select *
+        from orders
         <where>
             <if test="showTimes != null">
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and non_profile = #{typeUser}
+                and profile = #{typeUser}
             </if>
             <if test="userId != null">
                 and user_id = #{userId}
@@ -31,7 +32,7 @@
                 <when test="sort == 'user'">
                     user_id
                 </when>
-                <when test="sort == 'create_date'">
+                <when test="sort == 'createDate'">
                     create_date
                 </when>
                 <when test="sort == 'creation'">
@@ -41,7 +42,7 @@
                     showtimes_detail_id
                 </when>
                 <otherwise>
-                    type_user
+                    profile
                 </otherwise>
             </choose>
         </if>
@@ -55,17 +56,14 @@
 
     <select id="findAllMyOrders" resultType="com.apps.domain.entity.Orders">
         select *
-        from orders
+            from orders
         <where>
             <if test="showTimes != null">
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and non_profile = #{typeUser}
+                and profile = #{typeUser}
             </if>
-<!--        <if test="userId != null">-->
-<!--            and user_id = #{userId}-->
-<!--        </if>-->
             <if test="status != null">
                 and status = #{status}
             </if>
@@ -82,7 +80,7 @@
                 <when test="sort == 'user'">
                     user_id
                 </when>
-                <when test="sort == 'create_date'">
+                <when test="sort == 'createDate'">
                     create_date
                 </when>
                 <when test="sort == 'creation'">
@@ -92,15 +90,13 @@
                     showtimes_detail_id
                 </when>
                 <otherwise>
-                    type_user
+                    profile
                 </otherwise>
             </choose>
         </if>
-
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
-
         limit #{limit} offset #{offset}
     </select>
 
@@ -111,7 +107,7 @@
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and non_profile = #{typeUser}
+                and profile = #{typeUser}
             </if>
             <!-- <if test="userId != null">-->
             <!--     and user_id = #{userId}-->
@@ -132,7 +128,7 @@
                 showtimes_detail_id = #{showTimes}
             </if>
             <if test="typeUser != null">
-                and non_profile = #{typeUser}
+                and profile = #{typeUser}
             </if>
             <if test="userId != null">
                 and user_id = #{userId}
@@ -174,4 +170,42 @@
         where orders_id = #{id}
     </select>
 
+    <update id="updateMyOrder">
+        update orders
+        <set>
+            <if test="order.profile != null">
+                profile = #{order.profile},
+            </if>
+            <if test="order.userId != null">
+                user_id = #{order.userId},
+            </if>
+            <if test="order.note != null">
+                note = #{order.note},
+            </if>
+            <if test="order.updatedBy != null">
+                updatedBy = #{order.updatedBy},
+            </if>
+            <if test="order.updatedAt != null">
+                updatedAt = #{order.updatedAt},
+            </if>
+            <if test="order.status != null">
+                status = #{order.status}
+            </if>
+        </set>
+        <where>
+            id = #{order.id}
+        </where>
+    </update>
+
+    <update id="update">
+        update orders
+        <set>
+            <if test="order.status != null">
+                status = #{order.status}
+            </if>
+        </set>
+        <where>
+            id = #{order.id}
+        </where>
+    </update>
 </mapper>

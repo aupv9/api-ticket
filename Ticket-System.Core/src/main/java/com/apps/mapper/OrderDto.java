@@ -11,10 +11,11 @@ public class OrderDto {
     private Integer userId;
     private String createDate;
     private String note;
-    private Integer typeUser;
+    private Boolean typeUser = false;
     private Integer creation;
     private String status;
     private Integer[] concessionId;
     private Integer[] seats;
     private Integer room;
+
 }

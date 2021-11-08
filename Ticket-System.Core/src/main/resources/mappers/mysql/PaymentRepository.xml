@@ -15,9 +15,9 @@
                 <if test="creation != null">
                     and creation = #{creation}
                 </if>
-                <if test="userFor != null">
-                    and user_for = #{userFor}
-                </if>
+<!--                <if test="userFor != null">-->
+<!--                    and user_for = #{userFor}-->
+<!--                </if>-->
                 <if test="method != null">
                     and payment_method_id = #{method}
                 </if>
@@ -65,9 +65,9 @@
             <if test="creation != null">
                 and creation = #{creation}
             </if>
-            <if test="userFor != null">
-                and user_for = #{userFor}
-            </if>
+<!--            <if test="userFor != null">-->
+<!--                and user_for = #{userFor}-->
+<!--            </if>-->
             <if test="method != null">
                 and payment_method_id = #{method}
             </if>

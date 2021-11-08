@@ -1,6 +1,8 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Orders;
+import com.apps.payment.Order;
+import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.OrderSeats;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,7 +38,7 @@ public interface OrdersRepository {
     @Delete("delete from orders where id = #{id}")
     int delete(@Param("id")Integer id);
 
-    int update(@Param("entity") Orders orders);
+    int update(@Param("order") Orders orders);
 
     int insertOrderConcession(@Param("concessionId") int concessionId,
                               @Param("ordersId") int ordersId,
@@ -60,4 +62,6 @@ public interface OrdersRepository {
 
     @Delete("delete from orders_seat where orders_id = #{ordersId}")
     int deleteOrderSeat(@Param("ordersId")Integer id);
+
+    int updateMyOrder(@Param("order") Orders order);
 }

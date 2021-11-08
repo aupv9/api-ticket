@@ -2,12 +2,15 @@ package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.OrderStatus;
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
 import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.OrdersRepository;
+import com.apps.mybatis.mysql.PaymentRepository;
+import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.MyOrderResponse;
 import com.apps.service.OrdersService;
 import com.apps.service.UserService;
@@ -32,12 +35,14 @@ public class OrdersServiceImpl implements OrdersService {
     private final ApplicationCacheManager cacheManager;
     private final UserService userService;
     private final ConcessionRepository concessionRepository;
-    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService, ConcessionRepository concessionRepository) {
+    private final PaymentRepository paymentRepository;
+    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService, ConcessionRepository concessionRepository, PaymentRepository paymentRepository) {
         this.ordersRepository = ordersRepository;
         this.ordersCustomRepository = ordersCustomRepository;
         this.cacheManager = cacheManager;
         this.userService = userService;
         this.concessionRepository = concessionRepository;
+        this.paymentRepository = paymentRepository;
     }
     DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
@@ -62,6 +67,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation) {
+
         return this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation);
     }
 
@@ -89,6 +95,20 @@ public class OrdersServiceImpl implements OrdersService {
         }
         var concessions = this.concessionRepository.findAllConcessionInOrder(id);
         var seats = this.ordersRepository.findSeatInOrders(id);
+        double totalAmount = 0.d;
+
+        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+            for (var concession: concessions){
+                totalAmount += concession.getPrice() * concession.getQuantity();
+            }
+            for (var seat : seats){
+                totalAmount += seat.getPrice();
+            }
+        }else{
+            var payment = this.paymentRepository.findByIdOrder(orders.getId());
+            totalAmount = payment.getAmount();
+        }
+
 
         return MyOrderResponse.builder()
                 .id(id)
@@ -96,13 +116,16 @@ public class OrdersServiceImpl implements OrdersService {
                 .concessions(concessions)
                 .seats(seats)
                 .createdDate(orders.getCreatedDate())
+                .updatedBy(orders.getUpdatedBy())
+                .updatedDate(orders.getUpdatedAt())
                 .tax(orders.getTax())
                 .note(orders.getNote())
                 .creation(orders.getCreation())
                 .showTimesDetailId(orders.getShowTimesDetailId())
                 .status(orders.getStatus())
-                .typeUser(orders.getNonProfile())
+                .typeUser(orders.isProfile())
                 .userId(orders.getUserId())
+                .totalAmount(totalAmount)
                 .build();
     }
 
@@ -114,7 +137,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int insert(Orders orders) throws SQLException {
-        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,created_date,note,creation,non_profile,status,expire_payment) values (?,?,?,?,?,?,?,?,?)";
+        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,created_date,note,creation,profile,status,expire_payment) values (?,?,?,?,?,?,?,?,?)";
         return this.ordersCustomRepository.insert(orders,sql);
     }
 
@@ -128,6 +151,8 @@ public class OrdersServiceImpl implements OrdersService {
 //        orders.setTax(orders.getTax());
 //        orders.setCreation(orders.getCreation());
 //        orders.setCreatedDate(orders.getCreatedDate());
+        orders.setUpdatedBy(userService.getUserFromContext());
+        orders.setUpdatedAt(Utilities.getCurrentTime());
         int result = this.ordersRepository.update(orders);
         return result;
     }
@@ -142,12 +167,13 @@ public class OrdersServiceImpl implements OrdersService {
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
 //                .totalAmount(orderDto.getTotalAmount())
                 .tax(0)
-                .nonProfile(0)
+                .profile(orderDto.getTypeUser())
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
                 .expirePayment(localDateTime.plusMinutes(5).format(simpleDateFormat))
                 .userId(0)
                 .createdDate(simpleDateFormat.format(localDateTime))
+                .note("")
                 .build();
 
         int idOrderCreated = this.insert(orders);
@@ -170,5 +196,34 @@ public class OrdersServiceImpl implements OrdersService {
             return 0;
         }
         return idOrderCreated;
+    }
+
+    @Override
+    public int updateMyOrder(MyOrderUpdateDto orders) {
+        if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+            var listOrdersDetail = this.ordersRepository.findOrderDetailById(orders.getId());
+            for (Integer orderDetail: listOrdersDetail){
+                int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
+            }
+            var listOrdersSeat = this.ordersRepository.findOrderSeatById(orders.getId());
+            for (Integer orderSeat: listOrdersDetail){
+                int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
+            }
+        }
+        return this.updateOrder(orders);
+    }
+
+    private int updateOrder(MyOrderUpdateDto orders){
+        var myOrder = this.findById(orders.getId());
+        var order = Orders.builder()
+                .id(myOrder.getId())
+                .profile(orders.getTypeUser())
+                .userId(orders.getTypeUser() ? orders.getUserId() : 0)
+                .note(orders.getNote())
+                .status(orders.getStatus())
+                .updatedAt(Utilities.getCurrentTime())
+                .updatedBy(userService.getUserFromContext())
+                .build();
+        return this.ordersRepository.updateMyOrder(order);
     }
 }

@@ -16,7 +16,7 @@ public class Payment implements Serializable {
     private Integer paymentMethodId = 1;
     private String createdDate,updatedDate;
     private String note;
-    private String useFor;
+    private String useFor = "Ticket";
     private Integer partId = 0, creation = 0,updatedBy = 0,userId = 0;
 
 }

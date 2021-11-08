@@ -1,7 +1,9 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.Orders;
+import com.apps.domain.entity.Room;
 import com.apps.mapper.OrderDto;
+import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.OrdersService;
@@ -71,6 +73,18 @@ public class OrdersController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping(value = "my-orders/{id}")
+    public ResponseEntity<?> updateOrder(@PathVariable("id") Integer id,
+                                        @RequestBody MyOrderUpdateDto myOrderUpdateDto) {
+
+        myOrderUpdateDto.setId(id);
+        int result = this.ordersService.updateMyOrder(myOrderUpdateDto);
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(result)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("orders/{id}")
     public ResponseEntity<?> getCategory(@PathVariable(value = "id", required = false) Integer id){

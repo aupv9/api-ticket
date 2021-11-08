@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.Orders;
 import com.apps.mapper.OrderDto;
+import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.MyOrderResponse;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,4 +29,6 @@ public interface OrdersService {
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);
     int orderNonPayment(OrderDto orderDto) throws SQLException;
+    int updateMyOrder(MyOrderUpdateDto orders);
+
 }

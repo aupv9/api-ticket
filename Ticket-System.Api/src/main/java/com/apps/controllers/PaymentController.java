@@ -21,18 +21,19 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @GetMapping("payments")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+    public ResponseEntity<?> getPayments(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "created_date",  required = false) String createdDate,
                                           @RequestParam(value = "use_for",  required = false) String useFor,
                                           @RequestParam(value = "status", required = false) String status,
-                                          @RequestParam(value = "creation", required = false) Integer creation){
+                                          @RequestParam(value = "creation", required = false) Integer creation,
+                                          @RequestParam(value = "method", required = false) Integer method){
 
         var resultList = this.paymentService.findAll(size, (page - 1 ) * size,sort,order,createdDate,
-                useFor,status,creation);
-        var totalElements = this.paymentService.findAllCount(createdDate,useFor,status,creation);
+                useFor,status,creation,method);
+        var totalElements = this.paymentService.findAllCount(createdDate,useFor,status,creation,method);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -56,6 +57,11 @@ public class PaymentController {
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("paymentOrder/{id}")
+    public ResponseEntity<?> getPaymentByOrder(@PathVariable("id")Integer id){
+        return ResponseEntity.ok(this.paymentService.findByOrder(id));
     }
 
     @GetMapping("payments-method/{id}")

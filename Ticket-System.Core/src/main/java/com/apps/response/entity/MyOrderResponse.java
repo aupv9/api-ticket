@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,10 +18,10 @@ public class MyOrderResponse implements Serializable {
     private Integer userId;
     private String createdDate;
     private String note;
-    private Integer typeUser = 0;
-    private Integer creation;
+    private Boolean typeUser = Boolean.TRUE;
+    private Integer creation,updatedBy;
     private String status;
-    private String expirePayment;
+    private String expirePayment,updatedDate;
     private List<ConcessionMyOrder> concessions;
     private List<OrderSeats> seats;
 

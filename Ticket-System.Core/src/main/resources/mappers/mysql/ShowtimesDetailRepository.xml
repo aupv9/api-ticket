@@ -32,7 +32,10 @@
             <if test="theaterId != null">
                 and r.theater_id = #{theaterId}
             </if>
-            and time_start > current_timestamp
+            <if test="currentTime != null">
+                and time_start > #{currentTime}
+
+            </if>
         </where>
         <if test="sort != null">
             order by
@@ -89,7 +92,9 @@
             <if test="search != null">
                 and m.name like concat('%',#{search},'%')
             </if>
-            and time_start > current_timestamp
+            <if test="currentTime != null">
+                and time_start > #{currentTime}
+            </if>
 
         </where>
     </select>

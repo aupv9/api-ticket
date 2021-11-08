@@ -7,7 +7,8 @@ public enum OrderStatus {
     ORDERED("ordered"),
     CANCELLED("cancelled"),
     NON_PAYMENT("non_payment"),
-    EDITED("EDITED")
+    PAYMENT("payment"),
+    EDITED("edit")
     ;
 
     OrderStatus(String status) {

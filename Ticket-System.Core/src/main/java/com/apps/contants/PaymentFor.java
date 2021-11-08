@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum PaymentFor {
-    TICKET("Orders"),
+    TICKET("Ticket"),
     GIFT("Gift"),
     MEMBER_CASH("MemberCash");
 
