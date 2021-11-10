@@ -10,6 +10,7 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -27,6 +28,7 @@ public class ShowTimesDetailController {
     private ShowTimesDetailService showTimesDetailService;
 
     @GetMapping("showTimesDetails")
+    @PreAuthorize("hasAuthority('READ_SHOWTIME')")
     public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
@@ -35,8 +37,7 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "room_id", required = false) Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
                                           @RequestParam(value = "date_start", required = false) String dateStart,
-                                          @RequestParam(value = "time_start", required = false) String timeStart
-                                          ){
+                                          @RequestParam(value = "time_start", required = false) String timeStart){
         var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
                 movieId,roomId,timeStart,search,dateStart);
         var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
@@ -48,6 +49,7 @@ public class ShowTimesDetailController {
     }
 
     @GetMapping("showTimesDetails/{id}")
+    @PreAuthorize("hasAuthority('READ_SHOWTIME')")
     public ResponseEntity<?> showTimesDetail(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.showTimesDetailService.findById(id));
     }
@@ -99,13 +101,14 @@ public class ShowTimesDetailController {
         return ResponseEntity.ok(showTimes);
     }
 
-    @GetMapping("count-showTimesDetails/{id}")
-    public ResponseEntity<?> getShowTimesDetailByShowTimes(@PathVariable("id") Integer id){
+    @GetMapping("showTimes-time-start")
+    public ResponseEntity<?> getShowTimesDetail(@PathVariable("id") Integer id){
         var count = this.showTimesDetailService.countShowTimesDetailByShowTimes(id);
         var response = ResponseCount.builder().id(id)
                 .count(count).build();
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("timeShowTimes")
     public ResponseEntity<?> getShowTimes(){

@@ -16,4 +16,8 @@ public class Utilities {
     public static String getCurrentTime(){
         return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().format(timeFormatter);
     }
+
+    public static String getTimeExpirePayment5m(){
+        return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().plusMinutes(5).format(timeFormatter);
+    }
 }

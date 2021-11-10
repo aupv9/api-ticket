@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
 
     private final SocialRepository socialRepository;
 
-    private DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
     private String sqlInsertUserInfo = "insert into user_info(email,first_name,last_name,full_name,is_login_social,photo) values(?,?,?,?,?,?)";
 
 //    @Value("${email.confirm.length}")
@@ -75,6 +74,53 @@ public class UserServiceImpl implements UserService {
         this.employeeService = employeeService;
         this.socialRepository = socialRepository;
     }
+
+    public int getTheaterManagerByUser(){
+        var userId = this.getUserFromContext();
+        int theaterId = 0;
+        if(userId > 0){
+            var employee = this.employeeService.findByUserId(userId);
+            boolean isManager = false;
+            if(employee.getId() > 0){
+                var userRoles = this.roleService.findUserRoleById(employee.getUserId());
+                for (var role : userRoles ){
+                    var roleName = this.roleService.findRoleById(role.getRoleId());
+                    if(roleName.getName().equals(com.apps.contants.Role.MANAGER.getName())){
+                        isManager = true;
+                        break;
+                    }
+                }
+            }
+            if(isManager) return  employee.getTheaterId();
+            return theaterId;
+        }
+        return theaterId;
+    }
+
+    public boolean isOverManager(){
+        var userId = this.getUserFromContext();
+        if(userId > 0){
+            var userRoles = this.roleService.findUserRoleById(userId);
+            for (var role : userRoles ) {
+                var roleName = this.roleService.findRoleById(role.getRoleId());
+                if (roleName.getName().equals(com.apps.contants.Role.DIRECTOR.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int getTheaterByUser(){
+        int userId = this.getUserFromContext();
+        int theaterId = 0;
+        if(userId > 0){
+            var employee = this.employeeService.findByUserId(userId);
+            theaterId = employee.getTheaterId();
+        }
+        return theaterId;
+    }
+
 
     @Override
     public int registerAccountUser(UserRegisterDto userRegisterDto) throws SQLException {

@@ -34,7 +34,6 @@
             </if>
             <if test="currentTime != null">
                 and time_start > #{currentTime}
-
             </if>
         </where>
         <if test="sort != null">

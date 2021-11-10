@@ -18,7 +18,7 @@ public class MyOrderResponse implements Serializable {
     private Integer userId;
     private String createdDate;
     private String note;
-    private Boolean typeUser = Boolean.TRUE;
+    private Boolean profile = Boolean.TRUE;
     private Integer creation,updatedBy;
     private String status;
     private String expirePayment,updatedDate;

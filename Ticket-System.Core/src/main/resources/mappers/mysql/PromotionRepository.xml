@@ -1,0 +1,107 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.PromotionRepository">
+
+    <select id="findAll" resultType="com.apps.domain.entity.Promotion">
+        select * from promotion
+        <where>
+            <if test="displayName != null">
+                display_name like %#{status}%
+            </if>
+            <if test="creationDate != null">
+                and creation_date = #{creationDate}
+            </if>
+            <if test="startDate != null">
+                and start_date = #{startDate}
+            </if>
+            <if test="enable != null">
+                and enable = #{enable}
+            </if>
+            <if test="beginUsable != null">
+                and begin_usable = #{beginUsable}
+            </if>
+            <if test="endUsable != null">
+                and end_usable = #{endUsable}
+            </if>
+            <if test="global != null">
+                and global = #{global}
+            </if>
+            <if test="anonProfile != null">
+                and anon_profile = #{anonProfile}
+            </if>
+            <if test="promotionType != null">
+                and promotion_type = #{promotionType}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'creationDate'">
+                    creation_date
+                </when>
+                <when test="sort == 'startDate'">
+                    start_date
+                </when>
+                <when test="sort == 'endDate'">
+                    end_date
+                </when>
+                 <when test="sort == 'enable'">
+                     enable
+                </when>
+                 <when test="sort == 'priority'">
+                     priority
+                </when>
+                 <when test="sort == 'anonProfile'">
+                     anon_profile
+                </when>
+                <when test="sort == 'global'">
+                    global
+                </when>
+                <when test="sort == 'beginUsable'">
+                    begin_usable
+                </when>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findAllCount" resultType="INT">
+        select count(*) from payment
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+            <if test="createdDate != null">
+                and created_date = #{createdDate}
+            </if>
+            <if test="creation != null">
+                and creation = #{creation}
+            </if>
+            <!--            <if test="userFor != null">-->
+            <!--                and user_for = #{userFor}-->
+            <!--            </if>-->
+            <if test="method != null">
+                and payment_method_id = #{method}
+            </if>
+        </where>
+
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
+        values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},
+        #{payment.startDate},#{payment.endDate},#{payment.note},#{payment.useFor},#{payment.partId})
+        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+</mapper>

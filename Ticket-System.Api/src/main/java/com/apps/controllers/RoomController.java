@@ -7,6 +7,8 @@ import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.response.ResponseStatus;
 import com.apps.service.RoomService;
+import com.apps.service.UserService;
+import com.apps.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +27,18 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private UserServiceImpl userService;
+
     @GetMapping("rooms")
     public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "search", required = false) String search,
-                                          @RequestParam(value = "theater_id",required = false) Integer theater){
-        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theater);
-        var totalElement = this.roomService.findCountAll(search,theater);
+                                          @RequestParam(value = "search", required = false) String search){
+        var theaterId = this.userService.getTheaterByUser();
+        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId);
+        var totalElement = this.roomService.findCountAll(search,theaterId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElement)

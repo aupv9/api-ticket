@@ -7,6 +7,7 @@ import com.apps.domain.repository.RoomCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoomRepository;
 import com.apps.service.RoomService;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,11 +29,15 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     private ApplicationCacheManager cacheManager;
 
+    @Autowired
+    private UserServiceImpl userService;
+
     @Override
     @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
     public List<Room> findAll(Integer page, Integer size, String sort, String order, String search,
                               Integer theater) {
-        return this.roomRepository.findAll(size,page*size,sort,order,search,theater);
+        return this.roomRepository.findAll(size,page * size,sort,order,search, this.userService.isOverManager() ?
+                null: theater);
     }
 
     @Override
@@ -73,8 +78,10 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "RoomService" ,key = "'findCountAllRoom_'+#search+'-'+#theater", unless = "#result == null")
     public int findCountAll(String search, Integer theater) {
-        return this.roomRepository.findCountAll(search,theater);
+        var theaterId = this.userService.getTheaterByUser();
+        return this.roomRepository.findCountAll(search,this.userService.isOverManager() ? null : theaterId);
     }
 
 

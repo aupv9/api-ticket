@@ -1,6 +1,7 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.contants.Role;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
@@ -9,10 +10,7 @@ import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.TimePick;
-import com.apps.service.EmployeeService;
-import com.apps.service.RoomService;
-import com.apps.service.ShowTimesDetailService;
-import com.apps.service.UserService;
+import com.apps.service.*;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +51,9 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Autowired
     private ApplicationCacheManager cacheManager;
 
+    @Autowired
+    private UserServiceImpl userService;
+
 
     @Override
 //    @Cacheable(cacheNames = "ShowTimesDetailService",
@@ -59,47 +61,29 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     public List<ShowTimesDetail> findAll(int page, int size,String sort, String order,
                                          Integer movieId, Integer room_id, String time_start,String search
             ,String dateStart) {
-        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id,time_start,search,dateStart,null,null);
+        var theaterId = this.userService.getTheaterManagerByUser();
+        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id,
+                time_start,search,dateStart, theaterId> 0 ? theaterId : null ,Utilities.getCurrentTime());
     }
 
     @Override
     public int findCountAll( Integer movieId, Integer room_id, String time_start,String search,String dateStart) {
-        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart, null,null);
+        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart,
+                this.userService.getTheaterByUser(),Utilities.getCurrentTime());
     }
-    private int getTheaterByUser(){
-        var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-        var userDetails = (UserDetails)authentication.getPrincipal();
-        int userId = 0;
-        if(userDetails != null){
-            String email = userDetails.getUsername();
-            var user = this.userAccountRepository.findUserByEmail(email);
-            if( user!= null){
-                userId = user.getId();
-            }else{
-                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
-                if(userInfo1 != null){
-                    userId = userInfo1.getId();
-                }
-            }
-        }
-        int theaterId = 0;
-        if(userId > 0){
-            var employee = this.employeeService.findByUserId(userId);
-            theaterId = employee.getTheaterId();
-        }
-        return theaterId;
-    }
+
+
 
     @Override
     public List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order, Integer movieId, Integer roomid, String timeStart,String search,String dateStart){
-        int theaterId = this.getTheaterByUser();
+        int theaterId = this.userService.getTheaterByUser();
         return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId > 0 ? movieId : null,roomid > 0 ? roomid : null,timeStart,search,dateStart,theaterId,
                 Utilities.getCurrentTime());
     }
 
     @Override
     public int findCountAllShow(Integer movieId, Integer roomid, String time_start,String search,String dateStart){
-        int theaterId = this.getTheaterByUser();
+        int theaterId = this.userService.getTheaterByUser();
         return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,roomid > 0 ? roomid : null,time_start,search, dateStart, theaterId,Utilities.getCurrentTime());
     }
 
@@ -153,22 +137,17 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Override
     public int update(ShowTimesDetail showTimesDetail) {
         ShowTimesDetail showTimesDetail1 = this.findById(showTimesDetail.getId());
-        var timeStart = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toString();
-        showTimesDetail1.setTimeStart(timeStart);
-//        if(showTimesDetail1.getTimeStart() != null && !showTimesDetail1.getTimeStart().isEmpty()){
-//            Instant instantFromTimeStamp = Timestamp.valueOf(showTimesDetail1.getTimeStart()).toInstant();
-//
-//            if(!instantFromTimeStamp.toString().equals(showTimesDetail.getTimeStart())){
-//                Instant instant = Instant.parse(showTimesDetail.getTimeStart());
-//                Timestamp timestamp = Timestamp.from(instant);
-//                showTimesDetail1.setTimeStart(timestamp.toString());
-//            }
-//        }else{
-//            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
-//            Timestamp timestamp = Timestamp.from(instant);
-//            showTimesDetail1.setTimeStart(timestamp.toString());
-//        }
+        var time = showTimesDetail.getTimeStart().split(" ");
 
+        if(time.length > 1){
+            showTimesDetail1.setTimeStart(showTimesDetail.getTimeStart());
+        }else{
+            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
+            if(instant != null){
+                Timestamp timestamp = Timestamp.from(instant);
+                showTimesDetail1.setTimeStart(timestamp.toString());
+            }
+        }
         showTimesDetail1.setMovieId(showTimesDetail.getMovieId());
         showTimesDetail1.setRoomId(showTimesDetail.getRoomId());
         int result = this.showTimesDetailRepository.update(showTimesDetail1);

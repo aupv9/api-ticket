@@ -20,7 +20,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +46,10 @@ public class OrdersServiceImpl implements OrdersService {
         this.concessionRepository = concessionRepository;
         this.paymentRepository = paymentRepository;
     }
-    DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() {
-        String currentTime = simpleDateFormat.format(LocalDateTime.now());
+        String currentTime = Utilities.getCurrentTime();
         var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
@@ -112,18 +113,18 @@ public class OrdersServiceImpl implements OrdersService {
 
         return MyOrderResponse.builder()
                 .id(id)
-//                .expirePayment(orders.getExpirePayment())
+                .expirePayment(orders.getExpirePayment())
                 .concessions(concessions)
                 .seats(seats)
-//                .createdDate(orders.getCreatedDate())
+                .createdDate(orders.getCreatedDate())
                 .updatedBy(orders.getUpdatedBy())
-//                .updatedDate(orders.getUpdatedAt())
+                .updatedDate(orders.getUpdatedAt())
                 .tax(orders.getTax())
                 .note(orders.getNote())
                 .creation(orders.getCreation())
                 .showTimesDetailId(orders.getShowTimesDetailId())
                 .status(orders.getStatus())
-                .typeUser(orders.isProfile())
+                .profile(orders.isProfile())
                 .userId(orders.getUserId())
                 .totalAmount(totalAmount)
                 .build();
@@ -143,40 +144,27 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int update(Orders orders) {
-        var orders1 = this.findById(orders.getId());
-//        orders.setUserId(orders.getUserId());
-//        orders.setShowTimesDetailId(orders.getShowTimesDetailId());
-//        orders.setStatus(orders.getStatus());
-//        orders.setTypeUser(orders.getTypeUser());
-//        orders.setTax(orders.getTax());
-//        orders.setCreation(orders.getCreation());
-//        orders.setCreatedDate(orders.getCreatedDate());
-        orders.setUpdatedBy(userService.getUserFromContext());
-//        orders.setUpdatedAt(Utilities.getCurrentTime());
-        int result = this.ordersRepository.update(orders);
-        return result;
+        return this.ordersRepository.update(orders);
     }
 
     @Override
     public int orderNonPayment(OrderDto orderDto) throws SQLException {
-        LocalDateTime localDateTime = LocalDateTime.now();
 
+        Orders orders = Orders.builder()
+                .creation(userService.getUserFromContext())
+                .showTimesDetailId(orderDto.getShowTimesDetailId())
+//                .totalAmount(orderDto.getTotalAmount())
+                .tax(10)
+                .profile(orderDto.getTypeUser())
+                .userId(orderDto.getUserId())
+                .status(OrderStatus.NON_PAYMENT.getStatus())
+                .expirePayment(Utilities.getTimeExpirePayment5m())
+                .userId(0)
+                .createdDate(Utilities.getCurrentTime())
+                .note("")
+                .build();
 
-//        Orders orders = Orders.builder()
-//                .creation(userService.getUserFromContext())
-//                .showTimesDetailId(orderDto.getShowTimesDetailId())
-////                .totalAmount(orderDto.getTotalAmount())
-//                .tax(0)
-//                .profile(orderDto.getTypeUser())
-//                .userId(orderDto.getUserId())
-//                .status(OrderStatus.NON_PAYMENT.getStatus())
-////                .expirePayment(localDateTime.plusMinutes(5).format(simpleDateFormat))
-//                .userId(0)
-////                .createdDate(simpleDateFormat.format(localDateTime))
-//                .note("")
-//                .build();
-
-        int idOrderCreated = this.insert(null);
+        int idOrderCreated = this.insert(orders);
         if(idOrderCreated > 0){
             for (Integer seat : orderDto.getSeats()){
                 this.ordersRepository.insertOrderSeat(seat,idOrderCreated);
@@ -216,15 +204,13 @@ public class OrdersServiceImpl implements OrdersService {
     private int updateOrder(MyOrderUpdateDto orders){
         var myOrder = this.findById(orders.getId());
         var order = new Orders();
-
-                order.setId(myOrder.getId());
-                order.setProfile(orders.getTypeUser());
-                order.setUserId(orders.getTypeUser() ? orders.getUserId() : 0);
-                order.setNote(orders.getNote());
-                order.setStatus(orders.getStatus());
-//                .updatedAt(Utilities.getCurrentTime())
-//                .updatedBy(userService.getUserFromContext())
-//                .build();
+        order.setId(myOrder.getId());
+        order.setProfile(orders.getTypeUser());
+        order.setUserId(orders.getTypeUser() ? orders.getUserId() : 0);
+        order.setNote(orders.getNote());
+        order.setStatus(orders.getStatus());
+        order.setUpdatedAt(Utilities.getCurrentTime());
+        order.setUpdatedBy(userService.getUserFromContext()) ;
         return this.ordersRepository.updateMyOrder(order);
     }
 }

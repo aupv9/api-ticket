@@ -3,6 +3,7 @@ package com.apps.service.impl;
 import com.apps.contants.OrderStatus;
 import com.apps.contants.PaymentFor;
 import com.apps.contants.PaymentStatus;
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.entity.Payment;
 import com.apps.domain.entity.PaymentMethod;
@@ -40,7 +41,6 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> findAll(int limit, int offset, String sort, String order, String createdDate, String useFor, String status, Integer creation,Integer method) {
 
-
         return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,userService.getUserFromContext(),method > 0 ? method :null);
     }
 
@@ -72,10 +72,12 @@ public class PaymentServiceImpl implements PaymentService {
         int result = this.paymentCustomRepository.insert(payment,sql);
         if(result > 0){
             var order = this.ordersService.findById(payment.getPartId());
-            order.setStatus(PaymentStatus.Verified.getValue());
-            var orders = new Orders();
-                    order.setId(order.getId());
-                    order.setStatus(OrderStatus.PAYMENT.getStatus());
+            var orders = Orders.builder()
+                    .id(order.getId())
+                    .updatedBy(userService.getUserFromContext())
+                    .updatedAt(Utilities.getCurrentTime())
+                    .status(OrderStatus.PAYMENT.getStatus())
+                    .build();
             this.ordersService.update(orders);
         }
         return result;

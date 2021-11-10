@@ -21,7 +21,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @GetMapping("payments")
-    public ResponseEntity<?> getPayments(@RequestParam(value = "pageSize", required = false) Integer size,
+    public ResponseEntity<?> getPayments( @RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
