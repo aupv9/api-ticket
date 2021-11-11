@@ -69,6 +69,39 @@ create table movie_media
 create index media_id
     on movie_media (media_id);
 
+create table offer
+(
+    name               varchar(254) charset utf8   not null,
+    type               enum ('Flat', 'Percentage') null,
+    method             int                         null,
+    start_date         datetime                    null,
+    end_date           datetime                    null,
+    creation_date      datetime                    null,
+    creationBy         int                         null,
+    updatedBy          int                         null,
+    updated_date       datetime                    null,
+    max_total_usage    int                         null,
+    message            varchar(500) charset utf8   null,
+    discount_amount    double                      null,
+    max_usage_per_user int                         null,
+    rule               longtext                    null,
+    max_discount       double                      null,
+    constraint offer_name_uindex
+        unique (name)
+);
+
+alter table offer
+    add primary key (name);
+
+create table offer_detail
+(
+    offer_name varchar(254) charset utf8 not null,
+    code       varchar(254)              not null,
+    primary key (offer_name, code),
+    constraint offer_detail_offer_name_fk
+        foreign key (offer_name) references offer (name)
+);
+
 create table payment_method
 (
     id   int auto_increment
@@ -79,23 +112,41 @@ create table payment_method
 
 create table payment
 (
+    note              varchar(254)                             null,
+    use_for           enum ('Ticket', 'Gift', 'MemberCash')    null,
+    part_id           int                                      null,
+    creation          int                                      null,
     id                int auto_increment
         primary key,
     payment_method_id int                                      not null,
     amount            float                                    null,
     status            enum ('Complete', 'Pending', 'Verified') null,
     transaction_id    varchar(255)                             null,
-    createtion_date   date                                     null,
-    note              varchar(254)                             null,
-    use_for           enum ('Ticket', 'Gift')                  null,
-    part_id           int                                      null,
-    creation          int                                      null,
+    created_date      datetime                                 null,
+    updatedAt         datetime                                 null,
+    updatedBy         int                                      null,
+    user_id           int                                      null,
     constraint payment_ibfk_1
         foreign key (payment_method_id) references payment_method (id)
 );
 
 create index FK_payment_paymentmethod
     on payment (payment_method_id);
+
+create index payment_created_date_index
+    on payment (created_date);
+
+create index payment_creation_index
+    on payment (creation);
+
+create index payment_status_index
+    on payment (status);
+
+create index payment_use_for_index
+    on payment (use_for);
+
+create index payment_user_info_id_fk
+    on payment (user_id);
 
 create table privilege
 (
@@ -114,21 +165,23 @@ create table promotion
     display_name      varchar(254)                                             null,
     description       varchar(254)                                             null,
     promotion_type    enum ('Normal', 'Event', 'Anniversary') default 'Normal' null,
-    enabled           decimal(1)                                               null,
+    enabled           bit                                                      null,
     begin_usable      date                                                     null,
     priority          int                                                      null,
-    anon_profile      decimal(1)                                               null,
-    allow_multiple    decimal(1)                                               null,
-    uses              int                                                      null,
-    time_until_expire int                                                      null
+    anon_profile      bit                                                      null,
+    allow_multiple    bit                                                      null,
+    time_until_expire int                                                      null,
+    end_usable        date                                                     null,
+    global            bit                                                      null
 );
 
 create table discount_promo
 (
-    promotion_id int        not null
+    promotion_id           int          not null
         primary key,
-    percent      double     null,
-    one_use      decimal(1) null,
+    adjuster               double       null,
+    one_use                decimal(1)   null,
+    calculator_description varchar(254) null,
     constraint discount_promo_ibfk_1
         foreign key (promotion_id) references promotion (id)
 );
@@ -155,6 +208,15 @@ create table promo_media
 
 create index media_id
     on promo_media (media_id);
+
+create table reserved
+(
+    seat_id              int      null,
+    user_id              int      null,
+    show_time_id         int      null,
+    room_id              int      null,
+    time_expire_reserved datetime null
+);
 
 create table role
 (
@@ -207,6 +269,7 @@ create table seat
     room_id   int          not null,
     tier      varchar(25)  null,
     numbers   int          null,
+    price     float        null,
     constraint seat_room_id_tier_numbers_uindex
         unique (room_id, tier, numbers),
     constraint seat_room_id_fk
@@ -218,21 +281,77 @@ create index seat_ibfk_1
 
 create table showtimes_detail
 (
-    movie_id     int       not null,
-    room_id      int       not null,
-    id           int auto_increment
+    movie_id   int       not null,
+    room_id    int       not null,
+    id         int auto_increment
         primary key,
-    time_end     time      null,
-    time_start   timestamp null,
-    promotion_id int       null,
+    time_end   time      null,
+    time_start timestamp null,
     constraint showtimes_detail_movie_id_room_id_date_start_time_start_uindex
         unique (movie_id, room_id, time_start),
     constraint showtimes_detail_movie_id_fk
         foreign key (movie_id) references movie (id),
-    constraint showtimes_detail_promotion_id_fk
-        foreign key (promotion_id) references promotion (id),
     constraint showtimes_detail_room_id_fk
         foreign key (room_id) references room (id)
+);
+
+create table orders
+(
+    showtimes_detail_id int                                                             not null,
+    tax                 float                                                           null,
+    note                varchar(255)                                                    null,
+    expire_payment      datetime                                                        null,
+    created_date        datetime                                                        null,
+    status              enum ('ordered', 'cancelled', 'non_payment', 'payment', 'edit') null,
+    id                  int auto_increment
+        primary key,
+    profile             bit                                                             null,
+    user_id             int                                                             null,
+    creation            int                                                             null,
+    updatedBy           int                                                             null,
+    updatedAt           datetime                                                        null,
+    constraint ticket_showtimes_detail_id_fk
+        foreign key (showtimes_detail_id) references showtimes_detail (id)
+);
+
+create index user_id
+    on orders (user_id);
+
+create table orders_detail
+(
+    concession_id int not null,
+    orders_id     int not null,
+    quantity      int null,
+    primary key (concession_id, orders_id),
+    constraint orders_detail_concession_id_fk
+        foreign key (concession_id) references concession (id),
+    constraint orders_detail_orders_id_fk
+        foreign key (orders_id) references orders (id)
+);
+
+create table orders_seat
+(
+    orders_id int                                                          not null,
+    seat_id   int                                                          not null,
+    type      enum ('Adult', 'Child', 'Student', 'Senior') default 'Adult' not null,
+    primary key (orders_id, seat_id),
+    constraint FKgi0g5nsmkdaoyc25unogm3rry
+        foreign key (orders_id) references orders (id),
+    constraint orders_seat_ibfk_1
+        foreign key (seat_id) references seat (id)
+);
+
+create index seat_id
+    on orders_seat (seat_id);
+
+create table promotion_showtime
+(
+    promotion_id int null,
+    show_time_id int null,
+    constraint promotion_showtime_promotion_id_fk
+        foreign key (promotion_id) references promotion (id),
+    constraint promotion_showtime_showtimes_detail_id_fk
+        foreign key (show_time_id) references showtimes_detail (id)
 );
 
 create table theater_media
@@ -274,14 +393,13 @@ create table employee
 (
     id         int auto_increment
         primary key,
-    theater_id int                                                         not null,
-    userId     int                                                         not null,
-    roleId     int                                                         not null,
-    createdBy  int                                                         not null,
-    updatedBy  int                                                         not null,
-    code       varchar(100)                                                not null,
+    theater_id int                                                         null,
+    user_id    int                                                         null,
+    role_id    int                                                         null,
+    createdBy  int                                                         null,
+    updatedBy  int                                                         null,
     status     enum ('New', 'Approved', 'Active', 'Blocked', 'Terminated') null,
-    createdAt  datetime                                                    not null,
+    createdAt  datetime                                                    null,
     updatedAt  datetime                                                    null,
     startsAt   datetime                                                    null,
     endsAt     datetime                                                    null,
@@ -291,11 +409,11 @@ create table employee
     constraint fk_employee_modifier
         foreign key (updatedBy) references user_info (id),
     constraint fk_employee_role
-        foreign key (roleId) references role (id),
+        foreign key (role_id) references role (id),
     constraint fk_employee_theater
         foreign key (theater_id) references theater (id),
     constraint fk_employee_user
-        foreign key (userId) references user_info (id)
+        foreign key (user_id) references user_info (id)
 );
 
 create index idx_employee_creator
@@ -305,13 +423,13 @@ create index idx_employee_modifier
     on employee (updatedBy);
 
 create index idx_employee_role
-    on employee (roleId);
+    on employee (role_id);
 
 create index idx_employee_theater
     on employee (theater_id);
 
 create index idx_employee_user
-    on employee (userId);
+    on employee (user_id);
 
 create table gift_card
 (
@@ -331,6 +449,17 @@ create table gift_card
 create index user_id
     on gift_card (user_id);
 
+create table google_account
+(
+    user_info_id int         not null
+        primary key,
+    google_id    varchar(50) not null,
+    constraint google_account_google_id_uindex
+        unique (google_id),
+    constraint google_account_user_info_id_fk
+        foreign key (user_info_id) references user_info (id)
+);
+
 create table membership
 (
     member_id       int auto_increment
@@ -349,53 +478,6 @@ create table membership
 
 create index user_id
     on membership (user_id);
-
-create table orders
-(
-    showtimes_detail_id int                           not null,
-    tax                 float                         null,
-    create_date         datetime                      null,
-    note                varchar(255)                  null,
-    creation            int                           null,
-    status              enum ('ordered', 'cancelled') null,
-    id                  int auto_increment
-        primary key,
-    user_id             int                           null,
-    non_profile         decimal(1)                    null,
-    constraint orders_ibfk_1
-        foreign key (user_id) references user_info (id),
-    constraint ticket_showtimes_detail_id_fk
-        foreign key (showtimes_detail_id) references showtimes_detail (id)
-);
-
-create index user_id
-    on orders (user_id);
-
-create table orders_detail
-(
-    concession_id int not null,
-    orders_id     int not null,
-    primary key (concession_id, orders_id),
-    constraint orders_detail_concession_id_fk
-        foreign key (concession_id) references concession (id),
-    constraint orders_detail_orders_id_fk
-        foreign key (orders_id) references orders (id)
-);
-
-create table orders_seat
-(
-    orders_id int                                                          not null,
-    seat_id   int                                                          not null,
-    type      enum ('Adult', 'Child', 'Student', 'Senior') default 'Adult' not null,
-    primary key (orders_id, seat_id),
-    constraint FKgi0g5nsmkdaoyc25unogm3rry
-        foreign key (orders_id) references orders (id),
-    constraint orders_seat_ibfk_1
-        foreign key (seat_id) references seat (id)
-);
-
-create index seat_id
-    on orders_seat (seat_id);
 
 create table theater_manager
 (
@@ -437,6 +519,9 @@ create table user_account
     constraint FK_user_account_user_info
         foreign key (user_info_id) references user_info (id)
 );
+
+create index user_info_email_index
+    on user_info (email);
 
 create table user_role
 (
