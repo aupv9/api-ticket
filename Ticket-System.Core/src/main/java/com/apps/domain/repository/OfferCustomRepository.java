@@ -43,6 +43,7 @@ public class OfferCustomRepository implements Repository<Offer> {
             stmt.setBoolean(13,offer.isAnonProfile());
             stmt.setBoolean(14,offer.isAllowMultiple());
             stmt.setString(15,offer.getMessage());
+            stmt.setString(16,offer.getStatus());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

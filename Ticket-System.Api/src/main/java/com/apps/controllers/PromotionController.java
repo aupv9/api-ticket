@@ -1,12 +1,11 @@
 package com.apps.controllers;
 
-import com.apps.domain.entity.Payment;
 import com.apps.request.OfferDto;
 import com.apps.response.ResponseRA;
+import com.apps.service.OfferHistoryService;
 import com.apps.service.PromotionService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +17,10 @@ import java.sql.SQLException;
 public class PromotionController {
 
     private final PromotionService promotionService;
-
-    public PromotionController(PromotionService promotionService) {
+    private final OfferHistoryService offerHistoryService;
+    public PromotionController(PromotionService promotionService, OfferHistoryService offerHistoryService) {
         this.promotionService = promotionService;
+        this.offerHistoryService = offerHistoryService;
     }
 
     @GetMapping("offers")
@@ -53,6 +53,35 @@ public class PromotionController {
 
     @PostMapping("offers")
     public ResponseEntity<?> createCategory(@RequestBody OfferDto offerDto) throws SQLException {
+        int idReturned = this.promotionService.insertOffer(offerDto);
+        offerDto.setId(idReturned);
+        return ResponseEntity.ok(offerDto);
+    }
+
+    @GetMapping("offers-history")
+    public ResponseEntity<?> getOfferHistory(@RequestParam(value =  "pageSize", required = false) Integer size,
+                                             @RequestParam(value = "page", required = false)Integer page,
+                                             @RequestParam(value = "sort", required = false) String sort,
+                                             @RequestParam(value = "order", required = false) String order,
+                                             @RequestParam(value = "offer_id", required = false)Integer offerId,
+                                             @RequestParam(value = "user_id", required = false)Integer userId,
+                                             @RequestParam(value = "status", required = false) String status,
+                                             @RequestParam(value = "time_used", required = false) String timeUsed
+
+                                             ){
+
+        var resultList = this.offerHistoryService.findAll(size, (page - 1 ) * size,sort,order,
+                userId,offerId,status,timeUsed);
+        var totalElements = this.offerHistoryService.findAllCount(userId,offerId,status,timeUsed);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("offers-history")
+    public ResponseEntity<?> createOfferHistory(@RequestBody OfferDto offerDto) throws SQLException {
         int idReturned = this.promotionService.insertOffer(offerDto);
         offerDto.setId(idReturned);
         return ResponseEntity.ok(offerDto);

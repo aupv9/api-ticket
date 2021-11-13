@@ -187,7 +187,10 @@
                 full_name = #{user.fullName},
             </if>
             <if test="user.photo != null">
-                photo = #{user.photo}
+                photo = #{user.photo},
+            </if>
+            <if test="user.currentLogged != null">
+                current_logged = #{user.currentLogged}
             </if>
         </set>
         <where>

@@ -12,6 +12,6 @@ public class UserInfo implements Serializable {
     private int id, roleId;
     private String firstName,email, lastName,activeDate, registeredAt, fullName, photo,lastLogin;
     private String timeZone;
-    private Boolean isLoginSocial;
+    private Boolean isLoginSocial,currentLogged;
 
 }

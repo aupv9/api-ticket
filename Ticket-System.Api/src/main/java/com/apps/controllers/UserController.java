@@ -54,6 +54,9 @@ public class UserController {
 
     @PostMapping("users")
     public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
+        if(this.userService.checkEmailAlready(userRegisterDto.getEmail())){
+            return ResponseEntity.badRequest().body("Email Already");
+        }
         int idReturned = this.userService.registerAccountUser(userRegisterDto);
         userRegisterDto.setId(idReturned);
         return ResponseEntity.ok(userRegisterDto);

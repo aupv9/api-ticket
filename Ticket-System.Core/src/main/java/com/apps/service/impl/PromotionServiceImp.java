@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.contants.OfferStatus;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Offer;
 import com.apps.domain.repository.OfferCustomRepository;
@@ -64,9 +65,9 @@ public class PromotionServiceImp implements PromotionService {
     public int insertOffer(OfferDto offerDto) throws SQLException {
         String sql = "insert into offer(name,creation_date,start_date,end_date,type,method,creationBy," +
                 "max_discount,max_total_usage,max_usage_per_user,rule,percentage,anon_profile," +
-                "allow_multiple,message) values(?,?,?,?,?," +
+                "allow_multiple,message,status) values(?,?,?,?,?," +
                 "?,?,?,?,?," +
-                "?,?,?,?,?)";
+                "?,?,?,?,?,?)";
 
         var offer = Offer.builder()
                 .name(offerDto.getName()).type(offerDto.getType()).method(offerDto.getMethod())
@@ -77,6 +78,7 @@ public class PromotionServiceImp implements PromotionService {
                 .maxUsagePerUser(offerDto.getMaxUsagePerUser()).rule(offerDto.getRule())
                 .percentage(offerDto.getPercentage()).anonProfile(offerDto.isAnonProfile())
                 .allowMultiple(offerDto.isAllowMultiple()).message(offerDto.getMessage())
+                .status(OfferStatus.NEW.name())
                 .build();
 
         int idOffer = this.offerCustomRepository.insert(offer,sql);

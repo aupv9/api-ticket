@@ -258,17 +258,18 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+
     @Override
     public UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
-
           var accountGoogle = this.userAccountRepository.findUserByGoogleAccount(googleLoginRequest.getGoogleId());
           if(accountGoogle != null){
+
               var roles = this.roleRepository.findUserRoleById(accountGoogle.getUserInfoId());
               var privilege = roleService.getAuthorities(roles);
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
+              updateCurrentLogged(accountGoogle.getUserInfoId());
               return UserLoginResponse.builder()
-                    .token(token)
-                      .email(googleLoginRequest.getEmail())
+                    .token(token).email(googleLoginRequest.getEmail())
                     .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                     .build();
           }else{
@@ -301,6 +302,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int updateCurrentLogged(int userId){
+        var userInfo = UserInfo.builder()
+                .id(userId)
+                .currentLogged(true)
+                .build();
+        this.userAccountRepository.updateUserInfo(userInfo);
+    }
+
+    @Override
     public int getUserFromContext() {
         var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
         var userDetails = (UserDetails)authentication.getPrincipal();
@@ -325,6 +335,11 @@ public class UserServiceImpl implements UserService {
         DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
         return simpleDateFormat.format(localDateTime);
+    }
+
+    @Override
+    public boolean checkEmailAlready(String email) {
+        return this.userAccountRepository.findUserByEmail(email) != null;
     }
 
 

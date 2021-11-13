@@ -1,0 +1,79 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.OfferHistoryRepository">
+
+    <select id="findAll" resultType="com.apps.domain.entity.OfferHistory">
+        select * from offer_history
+        <where>
+            <if test="offerId != null">
+                and offer_id = #{offerId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="timeUsed != null">
+                and date(time_used) = date(#{timeUsed})
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'userId'">
+                    user_id
+                </when>
+                <when test="sort == 'offerId'">
+                    offer_id
+                </when>
+                <when test="sort == 'timeUsed'">
+                    time_used
+                </when>
+                <when test="sort == 'totalDiscount'">
+                    total_discount
+                </when>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findAllCount" resultType="INT">
+        select count(*)  from offer_history
+        <where>
+            <if test="offerId != null">
+                and offer_id = #{offerId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="timeUsed != null">
+                and date(time_used) = date(#{timeUsed})
+            </if>
+        </where>
+
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
+        values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},
+        #{payment.startDate},#{payment.endDate},#{payment.note},#{payment.useFor},#{payment.partId})
+        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+</mapper>

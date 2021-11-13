@@ -33,9 +33,21 @@ public class AuthenticateController {
 
     @PostMapping("authenticate-social")
     public ResponseEntity<?> authenticateSocial(@RequestBody GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
+        if(this.userService.checkEmailAlready(googleLoginRequest.getEmail()))  {
+            return ResponseEntity.badRequest().body("Email Already");
+        }
         var response = this.userService.authenticateWithGoogle(googleLoginRequest);
         if(response.getToken() == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("")
+    public ResponseEntity<?> updateStatus(@RequestBody GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
+        if(this.userService.checkEmailAlready(googleLoginRequest.getEmail()))  {
+            return ResponseEntity.badRequest().body("Email Already");
+        }
+        var response = this.userService.authenticateWithGoogle(googleLoginRequest);
+        if(response.getToken() == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(response);
+    }
 }
