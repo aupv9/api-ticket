@@ -42,4 +42,5 @@ public interface UserAccountRepository {
 
     @Select("select * from google_account where google_id = #{googleId}")
     AccountGoogle findUserByGoogleAccount(@Param("googleId")String googleId);
+
 }

@@ -31,7 +31,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.httpBasic().and().cors().disable();
         http.antMatcher("/api/**").authorizeRequests();
         http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/v1/authenticate",
-                "/api/v1/authenticate-social").permitAll();
+                "/api/v1/authenticate-social").permitAll()
+                .antMatchers(HttpMethod.PUT,"/api/v1/update-status-login").permitAll();
         http.cors().configurationSource(httpServletRequest -> corsConfiguration());
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

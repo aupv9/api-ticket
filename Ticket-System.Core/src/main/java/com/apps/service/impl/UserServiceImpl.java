@@ -11,6 +11,7 @@ import com.apps.mybatis.mysql.SocialRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.request.GoogleLoginRequest;
+import com.apps.request.UpdateStatusLogin;
 import com.apps.response.UserLoginResponse;
 import com.apps.response.entity.UserSocial;
 import com.apps.service.EmployeeService;
@@ -246,11 +247,15 @@ public class UserServiceImpl implements UserService {
         }
         if(encoder.matches(password,user.getPassword()) && user.getUasId() >= 2 && user.getUasId() <= 3){
             var roles = this.roleRepository.findUserRoleById(user.getId());
+            var userInfo = this.userAccountRepository.findUserInfoByEmail(user.getEmail());
             String token = this.jwtService.generatorToken(email);
+            updateCurrentLogged(user.getId(),true);
             var privilege = roleService.getAuthorities(roles);
             return UserLoginResponse.builder()
                     .token(token)
-                    .email(email)
+                    .email(email).id(user.getId())
+                    .fullName(userInfo.getFullName())
+                    .photo(userInfo.getPhoto())
                     .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                     .build();
         }
@@ -263,15 +268,16 @@ public class UserServiceImpl implements UserService {
     public UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
           var accountGoogle = this.userAccountRepository.findUserByGoogleAccount(googleLoginRequest.getGoogleId());
           if(accountGoogle != null){
-
+              var user = this.userAccountRepository.findUserSocialById(accountGoogle.getUserInfoId());
               var roles = this.roleRepository.findUserRoleById(accountGoogle.getUserInfoId());
               var privilege = roleService.getAuthorities(roles);
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
-              updateCurrentLogged(accountGoogle.getUserInfoId());
-              return UserLoginResponse.builder()
-                    .token(token).email(googleLoginRequest.getEmail())
-                    .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                    .build();
+              updateCurrentLogged(accountGoogle.getUserInfoId(),true);
+              return UserLoginResponse.builder().fullName(user.getFullName())
+                      .photo(user.getPhoto()).id(user.getId())
+                      .token(token).email(googleLoginRequest.getEmail())
+                      .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                      .build();
           }else{
               UserInfo userInfo = UserInfo.builder()
                       .email(googleLoginRequest.getEmail())
@@ -294,6 +300,9 @@ public class UserServiceImpl implements UserService {
               return UserLoginResponse.builder()
                       .token(token)
                       .email(googleLoginRequest.getEmail())
+                      .fullName(userInfo.getFullName())
+                      .photo(userInfo.getPhoto())
+                      .id(idReturned)
                       .privileges(privilege.stream()
                               .map(GrantedAuthority::getAuthority)
                               .collect(Collectors.toList()))
@@ -302,12 +311,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateCurrentLogged(int userId){
+    public int updateCurrentLogged(int userId,boolean isLogged){
         var userInfo = UserInfo.builder()
                 .id(userId)
-                .currentLogged(true)
+                .currentLogged(isLogged)
                 .build();
-        this.userAccountRepository.updateUserInfo(userInfo);
+       return  this.userAccountRepository.updateUserInfo(userInfo);
+    }
+
+    @Override
+    public int updateCurrentLoggedByEmail(String email) {
+        var user = this.userAccountRepository.findUserInfoByEmail(email);
+        return this.updateCurrentLogged(user.getId(),false);
     }
 
     @Override

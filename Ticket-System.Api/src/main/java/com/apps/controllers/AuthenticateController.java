@@ -3,7 +3,9 @@ package com.apps.controllers;
 
 
 import com.apps.request.GoogleLoginRequest;
+import com.apps.request.UpdateStatusLogin;
 import com.apps.request.UserLoginDto;
+import com.apps.response.RAResponseUpdate;
 import com.apps.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import lombok.var;
@@ -34,20 +36,21 @@ public class AuthenticateController {
     @PostMapping("authenticate-social")
     public ResponseEntity<?> authenticateSocial(@RequestBody GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
         if(this.userService.checkEmailAlready(googleLoginRequest.getEmail()))  {
-            return ResponseEntity.badRequest().body("Email Already");
+            return ResponseEntity.ok("Email Already");
         }
         var response = this.userService.authenticateWithGoogle(googleLoginRequest);
         if(response.getToken() == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("")
-    public ResponseEntity<?> updateStatus(@RequestBody GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
-        if(this.userService.checkEmailAlready(googleLoginRequest.getEmail()))  {
-            return ResponseEntity.badRequest().body("Email Already");
-        }
-        var response = this.userService.authenticateWithGoogle(googleLoginRequest);
-        if(response.getToken() == null) return ResponseEntity.badRequest().build();
+    @PutMapping("update-status-login/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable("id")Integer id,@RequestBody UpdateStatusLogin googleLoginRequest){
+        System.out.println(googleLoginRequest);
+        var result = this.userService.updateCurrentLoggedByEmail(googleLoginRequest.getEmail());
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(result)
+                .build();
         return ResponseEntity.ok(response);
     }
 }

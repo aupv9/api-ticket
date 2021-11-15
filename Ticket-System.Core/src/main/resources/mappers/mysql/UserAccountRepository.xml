@@ -24,7 +24,8 @@
         select user_info.id,first_name,last_name,full_name,ua.email,r2.name,r.role_id,
                last_login,createdBy,createdDate,modifiedBy,modifiedDate,
                address, city, state, activeDate, registeredAt,uas.id as uasId,
-               user_info.current_logged as currentLogged
+               user_info.current_logged as currentLogged,user_info.photo as photo,
+               user_info.full_name as fullName
         from user_info
                  join user_account ua on ua.user_info_id = user_info.id
                  join user_role r on user_info.id = r.user_id
@@ -203,7 +204,6 @@
         from user_account
         join user_account_status uas on user_account.user_account_status_id = uas.id
         where email = #{email}
-
     </select>
 
     <select id="findUserInfoByEmail" resultType="com.apps.response.entity.UserSocial">

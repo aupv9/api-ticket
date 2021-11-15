@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class UserLoginResponse {
-    private String token;
     private List<String> privileges;
-    private String email;
+    private String email,photo,fullName,token;
+    private int id;
 }
