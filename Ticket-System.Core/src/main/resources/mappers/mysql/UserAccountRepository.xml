@@ -20,7 +20,7 @@
         </if>
     </insert>
 
-    <select id="findUserById" resultType="com.apps.domain.entity.User" >
+    <select id="findUserById" resultType="com.apps.response.entity.UserDto" >
         select user_info.id,first_name,last_name,full_name,ua.email,r2.name,r.role_id,
                last_login,createdBy,createdDate,modifiedBy,modifiedDate,
                address, city, state, activeDate, registeredAt,uas.id as uasId,
@@ -39,20 +39,18 @@
     </select>
 
 
-    <select id="findAllUser" resultType="com.apps.domain.entity.User" >
-        select user_info.id,full_name,ua.email,r2.name,r.role_id,
+    <select id="findAllUser" resultType="com.apps.response.entity.UserDto" >
+        select user_info.id,full_name,ua.email,
         last_login,createdBy,createdDate,modifiedBy,modifiedDate,
         address, city, state, activeDate, registeredAt,uas.id as uasId,password,
         user_info.current_logged as currentLogged
         from user_info
         join user_account ua on ua.user_info_id = user_info.id
-        join user_role r on user_info.id = r.user_id
-        join role r2 on r.role_id = r2.id
         join user_account_status uas on ua.user_account_status_id = uas.id
         <where>
-            <if test="role != null">
-               role_id = #{role}
-            </if>
+<!--            <if test="role != null">-->
+<!--               role_id = #{role}-->
+<!--            </if>-->
             <if test="search != null">
                and full_name like concat('%',#{search},'%')
             </if>
@@ -67,9 +65,12 @@
                 <when test="sort == 'fullName'">
                     full_name
                 </when>
-                <otherwise>
-                    role_id
-                </otherwise>
+                <when test="sort == 'fullName'">
+                    full_name
+                </when>
+<!--                <otherwise>-->
+<!--                    role_id-->
+<!--                </otherwise>-->
             </choose>
         </if>
         <if test="order != 'ASC' and sort != null" >
@@ -82,12 +83,12 @@
         select user_info.id as id,email,
                last_login, full_name, photo, ur.role_id,current_logged,is_login_social as isLoginSocial
         from user_info
-            join user_role ur on user_id = user_info.id
+
         <where>
 
-            <if test="role != null">
-                user_role.role_id = #{role}
-            </if>
+<!--            <if test="role != null">-->
+<!--                user_role.role_id = #{role}-->
+<!--            </if>-->
             <if test="search != null">
                 and full_name like concat('%',#{search},'%')
             </if>
@@ -105,9 +106,9 @@
                 <when test="sort == 'fullName'">
                     full_name
                 </when>
-                <otherwise>
-                    role_id
-                </otherwise>
+<!--                <otherwise>-->
+<!--                    role_id-->
+<!--                </otherwise>-->
             </choose>
         </if>
         <if test="order != 'ASC' and sort != null" >
@@ -200,10 +201,11 @@
     </update>
 
     <select id="findUserByEmail" resultType="com.apps.domain.entity.User">
-        select password,user_info_id as id, uas.id as uasId
+        select password,user_info_id as id, uas.id as uasId,full_name as fullName, photo
         from user_account
-        join user_account_status uas on user_account.user_account_status_id = uas.id
-        where email = #{email}
+                 join user_account_status uas on user_account.user_account_status_id = uas.id
+                 join user_info ui on ui.id = user_account.user_info_id
+        where ui.email = #{email}
     </select>
 
     <select id="findUserInfoByEmail" resultType="com.apps.response.entity.UserSocial">

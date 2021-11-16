@@ -58,4 +58,9 @@ public class EmployeeController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping ("employees/{id}")
+    public ResponseEntity<?> deleteLocations(@PathVariable(value = "id", required = false) int idLocation){
+        return ResponseEntity.ok(this.employeeService.delete(idLocation));
+    }
 }

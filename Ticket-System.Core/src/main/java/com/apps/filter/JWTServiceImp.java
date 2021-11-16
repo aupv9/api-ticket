@@ -83,7 +83,6 @@ public class JWTServiceImp implements JWTService{
     }
 
     private SignedJWT getSignedJWT(String token) throws ParseException {
-        System.out.println(token);
         return SignedJWT.parse(token);
     }
 

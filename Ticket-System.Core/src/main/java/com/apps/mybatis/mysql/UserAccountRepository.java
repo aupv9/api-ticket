@@ -4,6 +4,7 @@ import com.apps.domain.entity.AccountGoogle;
 import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserAccount;
 import com.apps.domain.entity.UserInfo;
+import com.apps.response.entity.UserDto;
 import com.apps.response.entity.UserSocial;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,7 +16,7 @@ import java.util.List;
 public interface UserAccountRepository {
     int insert(@Param("user") UserAccount userAccount);
     int updateActive(@Param("active")Boolean aBoolean);
-    List<User> findAllUser(@Param("limit") int limit, @Param("offset") int offset,
+    List<UserDto> findAllUser(@Param("limit") int limit, @Param("offset") int offset,
                            @Param("sort") String sort, @Param("order") String order,
                            @Param("search") String name,@Param("role") Integer role);
     List<UserSocial> findAllUserSocial(@Param("limit") int limit, @Param("offset") int offset,
@@ -32,7 +33,7 @@ public interface UserAccountRepository {
     int findCountAllSocial( @Param("search") String name,@Param("role") Integer role);
 
 
-    User findUserById(@Param("id")Integer id);
+    UserDto findUserById(@Param("id")Integer id);
 
     int updateUserAccount(@Param("user")UserAccount userAccount);
     int updateUserInfo(@Param("user")UserInfo userInfo);

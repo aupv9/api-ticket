@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.contants.UserStatus;
 import com.apps.domain.entity.*;
 import com.apps.domain.repository.UserCustomRepository;
 import com.apps.exception.NotFoundException;
@@ -148,10 +149,11 @@ public class UserServiceImpl implements UserService {
                     .registeredAt(getNowDateTime())
                     .address(userRegisterDto.getAddress())
                     .city(userRegisterDto.getCity()).state(userRegisterDto.getState())
-                    .userAccountStatusId(statusRepository.findByName("NONE ACTIVE").getId())
+                    .userAccountStatusId(statusRepository.findByName(UserStatus.WAIT_CONFIRM.getName()).getId())
                     .build();
             int idUserReturned = this.userAccountRepository.insert(userAccount);
-            Role role = this.roleRepository.findByName("ROLE_USER");
+
+            Role role = this.roleRepository.findByName(com.apps.contants.Role.USER.getName());
             this.roleRepository.insertUserRole(idReturned,role.getId());
             return idUserReturned;
         }
@@ -160,13 +162,34 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<User> findAllUser(int limit, int offset, String sort, String order, String name, Integer role) {
-        return this.userAccountRepository.findAllUser(limit,offset,sort,order,name,role > 0 ? role : null);
+    public List<com.apps.response.entity.UserDto> findAllUser(int limit, int offset, String sort, String order, String name, Integer role) {
+        var listUser = this.userAccountRepository.findAllUser(limit,offset,sort,order,name,role > 0 ? role : null);
+        for (var user : listUser){
+            var userRoles = this.roleRepository.findUserRoleById(user.getId());
+            for (var userRole : userRoles){
+                var roleIds = this.getAllRole(userRole.getRoleId());
+                user.setRoleIds(roleIds);
+            }
+        }
+        return listUser;
+    }
+
+    private List<Integer> getAllRole(int id){
+        var roles = this.roleRepository.findAll(id);
+        return roles.stream().map(Role::getId).collect(Collectors.toList());
     }
 
     @Override
     public List<UserSocial> findAllUserSocial(int limit, int offset, String sort, String order, String name, Integer role) {
-        return this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null,1);
+        var listUser = this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null,1);
+        for (var user : listUser){
+            var userRoles = this.roleRepository.findUserRoleById(user.getId());
+            for (var userRole : userRoles){
+                var allRole = this.getAllRole(userRole.getRoleId());
+                user.setRoleIds(allRole);
+            }
+        }
+        return listUser;
     }
 
     @Override
@@ -180,23 +203,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(int id) {
+    public com.apps.response.entity.UserDto findById(int id) {
         var user =  this.userAccountRepository.findUserById(id);
+        var roles = this.roleRepository.findUserRoleById(id);
+        var roleIds = roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         if(user == null) {
             var userSocial = this.userAccountRepository.findUserSocialById(id);
             if (userSocial.getIsLoginSocial()) {
-                user = new User();
-                var roleId = this.roleRepository.findUserRoleById(id);
+                user = new com.apps.response.entity.UserDto();
                 user.setEmail(userSocial.getEmail());
-                user.setRoleId(roleId.get(0).getRoleId());
+                user.setRoleIds(roleIds);
                 user.setUasId(2);
                 user.setId(userSocial.getId());
                 user.setFirstName(userSocial.getFirstName());
                 user.setLastName(userSocial.getLastName());
                 user.setFullName(userSocial.getFullName());
                 user.setCurrentLogged(userSocial.getCurrentLogged());
+                return user;
             }
         }
+        assert user != null;
+        user.setRoleIds(roleIds);
         return user;
     }
 
@@ -222,11 +249,15 @@ public class UserServiceImpl implements UserService {
                 .build();
         this.userAccountRepository.updateUserAccount(userAccount);
         Role role  = roleRepository.findRoleById(userDto.getRoleId());
-        if(role == null) throw new NotFoundException("Not Role Have Id:" + role.getId());
+        if(role == null) {
+            assert role != null;
+            throw new NotFoundException("Not Role Have Id:" + role.getId());
+        }
 
         this.roleRepository.updateRoleByUser(userDto.getId(),userDto.getRoleId());
 
-        if(role.getName().equals("ROLE_STAFF") || role.getName().equals("Manager_Theater")){
+        if(role.getName().equals(com.apps.contants.Role.STAFF.getName()) ||
+                role.getName().equals(com.apps.contants.Role.MANAGER.getName())){
             var employee = this.employeeService.findByUserId(userInfo.getId());
             if(employee != null){
                 employee.setRoleId(role.getId());
@@ -236,7 +267,7 @@ public class UserServiceImpl implements UserService {
                         getNowDateTime());
             }
         }
-        return 1;
+        return userAccount.getUserInfoId();
     }
 
     @Override
@@ -247,7 +278,7 @@ public class UserServiceImpl implements UserService {
         }
         if(encoder.matches(password,user.getPassword()) && user.getUasId() >= 2 && user.getUasId() <= 3){
             var roles = this.roleRepository.findUserRoleById(user.getId());
-            var userInfo = this.userAccountRepository.findUserInfoByEmail(user.getEmail());
+            var userInfo = this.userAccountRepository.findUserByEmail(email);
             String token = this.jwtService.generatorToken(email);
             updateCurrentLogged(user.getId(),true);
             var privilege = roleService.getAuthorities(roles);

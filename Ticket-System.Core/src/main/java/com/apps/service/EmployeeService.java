@@ -14,4 +14,5 @@ public interface EmployeeService {
     int insert(Integer userId, Integer roleId,
                Integer createdBy, String status,String createdAt);
     int update(Employee employee);
+    int delete(int id);
 }

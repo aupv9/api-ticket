@@ -14,14 +14,14 @@ import java.util.List;
 
 public interface UserService {
     int registerAccountUser(UserRegisterDto userRegisterDto) throws SQLException;
-    List<User> findAllUser(int limit, int offset, String sort, String order, String name, Integer role);
+    List<com.apps.response.entity.UserDto> findAllUser(int limit, int offset, String sort, String order, String name, Integer role);
     List<UserSocial> findAllUserSocial(int limit, int offset, String sort, String order, String name, Integer role);
 
 
     int findCountAll(String name,Integer role);
     int findCountAllSocial(String name,Integer role);
 
-    User findById(int id);
+    com.apps.response.entity.UserDto findById(int id);
     int update(UserDto userDto);
     UserLoginResponse authenticate(String email, String password) throws JOSEException;
     UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException;

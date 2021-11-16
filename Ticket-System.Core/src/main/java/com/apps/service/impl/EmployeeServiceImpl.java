@@ -88,4 +88,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee1.setUpdatedBy(modifiedBy);
         return this.employeeRepository.update(employee);
     }
+
+    @Override
+    public int delete(int id) {
+        return 0;
+    }
 }

@@ -165,6 +165,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
             <version>2.3.5.RELEASE</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.8.0</version>
+        </dependency>
 
 
     </dependencies>

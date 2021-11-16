@@ -19,6 +19,7 @@ public interface RoleRepository {
     int updateRoleByUser(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
 
     List<Role> findAll(@Param("roleId") Integer roleId);
+
     int findAllCountRole(@Param("roleId") Integer roleId);
 
     Role findRoleById(@Param("id")Integer id);
