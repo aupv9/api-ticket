@@ -6,10 +6,33 @@
     <select id="findAll" resultType="com.apps.domain.entity.Role">
         select * from role
         <where>
+            <if test="search != null">
+                name like %#{search}%
+            </if>
             <if test="roleId != null">
                 id = #{roleId}
             </if>
         </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <when test="sort == 'code'">
+                    code
+                </when>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
     </select>
 
     <select id="findAllCountRole" resultType="INT">
@@ -17,6 +40,41 @@
         <where>
             <if test="roleId != null">
                 id = #{roleId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllPrivilege" resultType="com.apps.domain.entity.Privilege">
+        select * from privilege
+        <where>
+            <if test="search != null">
+                name like %#{search}%
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findAllCountPrivilege" resultType="INT">
+        select count(*) from privilege
+        <where>
+            <if test="search != null">
+                name like %#{search}%
             </if>
         </where>
     </select>

@@ -166,17 +166,14 @@ public class UserServiceImpl implements UserService {
         var listUser = this.userAccountRepository.findAllUser(limit,offset,sort,order,name,role > 0 ? role : null);
         for (var user : listUser){
             var userRoles = this.roleRepository.findUserRoleById(user.getId());
-            for (var userRole : userRoles){
-                var roleIds = this.getAllRole(userRole.getRoleId());
-                user.setRoleIds(roleIds);
-            }
+            var roleIds = this.getAllRole(userRoles);
+            user.setRoleIds(roleIds);
         }
         return listUser;
     }
 
-    private List<Integer> getAllRole(int id){
-        var roles = this.roleRepository.findAll(id);
-        return roles.stream().map(Role::getId).collect(Collectors.toList());
+    private List<Integer> getAllRole(List<UserRole> roles){
+        return roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
     }
 
     @Override
@@ -184,10 +181,8 @@ public class UserServiceImpl implements UserService {
         var listUser = this.userAccountRepository.findAllUserSocial(limit,offset,sort,order,name,role > 0 ? role : null,1);
         for (var user : listUser){
             var userRoles = this.roleRepository.findUserRoleById(user.getId());
-            for (var userRole : userRoles){
-                var allRole = this.getAllRole(userRole.getRoleId());
-                user.setRoleIds(allRole);
-            }
+            var allRole = this.getAllRole(userRoles);
+            user.setRoleIds(allRole);
         }
         return listUser;
     }

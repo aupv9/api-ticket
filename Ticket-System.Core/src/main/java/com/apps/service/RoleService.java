@@ -9,13 +9,20 @@ import java.util.List;
 
 public interface RoleService {
     Role findRoleById(Integer id);
-    List<Role> findAllRole(Integer roleId);
+    List<Role> findAllRole(int limit,int offset,String sort,String order,Integer roleId,String search);
     int findAllCountRole( Integer roleId);
     List<UserRole> findUserRoleById(Integer userId);
 
+    List<Privilege> findAllPrivilege(int limit,int offset,String sort,String order,String search);
+    int findAllCountPrivilege(String search);
+
+
     List<RolePrivileges> findPrivilegesByRole(Integer roleId);
 
+    List<Privilege> findAllPrivilegesByIdRole(Integer id);
+
     List<Privilege> findAllPrivilegesById(Integer id);
+
 
     Privilege findPrivilegeById(Integer id);
 

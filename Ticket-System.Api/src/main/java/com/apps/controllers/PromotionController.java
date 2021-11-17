@@ -25,19 +25,19 @@ public class PromotionController {
 
     @GetMapping("offers")
     public ResponseEntity<?> getOffers(@RequestParam(value =  "pageSize", required = false) Integer size,
-                                         @RequestParam(value = "page", required = false)Integer page,
-                                         @RequestParam(value = "sort", required = false) String sort,
-                                         @RequestParam(value = "order", required = false) String order,
-                                         @RequestParam(value = "created_date",  required = false) String createdDate,
-                                         @RequestParam(value = "start_date",  required = false) String startDate,
-                                         @RequestParam(value = "end_date",  required = false) String endDate,
-                                         @RequestParam(value = "creation", required = false,
+                                       @RequestParam(value = "page", required = false)Integer page,
+                                       @RequestParam(value = "sort", required = false) String sort,
+                                       @RequestParam(value = "order", required = false) String order,
+                                       @RequestParam(value = "created_date",  required = false) String createdDate,
+                                       @RequestParam(value = "start_date",  required = false) String startDate,
+                                       @RequestParam(value = "end_date",  required = false) String endDate,
+                                       @RequestParam(value = "creation", required = false,
                                                  defaultValue = "0") Integer creation,
-                                         @RequestParam(value = "method", required = false) String method,
-                                         @RequestParam(value = "anon_profile", required = false) boolean anonProfile,
-                                         @RequestParam(value = "type", required = false) String type,
-                                         @RequestParam(value = "multi", required = false) boolean multi,
-                                        @RequestParam(value = "search", required = false) String search
+                                       @RequestParam(value = "method", required = false) String method,
+                                       @RequestParam(value = "anon_profile", required = false) boolean anonProfile,
+                                       @RequestParam(value = "type", required = false) String type,
+                                       @RequestParam(value = "multi", required = false) boolean multi,
+                                       @RequestParam(value = "search", required = false) String search
                                          ){
 
         var resultList = this.promotionService.findAll(size, (page - 1 ) * size,sort,order,startDate,

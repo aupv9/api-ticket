@@ -1,6 +1,5 @@
 package com.apps.controllers;
 
-
 import com.apps.response.ResponseRA;
 import com.apps.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,13 @@ public class RoleController {
     }
 
     @GetMapping("roles")
-    public ResponseEntity<?> getRoles(@RequestParam(value = "roleId",required = false)Integer roleId){
-        var resultList = this.roleService.findAllRole(roleId);
+    public ResponseEntity<?> getRoles(@RequestParam(value = "pageSize", required = false) Integer size,
+                                      @RequestParam(value = "page", required = false)Integer page,
+                                      @RequestParam(value = "sort", required = false) String sort,
+                                      @RequestParam(value = "order", required = false) String order,
+                                      @RequestParam(value = "roleId",required = false)Integer roleId,
+                                      @RequestParam(value = "search",required = false)String search){
+        var resultList = this.roleService.findAllRole(size, (page - 1) * size,sort,order,roleId,search);
         var totalElements = this.roleService.findAllCountRole(roleId);
         var response = ResponseRA.builder()
                 .content(resultList)
@@ -32,11 +36,48 @@ public class RoleController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("privileges")
+    public ResponseEntity<?> getPrivileges(@RequestParam(value ="pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "search",required = false)String search){
+        var resultList = this.roleService.findAllPrivilege(size, (page - 1) * size,sort,order,search);
+        var totalElements = this.roleService.findAllCountPrivilege(search);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("privilege-role")
+    public ResponseEntity<?> getPrivilegesRole(@RequestParam(value = "id", required = false)Integer roleId){
+        var resultList = this.roleService.findAllPrivilegesByIdRole(roleId);
+        var totalElements = resultList.size();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+
+    @GetMapping("privileges/{id}")
+    public ResponseEntity<?> getPrivilege(@PathVariable(value = "id", required = false) Integer id){
+        var result = this.roleService.findPrivilegeById(id);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("roles/{id}")
     public ResponseEntity<?> getRole(@PathVariable(value = "id", required = false) Integer id){
         var result = this.roleService.findRoleById(id);
         return ResponseEntity.ok(result);
     }
+
+
+
 //
 //    @PostMapping("categories")
 //    public ResponseEntity<?> createCategory(@RequestBody Category category) throws SQLException {

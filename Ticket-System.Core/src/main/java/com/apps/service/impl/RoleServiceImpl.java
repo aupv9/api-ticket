@@ -7,6 +7,7 @@ import com.apps.domain.entity.UserRole;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.service.RoleService;
+import lombok.var;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,8 +32,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<Role> findAllRole(Integer roleId) {
-        return this.roleRepository.findAll(roleId);
+    public List<Role> findAllRole(int limit,int offset,String sort,String order,Integer roleId,String search) {
+        return this.roleRepository.findAll(limit, offset,sort,order,roleId,search);
     }
 
     @Override
@@ -46,8 +47,29 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public List<Privilege> findAllPrivilege(int limit, int offset, String sort, String order, String search) {
+        return this.roleRepository.findAllPrivilege(limit,offset,sort,order,search);
+    }
+
+    @Override
+    public int findAllCountPrivilege(String search) {
+        return this.roleRepository.findAllCountPrivilege(search);
+    }
+
+    @Override
     public List<RolePrivileges> findPrivilegesByRole(Integer roleId) {
         return this.roleRepository.findPrivilegesByRole(roleId);
+    }
+
+    @Override
+    public List<Privilege> findAllPrivilegesByIdRole(Integer id) {
+        var rolePrivileges = this.findPrivilegesByRole(id);
+        List<Privilege> listPrivilege = new ArrayList<Privilege>();
+        for (var privileges : rolePrivileges){
+            var privilege = this.findPrivilegeById(privileges.getPrivilegeId());
+            listPrivilege.add(privilege);
+        }
+        return listPrivilege;
     }
 
     @Override

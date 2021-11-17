@@ -18,9 +18,17 @@ public interface RoleRepository {
     int insertRolePrivilege(@Param("roleId")Integer roleId,@Param("privilegeId")Integer privilegeId);
     int updateRoleByUser(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
 
-    List<Role> findAll(@Param("roleId") Integer roleId);
+    List<Role> findAll(@Param("limit") int limit,@Param("offset")int offset,@Param("sort")String sort,
+                       @Param("order")String order,@Param("roleId") Integer roleId,@Param("search")String search);
+
 
     int findAllCountRole(@Param("roleId") Integer roleId);
+
+    List<Privilege> findAllPrivilege(@Param("limit") int limit,@Param("offset")int offset,@Param("sort")String sort,
+                                     @Param("order")String order,@Param("search")String search);
+    int findAllCountPrivilege(@Param("search")String search);
+
+
 
     Role findRoleById(@Param("id")Integer id);
 

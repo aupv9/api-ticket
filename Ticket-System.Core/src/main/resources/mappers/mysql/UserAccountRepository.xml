@@ -21,15 +21,13 @@
     </insert>
 
     <select id="findUserById" resultType="com.apps.response.entity.UserDto" >
-        select user_info.id,first_name,last_name,full_name,ua.email,r2.name,r.role_id,
+        select user_info.id,first_name,last_name,full_name,ua.email,
                last_login,createdBy,createdDate,modifiedBy,modifiedDate,
                address, city, state, activeDate, registeredAt,uas.id as uasId,
                user_info.current_logged as currentLogged,user_info.photo as photo,
                user_info.full_name as fullName
         from user_info
                  join user_account ua on ua.user_info_id = user_info.id
-                 join user_role r on user_info.id = r.user_id
-                 join role r2 on r.role_id = r2.id
                  join user_account_status uas on ua.user_account_status_id = uas.id
         <where>
             <if test="id != null">
@@ -81,7 +79,7 @@
 
     <select id="findAllUserSocial" resultType="com.apps.response.entity.UserSocial" >
         select user_info.id as id,email,
-               last_login, full_name, photo, ur.role_id,current_logged,is_login_social as isLoginSocial
+               last_login, full_name, photo,current_logged,is_login_social as isLoginSocial
         from user_info
 
         <where>
