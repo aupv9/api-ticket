@@ -47,9 +47,9 @@
                 <when test="sort == 'endDate'">
                     end_date
                 </when>
-<!--                 <when test="sort == 'enable'">-->
-<!--                     enable-->
-<!--                </when>-->
+                 <when test="sort == 'type'">
+                     type
+                </when>
 <!--                 <when test="sort == 'priority'">-->
 <!--                     priority-->
 <!--                </when>-->

@@ -3,11 +3,13 @@ package com.apps.service.impl;
 import com.apps.contants.OfferStatus;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Offer;
+import com.apps.domain.entity.OfferCode;
 import com.apps.domain.repository.OfferCustomRepository;
 import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.request.OfferDto;
 import com.apps.service.PromotionService;
 import com.apps.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
@@ -19,16 +21,13 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PromotionServiceImp implements PromotionService {
 
     private final PromotionRepository promotionRepository;
     private final UserService userService;
     private final OfferCustomRepository offerCustomRepository;
-    public PromotionServiceImp(PromotionRepository promotionRepository, UserService userService, OfferCustomRepository offerCustomRepository) {
-        this.promotionRepository = promotionRepository;
-        this.userService = userService;
-        this.offerCustomRepository = offerCustomRepository;
-    }
+
 
     @Override
     public List<Offer> findAll(int limit, int offset, String sort, String order, String startDate, String endDate, Integer creationBy,
@@ -65,9 +64,9 @@ public class PromotionServiceImp implements PromotionService {
     public int insertOffer(OfferDto offerDto) throws SQLException {
         String sql = "insert into offer(name,creation_date,start_date,end_date,type,method,creationBy," +
                 "max_discount,max_total_usage,max_usage_per_user,rule,percentage,anon_profile," +
-                "allow_multiple,message,status) values(?,?,?,?,?," +
+                "allow_multiple,message,status,discount_amount) values(?,?,?,?,?," +
                 "?,?,?,?,?," +
-                "?,?,?,?,?,?)";
+                "?,?,?,?,?,?,?)";
 
         var offer = Offer.builder()
                 .name(offerDto.getName()).type(offerDto.getType()).method(offerDto.getMethod())
@@ -78,7 +77,7 @@ public class PromotionServiceImp implements PromotionService {
                 .maxUsagePerUser(offerDto.getMaxUsagePerUser()).rule(offerDto.getRule())
                 .percentage(offerDto.getPercentage()).anonProfile(offerDto.isAnonProfile())
                 .allowMultiple(offerDto.isAllowMultiple()).message(offerDto.getMessage())
-                .status(OfferStatus.NEW.name())
+                .status(OfferStatus.NEW.name()).discountAmount(offerDto.getDiscountAmount())
                 .build();
 
         int idOffer = this.offerCustomRepository.insert(offer,sql);
@@ -95,6 +94,16 @@ public class PromotionServiceImp implements PromotionService {
             }
         }
         return idOffer;
+    }
+
+    @Override
+    public OfferCode checkPromotionCode(String code) {
+        return this.promotionRepository.checkPromotionCode(code);
+    }
+
+    @Override
+    public Offer findById(int id) {
+        return this.promotionRepository.findById(id);
     }
 
     private String convertISOtoLocalDatetime(String isoDate){

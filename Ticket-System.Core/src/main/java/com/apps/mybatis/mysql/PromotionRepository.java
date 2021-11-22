@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Offer;
+import com.apps.domain.entity.OfferCode;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -30,4 +31,10 @@ public interface PromotionRepository {
 
     @Select("select id from offer_detail where offer_id = #{offerId} and code = #{code}")
     int checkCodeOffer(@Param("offerId")int offerId,@Param("code")String code);
+
+    @Select("select * from offer_detail where code = #{code}")
+    OfferCode checkPromotionCode(@Param("code")String code);
+
+    @Select("select * from offer where id = #{id}")
+    Offer findById(@Param("id") int id);
 }

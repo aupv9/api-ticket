@@ -1,6 +1,7 @@
 package com.apps.service;
 
 import com.apps.domain.entity.Offer;
+import com.apps.domain.entity.OfferCode;
 import com.apps.request.OfferDto;
 
 import java.sql.SQLException;
@@ -17,4 +18,7 @@ public interface PromotionService {
                       String promotionType, String method,boolean multi ,String search);
     int insertOffer(OfferDto offerDto) throws SQLException;
 
+    OfferCode checkPromotionCode(String code);
+
+    Offer findById(int id);
 }

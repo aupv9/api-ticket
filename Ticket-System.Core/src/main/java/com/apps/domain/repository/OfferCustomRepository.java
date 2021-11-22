@@ -44,6 +44,8 @@ public class OfferCustomRepository implements Repository<Offer> {
             stmt.setBoolean(14,offer.isAllowMultiple());
             stmt.setString(15,offer.getMessage());
             stmt.setString(16,offer.getStatus());
+            stmt.setDouble(17,offer.getDiscountAmount());
+
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){
