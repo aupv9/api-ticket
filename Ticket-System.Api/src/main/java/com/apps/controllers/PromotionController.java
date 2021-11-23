@@ -78,16 +78,15 @@ public class PromotionController {
                                              @RequestParam(value = "page", required = false)Integer page,
                                              @RequestParam(value = "sort", required = false) String sort,
                                              @RequestParam(value = "order", required = false) String order,
-                                             @RequestParam(value = "offer_id", required = false)Integer offerId,
-                                             @RequestParam(value = "user_id", required = false)Integer userId,
+                                             @RequestParam(value = "offerId", required = false,defaultValue = "0")Integer offerId,
+                                             @RequestParam(value = "userId", required = false,defaultValue = "0")Integer userId,
                                              @RequestParam(value = "status", required = false) String status,
-                                             @RequestParam(value = "time_used", required = false) String timeUsed
-
+                                             @RequestParam(value = "timeUsed", required = false) String timeUsed,
+                                             @RequestParam(value = "orderId", required = false,defaultValue = "0")Integer orderId
                                              ){
-
         var resultList = this.offerHistoryService.findAll(size, (page - 1 ) * size,sort,order,
-                userId,offerId,status,timeUsed);
-        var totalElements = this.offerHistoryService.findAllCount(userId,offerId,status,timeUsed);
+                userId,offerId,status,timeUsed,orderId);
+        var totalElements = this.offerHistoryService.findAllCount(userId,offerId,status,timeUsed,orderId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -95,10 +94,10 @@ public class PromotionController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("offers-history")
-    public ResponseEntity<?> createOfferHistory(@RequestBody OfferDto offerDto) throws SQLException {
-        int idReturned = this.promotionService.insertOffer(offerDto);
-        offerDto.setId(idReturned);
-        return ResponseEntity.ok(offerDto);
-    }
+//    @PostMapping("offers-history")
+//    public ResponseEntity<?> createOfferHistory(@RequestBody OfferDto offerDto) throws SQLException {
+//        int idReturned = this.promotionService.insertOffer(offerDto);
+//        offerDto.setId(idReturned);
+//        return ResponseEntity.ok(offerDto);
+//    }
 }

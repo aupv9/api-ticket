@@ -13,9 +13,9 @@ public interface OfferHistoryRepository {
                                @Param("sort")String sort,
                                @Param("order")String order,@Param("userId")Integer userId,
                                @Param("offerId")Integer offerId,@Param("status")String status,
-                               @Param("timeUsed")String timeUsed);
+                               @Param("timeUsed")String timeUsed, @Param("orderId") Integer orderId);
     int findAllCount(@Param("userId")Integer userId,
                      @Param("offerId")Integer offerId,@Param("status")String status,
-                     @Param("timeUsed")String timeUsed);
+                     @Param("timeUsed")String timeUsed, @Param("orderId") Integer orderId);
 
 }

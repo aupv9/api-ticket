@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.OfferCode;
+import com.apps.domain.entity.OfferHistory;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,12 +17,13 @@ public interface PromotionRepository {
                         @Param("startDate") String startDate, @Param("endDate")String endDate, @Param("creationBy") Integer creationBy,
                         @Param("creationDate") String creationDate,@Param("anonProfile")boolean anonProfile,
                         @Param("type") String promotionType, @Param("method")String method,@Param("multi")boolean multi,
-                         @Param("search")String search);
+                        @Param("search")String search);
 
     int findAllCount(@Param("startDate") String startDate, @Param("endDate")String endDate, @Param("creationBy") Integer creationBy,
                      @Param("creationDate") String creationDate,@Param("anonProfile")boolean anonProfile,
                      @Param("type") String promotionType, @Param("method")String method,@Param("multi")boolean multi,
                      @Param("search")String search);
+
 
     @Insert("insert into offer_detail(offer_id,code) values(#{offerId},#{code})")
     int insertOfferDetail(@Param("offerId")int offerId,@Param("code")String code);
@@ -37,4 +39,7 @@ public interface PromotionRepository {
 
     @Select("select * from offer where id = #{id}")
     Offer findById(@Param("id") int id);
+
+
+    int insertOfferHistory(@Param("offer")OfferHistory offerHistory);
 }

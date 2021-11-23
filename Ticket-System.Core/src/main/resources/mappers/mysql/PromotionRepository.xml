@@ -103,13 +103,87 @@
         </where>
 
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
-        values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},
-        #{payment.startDate},#{payment.endDate},#{payment.note},#{payment.useFor},#{payment.partId})
+
+    <insert id="insertOfferHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into offer_history(user_id, status, offer_id, time_used, total_discount,code,order_id)
+        values (#{offer.userId},#{offer.status},#{offer.offerId},
+                #{offer.timeUsed},#{offer.totalDiscount},
+        #{offer.code},#{offer.orderId})
         <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
             SELECT LAST_INSERT_ID();
         </selectKey>
     </insert>
+
+    <select id="findAllOfferHistory" resultType="com.apps.domain.entity.OfferHistory">
+        select * from offer_history
+        <where>
+            <if test="orderId != null">
+                 order_id = #{orderId}
+            </if>
+            <if test="offerId != null">
+                and offer_id = #{offerId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="timeUsed != null">
+                and date(time_used) = #{timeUsed}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'orderId'">
+                    order_id
+                </when>
+                <when test="sort == 'userId'">
+                    user_id
+                </when>
+                <when test="sort == 'offerId'">
+                    offer_id
+                </when>
+                <when test="sort == 'status'">
+                    status
+                </when>
+                <otherwise>
+                    time_used
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="findAllCountOfferHistory" resultType="Int">
+        select count(*) from offer_history
+        <where>
+            <if test="orderId != null">
+                order_id = #{orderId}
+            </if>
+            <if test="offerId != null">
+                and offer_id = #{offerId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="timeUsed != null">
+                and date(time_used) = #{timeUsed}
+            </if>
+        </where>
+    </select>
+
 
 </mapper>

@@ -6,6 +6,9 @@
     <select id="findAll" resultType="com.apps.domain.entity.OfferHistory">
         select * from offer_history
         <where>
+            <if test="orderId != null">
+                order_id = #{orderId}
+            </if>
             <if test="offerId != null">
                 and offer_id = #{offerId}
             </if>
@@ -51,6 +54,9 @@
     <select id="findAllCount" resultType="INT">
         select count(*)  from offer_history
         <where>
+            <if test="orderId != null">
+                order_id = #{orderId}
+            </if>
             <if test="offerId != null">
                 and offer_id = #{offerId}
             </if>

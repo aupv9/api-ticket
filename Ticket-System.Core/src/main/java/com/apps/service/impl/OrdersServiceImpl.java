@@ -53,14 +53,24 @@ public class OrdersServiceImpl implements OrdersService {
         var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
-            for (Integer orderDetail: listOrdersDetail){
-                int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
+            if(!listOrdersDetail.isEmpty()){
+                for (Integer orderDetail: listOrdersDetail){
+                    int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
+                }
             }
+
             var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
-            for (Integer orderSeat: listOrdersDetail){
-                int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
+            if(!listOrdersSeat.isEmpty()){
+                for (Integer orderSeat: listOrdersDetail){
+                    int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
+                }
+
             }
-            int deleted = this.ordersRepository.delete(order);
+            var listOrdersDetailList = this.ordersRepository.findOrderDetailById(order);
+            var listOrdersSeatList = this.ordersRepository.findOrderSeatById(order);
+            if(listOrdersDetailList.isEmpty()  && listOrdersSeatList.isEmpty() ){
+                int deleted = this.ordersRepository.delete(order);
+            }
         }
     }
 
@@ -109,6 +119,8 @@ public class OrdersServiceImpl implements OrdersService {
             var payment = this.paymentRepository.findByIdOrder(orders.getId());
             totalAmount = payment.getAmount();
         }
+
+
 
 
         return MyOrderResponse.builder()

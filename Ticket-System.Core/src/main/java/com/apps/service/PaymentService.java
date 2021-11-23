@@ -1,5 +1,6 @@
 package com.apps.service;
 
+import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.Payment;
 import com.apps.domain.entity.PaymentMethod;
 
@@ -17,4 +18,6 @@ public interface PaymentService {
     PaymentMethod findPaymentMethodById(int id);
     int deleteByOrder(int id);
     Payment findByOrder(int idOrder);
+
+    double getDiscountByCode(String code, double amount, Offer offer);
 }

@@ -1,17 +1,14 @@
 package com.apps.service.impl;
 
-import com.apps.contants.OrderStatus;
-import com.apps.contants.PaymentFor;
-import com.apps.contants.PaymentStatus;
-import com.apps.contants.Utilities;
-import com.apps.domain.entity.Orders;
-import com.apps.domain.entity.Payment;
-import com.apps.domain.entity.PaymentMethod;
+import com.apps.contants.*;
+import com.apps.domain.entity.*;
 import com.apps.domain.repository.PaymentCustomRepository;
 import com.apps.mybatis.mysql.PaymentRepository;
+import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.service.OrdersService;
 import com.apps.service.PaymentService;
 import com.apps.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,18 +17,18 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
 
-    @Autowired
-    private PaymentCustomRepository paymentCustomRepository;
+    private final PaymentCustomRepository paymentCustomRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private OrdersService ordersService;
+    private final OrdersService ordersService;
+
+    private final PromotionRepository promotionRepository;
+
 
     @Override
     public int insert(Payment payment) {
@@ -78,10 +75,28 @@ public class PaymentServiceImpl implements PaymentService {
                     .updatedAt(Utilities.getCurrentTime())
                     .status(OrderStatus.PAYMENT.getStatus())
                     .build();
+            if(!payment.getCode().isEmpty()){
+                var offerCode =
+                        this.promotionRepository.checkPromotionCode(payment.getCode());
+                var offer = this.promotionRepository.findById(offerCode.getOfferId());
+                var discountAmount = this.getDiscountByCode(payment.getCode(),order.getTotalAmount(),offer);
+                var offerHistory = OfferHistory.builder()
+                        .offerId(offer.getId())
+                        .orderId(payment.getPartId())
+                        .userId( order.getUserId())
+                        .timeUsed(Utilities.getCurrentTime())
+                        .status(OfferStatus.USED.name())
+                        .code(offerCode.getCode())
+                        .totalDiscount(discountAmount)
+                        .build();
+                this.promotionRepository.insertOfferHistory(offerHistory);
+            }
             this.ordersService.update(orders);
         }
         return result;
     }
+
+
 
     @Override
     public PaymentMethod findPaymentMethodById(int id) {
@@ -98,5 +113,12 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment findByOrder(int idOrder) {
         var payment = this.paymentRepository.findByIdOrder(idOrder);
         return payment;
+    }
+
+    @Override
+    public double getDiscountByCode(String code, double amount, Offer offer) {
+        return offer.getType().equals(OfferTypeEnum.Flat.name()) ?
+                offer.getDiscountAmount() :
+                (amount / 100) * offer.getPercentage();
     }
 }

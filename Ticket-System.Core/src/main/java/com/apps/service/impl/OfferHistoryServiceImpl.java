@@ -19,14 +19,14 @@ public class OfferHistoryServiceImpl implements OfferHistoryService {
     }
 
     @Override
-    public List<OfferHistory> findAll(int limit, int offset, String sort, String order, int userId, int offerId, String status, String timeUsed) {
-        return this.offerHistoryRepository.findAll(limit,offset,sort,order,userId > 0 ?userId : null,
-                offerId > 0 ? offerId :  null,status,timeUsed);
+    public List<OfferHistory> findAll(int limit, int offset, String sort, String order, int userId, int offerId, String status, String timeUsed,int orderId) {
+        return this.offerHistoryRepository.findAll(limit,offset,sort,order,userId > 0 ? userId : null,
+                offerId > 0 ? offerId : null,status,timeUsed,orderId > 0 ? orderId : null);
     }
 
     @Override
-    public int findAllCount(int userId, int offerId, String status, String timeUsed) {
-        return this.offerHistoryRepository.findAllCount(userId > 0 ?userId : null,
-                offerId > 0 ? offerId :  null,status,timeUsed);
+    public int findAllCount(int userId, int offerId, String status, String timeUsed,int orderId) {
+        return this.offerHistoryRepository.findAllCount(userId > 0 ? userId : null,
+                offerId > 0 ? offerId : null,status,timeUsed,orderId > 0 ? orderId : null);
     }
 }
