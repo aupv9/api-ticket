@@ -82,11 +82,14 @@ public class PromotionController {
                                              @RequestParam(value = "userId", required = false,defaultValue = "0")Integer userId,
                                              @RequestParam(value = "status", required = false) String status,
                                              @RequestParam(value = "timeUsed", required = false) String timeUsed,
-                                             @RequestParam(value = "orderId", required = false,defaultValue = "0")Integer orderId
-                                             ){
+                                             @RequestParam(value = "orderId", required = false,defaultValue = "0")Integer orderId,
+                                             @RequestParam(value = "search", required = false) String search
+
+
+    ){
         var resultList = this.offerHistoryService.findAll(size, (page - 1 ) * size,sort,order,
-                userId,offerId,status,timeUsed,orderId);
-        var totalElements = this.offerHistoryService.findAllCount(userId,offerId,status,timeUsed,orderId);
+                userId,offerId,status,timeUsed,orderId,search);
+        var totalElements = this.offerHistoryService.findAllCount(userId,offerId,status,timeUsed,orderId,search);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)

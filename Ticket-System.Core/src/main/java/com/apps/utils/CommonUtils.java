@@ -43,6 +43,7 @@ public class CommonUtils {
         return val != null && val;
     }
 
+
     /**
      * Returns the string representation of the specified object
      * as returned by the object's <code>toString()</code> method,

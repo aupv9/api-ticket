@@ -19,5 +19,4 @@ public interface PaymentService {
     int deleteByOrder(int id);
     Payment findByOrder(int idOrder);
 
-    double getDiscountByCode(String code, double amount, Offer offer);
 }

@@ -36,10 +36,11 @@ public class OrdersController {
                                           @RequestParam(value = "type",  required = false) String type,
                                           @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
                                           @RequestParam(value = "status", required = false) String status,
-                                          @RequestParam(value = "creation", required = false) Integer creation
+                                          @RequestParam(value = "creation", required = false) Integer creation,
+                                          @RequestParam(value = "date_gte", required = false) String dateGte
                                           ){
-        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation);
-        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation);
+        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation,dateGte);
+        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation,dateGte);
         var response = ResponseRA.builder()
                                     .content(resultList)
                                     .totalElements(totalElements)
@@ -52,14 +53,17 @@ public class OrdersController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "user_id",  required = false) Integer userId,
+                                          @RequestParam(value = "user_id",  required = false,defaultValue = "0") Integer userId,
                                           @RequestParam(value = "type",  required = false) String type,
-                                          @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
+                                          @RequestParam(value = "showTimes_id", required = false,defaultValue = "0") Integer showTimesId,
                                           @RequestParam(value = "status", required = false) String status,
-                                          @RequestParam(value = "creation", required = false) Integer creation
+                                          @RequestParam(value = "creation", required = false,defaultValue = "0") Integer creation,
+                                          @RequestParam(value = "date_gte", required = false) String dateGte
+
     ){
-        var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation);
-        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation);
+
+        var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation,dateGte);
+        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation,dateGte);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)

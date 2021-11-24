@@ -22,6 +22,10 @@
             <if test="creation != null">
                 and creation = #{creation}
             </if>
+            <if test="dateGte != null">
+                and date(created_date)
+                between date(#{dateGte}) and date(current_time)
+            </if>
         </where>
         <if test="sort != null">
             order by
@@ -51,7 +55,10 @@
             DESC
         </if>
 
-        limit #{limit} offset #{offset}
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+
     </select >
 
     <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">
@@ -69,6 +76,10 @@
             </if>
             <if test="creation != null">
                 and creation = #{creation}
+            </if>
+            <if test="dateGte != null">
+                and date(created_date)
+                between date(#{dateGte}) and date(current_time)
             </if>
         </where>
         <if test="sort != null">
@@ -118,6 +129,10 @@
             <if test="creation != null">
                 and creation = #{creation}
             </if>
+            <if test="dateGte != null">
+                and date(created_date)
+                between date(#{dateGte}) and date(current_time)
+            </if>
         </where>
     </select>
 
@@ -138,6 +153,10 @@
             </if>
             <if test="creation != null">
                 and creation = #{creation}
+            </if>
+            <if test="dateGte != null">
+                and date(created_date)
+                between date(#{dateGte}) and date(current_time)
             </if>
         </where>
     </select>

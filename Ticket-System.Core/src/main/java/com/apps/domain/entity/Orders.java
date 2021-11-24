@@ -18,4 +18,5 @@ public class Orders implements Serializable {
     private Integer showTimesDetailId,userId,updatedBy = 0,creation,id;
     private String note,status,createdDate,expirePayment,updatedAt;
     private boolean profile = false;
+    private double total;
 }

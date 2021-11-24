@@ -13,17 +13,17 @@ public interface OrdersService {
     List<Orders> findAll( int page, int size,
                          String sort,  String order,
                          Integer showTimes, String type,
-                         Integer userId,String status,Integer creation);
+                         Integer userId,String status,Integer creation,String dateGte);
 
     List<Orders> findAllMyOrders( int page, int size,
                           String sort,  String order,
-                          Integer showTimes, String type,String status,Integer creation);
+                          Integer showTimes, String type,String status,Integer creation,String dateGte);
 
     int findCountAllMyOrder(Integer showTimes, String type, String status,
-                            Integer creation);
+                            Integer creation,String dateGte);
 
     int findAllCount(Integer showTimes,String type,
-                     Integer userId,String status,Integer creation);
+                     Integer userId,String status,Integer creation,String dateGte);
     MyOrderResponse findById(int id);
     void delete(int id);
     int insert(Orders orders) throws SQLException;

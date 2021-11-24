@@ -79,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
                 var offerCode =
                         this.promotionRepository.checkPromotionCode(payment.getCode());
                 var offer = this.promotionRepository.findById(offerCode.getOfferId());
-                var discountAmount = this.getDiscountByCode(payment.getCode(),order.getTotalAmount(),offer);
+                var discountAmount = Utilities.getDiscountByCode(payment.getCode(),order.getTotalAmount(),offer);
                 var offerHistory = OfferHistory.builder()
                         .offerId(offer.getId())
                         .orderId(payment.getPartId())
@@ -115,10 +115,5 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    @Override
-    public double getDiscountByCode(String code, double amount, Offer offer) {
-        return offer.getType().equals(OfferTypeEnum.Flat.name()) ?
-                offer.getDiscountAmount() :
-                (amount / 100) * offer.getPercentage();
-    }
+
 }

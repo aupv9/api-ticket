@@ -5,9 +5,15 @@
 
     <select id="findAll" resultType="com.apps.domain.entity.OfferHistory">
         select * from offer_history
+        <if test="search != null">
+            join offer on offer.id = offer_id
+        </if>
         <where>
+            <if test="search != null">
+                offer.name like %#{search}%
+            </if>
             <if test="orderId != null">
-                order_id = #{orderId}
+                and order_id = #{orderId}
             </if>
             <if test="offerId != null">
                 and offer_id = #{offerId}
@@ -53,9 +59,15 @@
 
     <select id="findAllCount" resultType="INT">
         select count(*)  from offer_history
+        <if test="search != null">
+            join offer on offer.id = offer_id
+        </if>
         <where>
+            <if test="search != null">
+                offer.name like %#{search}%
+            </if>
             <if test="orderId != null">
-                order_id = #{orderId}
+                and order_id = #{orderId}
             </if>
             <if test="offerId != null">
                 and offer_id = #{offerId}

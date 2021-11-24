@@ -3,6 +3,7 @@ package com.apps.service.impl;
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.OrderStatus;
 import com.apps.contants.Utilities;
+import com.apps.domain.entity.Concession;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
@@ -11,9 +12,11 @@ import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.OrdersRepository;
 import com.apps.mybatis.mysql.PaymentRepository;
 import com.apps.request.MyOrderUpdateDto;
+import com.apps.response.entity.ConcessionMyOrder;
 import com.apps.response.entity.MyOrderResponse;
-import com.apps.service.OrdersService;
-import com.apps.service.UserService;
+import com.apps.response.entity.OrderSeats;
+import com.apps.service.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +33,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OrdersServiceImpl implements OrdersService {
 
     private final OrdersRepository ordersRepository;
@@ -38,14 +42,8 @@ public class OrdersServiceImpl implements OrdersService {
     private final UserService userService;
     private final ConcessionRepository concessionRepository;
     private final PaymentRepository paymentRepository;
-    public OrdersServiceImpl(OrdersRepository ordersRepository, OrdersCustomRepository ordersCustomRepository, ApplicationCacheManager cacheManager, UserService userService, ConcessionRepository concessionRepository, PaymentRepository paymentRepository) {
-        this.ordersRepository = ordersRepository;
-        this.ordersCustomRepository = ordersCustomRepository;
-        this.cacheManager = cacheManager;
-        this.userService = userService;
-        this.concessionRepository = concessionRepository;
-        this.paymentRepository = paymentRepository;
-    }
+    private final OfferHistoryService offerHistoryService;
+    private final PromotionService promotionService;
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() {
@@ -53,61 +51,63 @@ public class OrdersServiceImpl implements OrdersService {
         var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
-            if(!listOrdersDetail.isEmpty()){
+            if(listOrdersDetail.size() > 0){
                 for (Integer orderDetail: listOrdersDetail){
                     int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
                 }
             }
 
             var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
-            if(!listOrdersSeat.isEmpty()){
-                for (Integer orderSeat: listOrdersDetail){
+            if(listOrdersSeat.size() > 0){
+                for (Integer orderSeat: listOrdersSeat){
                     int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
                 }
+            }
+            int deleted = this.ordersRepository.delete(order);
 
-            }
-            var listOrdersDetailList = this.ordersRepository.findOrderDetailById(order);
-            var listOrdersSeatList = this.ordersRepository.findOrderSeatById(order);
-            if(listOrdersDetailList.isEmpty()  && listOrdersSeatList.isEmpty() ){
-                int deleted = this.ordersRepository.delete(order);
-            }
         }
     }
 
+    private List<Orders> addTotalToOrder(List<Orders> orders){
+        for (var order:orders){
+            order.setTotal(this.getTotalOrder(order));
+        }
+        return orders;
+    }
 
     @Override
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
-                                String type, Integer userId,String status,Integer creation) {
-
-        return this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation);
+                                String type, Integer userId,String status,Integer creation,String dateGte) {
+        return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte)));
     }
 
+
     @Override
-    public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation) {
-        return  this.ordersRepository.findMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext());
+    public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation,String dateGte) {
+        return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext(), this.convertLocalDate(dateGte)));
     }
 
-    @Override
-    public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation) {
-        return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,type,status,creation > 0 ? creation : null);
-    }
-
-    @Override
-    public int findAllCount(Integer showTimes, String type, Integer userId,String status,Integer creation) {
-        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation);
-    }
-
-    @Override
-    public MyOrderResponse findById(int id) {
-
-        Orders orders = this.ordersRepository.findById(id);
-        if(orders == null){
-            throw new NotFoundException("Not Find Object Have Id :" + id);
+    private String convertLocalDate(String date){
+        if(!date.isEmpty()){
+            return Utilities.convertIsoToDate(date);
         }
-        var concessions = this.concessionRepository.findAllConcessionInOrder(id);
-        var seats = this.ordersRepository.findSeatInOrders(id);
-        double totalAmount = 0.d;
+        return date;
+    }
+    @Override
+    public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation,String dateGte) {
+        return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,
+                type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte));
+    }
 
+    @Override
+    public int findAllCount(Integer showTimes, String type, Integer userId,String status,Integer creation,String dateGte) {
+        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation,this.convertLocalDate(dateGte));
+    }
+
+    private double getTotalOrder(Orders orders){
+        var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
+        var seats = this.ordersRepository.findSeatInOrders(orders.getId());
+        double totalAmount = 0.d;
         if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
             for (var concession: concessions){
                 totalAmount += concession.getPrice() * concession.getQuantity();
@@ -119,11 +119,36 @@ public class OrdersServiceImpl implements OrdersService {
             var payment = this.paymentRepository.findByIdOrder(orders.getId());
             totalAmount = payment.getAmount();
         }
+        return totalAmount;
+    }
 
+    private double getTotalOrder(List<ConcessionMyOrder> concessions, List<OrderSeats> seats,Orders orders){
+        double totalAmount = 0.d;
+        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+            for (var concession: concessions){
+                totalAmount += concession.getPrice() * concession.getQuantity();
+            }
+            for (var seat : seats){
+                totalAmount += seat.getPrice();
+            }
+        }else{
+            var payment = this.paymentRepository.findByIdOrder(orders.getId());
+            totalAmount = payment.getAmount();
+        }
+        return totalAmount;
+    }
 
+    @Override
+    public MyOrderResponse findById(int id) {
 
-
-        return MyOrderResponse.builder()
+        Orders orders = this.ordersRepository.findById(id);
+        if(orders == null){
+            throw new NotFoundException("Not Find Object Have Id :" + id);
+        }
+        var concessions = this.concessionRepository.findAllConcessionInOrder(id);
+        var seats = this.ordersRepository.findSeatInOrders(id);
+        double totalAmount = this.getTotalOrder(concessions,seats,orders);
+        var response = MyOrderResponse.builder()
                 .id(id)
                 .expirePayment(orders.getExpirePayment())
                 .concessions(concessions)
@@ -138,8 +163,15 @@ public class OrdersServiceImpl implements OrdersService {
                 .status(orders.getStatus())
                 .profile(orders.isProfile())
                 .userId(orders.getUserId())
-                .totalAmount(totalAmount)
                 .build();
+        var offerHistory = this.offerHistoryService.findByOrder(id);
+        if(offerHistory != null){
+            var offer = this.promotionService.findById(offerHistory.getOfferId());
+            var discountAmount = Utilities.getDiscountByCode(offerHistory.getCode(),totalAmount,offer);
+            response.setDiscountAmount(discountAmount);
+            response.setTotalAmount(totalAmount - response.getDiscountAmount());
+        }
+        return response;
     }
 
     @Override
