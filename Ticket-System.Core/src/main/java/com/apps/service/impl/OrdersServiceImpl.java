@@ -88,7 +88,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     private String convertLocalDate(String date){
-        if(!date.isEmpty()){
+        if(date != null && !date.isEmpty()){
             return Utilities.convertIsoToDate(date);
         }
         return date;

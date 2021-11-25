@@ -68,7 +68,8 @@ public class UserController {
     }
 
     @PutMapping("users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id")Integer id,@RequestBody UserDto userDto) {
+    public ResponseEntity<?> updateUser(@PathVariable("id")Integer id,
+                                        @RequestBody UserDto userDto) {
         userDto.setId(id);
         var resultUpdate = this.userService.update(userDto);
         var response = RAResponseUpdate.builder()
