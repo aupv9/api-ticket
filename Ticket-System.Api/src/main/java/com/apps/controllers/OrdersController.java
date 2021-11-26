@@ -49,8 +49,8 @@ public class OrdersController {
     }
 
     @GetMapping("my-orders")
-    public ResponseEntity<?> getMyOrders( @RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
+    public ResponseEntity<?> getMyOrders( @RequestParam(value = "pageSize", required = false,defaultValue = "100") Integer size,
+                                          @RequestParam(value = "page", required = false,defaultValue = "1")Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "user_id",  required = false,defaultValue = "0") Integer userId,

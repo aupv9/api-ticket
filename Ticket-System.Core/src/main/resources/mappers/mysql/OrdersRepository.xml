@@ -210,9 +210,6 @@
             <if test="order.status != null">
                 status = #{order.status}
             </if>
-            <if test="order.status != null">
-                status = #{order.status}
-            </if>
         </set>
         <where>
             id = #{order.id}

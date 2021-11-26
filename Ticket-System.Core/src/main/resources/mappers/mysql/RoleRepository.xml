@@ -108,7 +108,12 @@
             </if>
         </set>
         <where>
-            user_id = #{userId}
+            <if test="userId != null">
+                user_id = #{userId}
+            </if>
+            <if test="roleId != null">
+                and role_id = #{roleId}
+            </if>
         </where>
     </update>
 </mapper>

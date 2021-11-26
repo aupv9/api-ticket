@@ -16,7 +16,8 @@ public interface RoleRepository {
 
     int insertUserRole(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
     int insertRolePrivilege(@Param("roleId")Integer roleId,@Param("privilegeId")Integer privilegeId);
-    int updateRoleByUser(@Param("userId")Integer userId,@Param("roleId")Integer roleId);
+    int updateRoleByUser(@Param("userId")Integer userId,@Param("roleId")Integer roleId
+            ,@Param("newRoleId")Integer newRoleId);
 
     List<Role> findAll(@Param("limit") int limit,@Param("offset")int offset,@Param("sort")String sort,
                        @Param("order")String order,@Param("roleId") Integer roleId,@Param("search")String search);
@@ -37,6 +38,10 @@ public interface RoleRepository {
 
     List<UserRole> findUserRoleById(@Param("userId")Integer userId);
 
+    @Select("select * from user_role where role_id = #{roleId} and user_id = #{userId}")
+    UserRole findUserRoleByRoleAndUser(@Param("roleId")Integer roleId,
+                                       @Param("userId")Integer userId);
+
     List<RolePrivileges> findPrivilegesByRole(@Param("roleId")Integer roleId);
 
     List<Privilege> findPrivilegesById(@Param("id")Integer id);
@@ -47,6 +52,9 @@ public interface RoleRepository {
 
     @Delete("delete from privilege where id = #{id}")
     void deletePrivilege(@Param("id")Integer id);
+
+    @Delete("delete from user_role where user_id = #{userId}")
+    void deleteUserRoleByUser(@Param("userId")Integer userId);
 
     @Delete("delete from user_role where user_id = #{userId} and role_id = #{roleId}")
     void deleteUserRole(@Param("userId")Integer userId,@Param("roleId")Integer iroleIdd);

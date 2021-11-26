@@ -2,6 +2,10 @@ package com.apps.contants;
 
 
 import com.apps.domain.entity.Offer;
+import lombok.var;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
 import java.time.*;
@@ -35,5 +39,9 @@ public class Utilities {
         return offer.getType().equals(OfferTypeEnum.Flat.name()) ?
                 offer.getDiscountAmount() :
                 (amount / 100) * offer.getPercentage();
+    }
+    public static UserDetails getUserDetails (){
+        var authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        return  (UserDetails)authentication.getPrincipal();
     }
 }

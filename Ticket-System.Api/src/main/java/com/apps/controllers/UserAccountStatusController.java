@@ -30,7 +30,7 @@ public class UserAccountStatusController {
         var resultList = this.accountStatusService.findAll();
         var totalElements = this.accountStatusService.findAllCount();
         var response = ResponseRA.builder()
-                .content(Collections.singletonList(resultList))
+                .content(resultList)
                 .totalElements(totalElements)
                 .build();
         return ResponseEntity.ok(response);

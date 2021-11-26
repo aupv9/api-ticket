@@ -1,6 +1,8 @@
 package com.apps.service.impl;
 
+import com.apps.contants.EmployeeStatus;
 import com.apps.contants.UserStatus;
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.*;
 import com.apps.domain.repository.UserCustomRepository;
 import com.apps.exception.NotFoundException;
@@ -231,38 +233,44 @@ public class UserServiceImpl implements UserService {
                 .build();
         this.userAccountRepository.updateUserInfo(userInfo);
 
+        var userAccount = this.userAccountRepository.findUserById(userDto.getId());
         var modifiedBy = this.getUserFromContext();
-
-        UserAccount userAccount = UserAccount.builder()
-                .userInfoId(userInfo.getId())
-                .address(userDto.getAddress()).state(userDto.getAddress())
-                .city(userDto.getCity())
-                .modifiedDate(getNowDateTime())
-                .userAccountStatusId(userDto.getUasId())
-                .password(userDto.getPassword())
-                .modifiedBy(modifiedBy)
-                .build();
-        this.userAccountRepository.updateUserAccount(userAccount);
-        Role role  = roleRepository.findRoleById(userDto.getRoleId());
-        if(role == null) {
-            assert role != null;
-            throw new NotFoundException("Not Role Have Id:" + role.getId());
+        if(userAccount != null){
+            UserAccount usAccount = UserAccount.builder()
+                    .userInfoId(userInfo.getId())
+                    .address(userDto.getAddress()).state(userDto.getAddress())
+                    .city(userDto.getCity())
+                    .modifiedDate(getNowDateTime())
+                    .userAccountStatusId(userDto.getUasId())
+                    .password(userDto.getPassword())
+                    .modifiedBy(modifiedBy)
+                    .build();
+            this.userAccountRepository.updateUserAccount(usAccount);
         }
 
-        this.roleRepository.updateRoleByUser(userDto.getId(),userDto.getRoleId());
+        this.roleRepository.deleteUserRoleByUser(userDto.getId());
 
-        if(role.getName().equals(com.apps.contants.Role.STAFF.getName()) ||
-                role.getName().equals(com.apps.contants.Role.MANAGER.getName())){
-            var employee = this.employeeService.findByUserId(userInfo.getId());
-            if(employee != null){
-                employee.setRoleId(role.getId());
-                this.employeeService.update(employee);
-            }else{
-                this.employeeService.insert(userInfo.getId(),role.getId(),modifiedBy,"New",
-                        getNowDateTime());
+        for (var roleId: userDto.getRoleIds()){
+            var role = this.roleRepository.findRoleById(roleId);
+            if(role == null) {
+                throw new NotFoundException("Not Role Have Id:" + role.getId());
+            }
+            this.roleRepository.insertUserRole(userDto.getId(),roleId);
+            if(role.getName().equals(com.apps.contants.Role.STAFF.getName()) ||
+                    role.getName().equals(com.apps.contants.Role.MANAGER.getName())){
+                var employee = this.employeeService.findByUserId(userInfo.getId());
+                if(employee != null){
+                    employee.setRoleId(role.getId());
+                    employee.setStatus(EmployeeStatus.Active.name());
+                    this.employeeService.update(employee);
+                }else{
+                    this.employeeService
+                            .insert(userInfo.getId(),role.getId(),modifiedBy,EmployeeStatus.New.name(),
+                            getNowDateTime());
+                }
             }
         }
-        return userAccount.getUserInfoId();
+        return userInfo.getId();
     }
 
     @Override
@@ -353,8 +361,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int getUserFromContext() {
-        var authentication = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-        var userDetails = (UserDetails)authentication.getPrincipal();
+       var userDetails = Utilities.getUserDetails();
         int modifiedBy = 0;
         if(userDetails != null){
             String email = userDetails.getUsername();

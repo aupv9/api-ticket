@@ -210,7 +210,7 @@
         select user_info.id as id,email,
                last_login, full_name, photo,current_logged
         from user_info
-        where email = #{email} and is_login_social = true
+        where email = #{email} 
     </select>
 
 </mapper>

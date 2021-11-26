@@ -108,34 +108,47 @@ public class OrdersServiceImpl implements OrdersService {
         var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
         var seats = this.ordersRepository.findSeatInOrders(orders.getId());
         double totalAmount = 0.d;
-        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
-            for (var concession: concessions){
-                totalAmount += concession.getPrice() * concession.getQuantity();
-            }
-            for (var seat : seats){
-                totalAmount += seat.getPrice();
-            }
-        }else{
-            var payment = this.paymentRepository.findByIdOrder(orders.getId());
-            totalAmount = payment.getAmount();
+        for (var concession: concessions){
+            totalAmount += concession.getPrice() * concession.getQuantity();
         }
-        return totalAmount;
+        for (var seat : seats){
+            totalAmount += seat.getPrice();
+        }
+//        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+//
+//        }else{
+//            var payment = this.paymentRepository.findByIdOrder(orders.getId());
+//            if(payment != null){
+//                totalAmount = payment.getAmount();
+//            }
+//        }
+        var taxAmount = (totalAmount / 100) * orders.getTax();
+        return totalAmount + taxAmount;
     }
 
     private double getTotalOrder(List<ConcessionMyOrder> concessions, List<OrderSeats> seats,Orders orders){
         double totalAmount = 0.d;
-        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
-            for (var concession: concessions){
-                totalAmount += concession.getPrice() * concession.getQuantity();
-            }
-            for (var seat : seats){
-                totalAmount += seat.getPrice();
-            }
-        }else{
-            var payment = this.paymentRepository.findByIdOrder(orders.getId());
-            totalAmount = payment.getAmount();
+        for (var concession: concessions){
+            totalAmount += concession.getPrice() * concession.getQuantity();
         }
-        return totalAmount;
+        for (var seat : seats){
+            totalAmount += seat.getPrice();
+        }
+//        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+//            for (var concession: concessions){
+//                totalAmount += concession.getPrice() * concession.getQuantity();
+//            }
+//            for (var seat : seats){
+//                totalAmount += seat.getPrice();
+//            }
+//        }else{
+//            var payment = this.paymentRepository.findByIdOrder(orders.getId());
+//            if(payment != null){
+//                totalAmount = payment.getAmount();
+//            }
+//        }
+        var taxAmount = (totalAmount / 100) * orders.getTax();
+        return totalAmount + taxAmount;
     }
 
     @Override
@@ -197,8 +210,7 @@ public class OrdersServiceImpl implements OrdersService {
         Orders orders = Orders.builder()
                 .creation(userService.getUserFromContext())
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
-//                .totalAmount(orderDto.getTotalAmount())
-                .tax(10)
+                .total(orderDto.getTotalAmount())
                 .profile(orderDto.getTypeUser())
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
@@ -232,13 +244,18 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int updateMyOrder(MyOrderUpdateDto orders) {
+
         if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+            var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
+            var seats = this.ordersRepository.findSeatInOrders(orders.getId());
+            double totalAmount = this.getTotalOrder(concessions,seats,this.ordersRepository.findById(orders.getId()));
+            orders.setTotal(totalAmount);
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(orders.getId());
             for (Integer orderDetail: listOrdersDetail){
                 int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
             }
             var listOrdersSeat = this.ordersRepository.findOrderSeatById(orders.getId());
-            for (Integer orderSeat: listOrdersDetail){
+            for (Integer orderSeat: listOrdersSeat){
                 int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
             }
         }
@@ -255,6 +272,7 @@ public class OrdersServiceImpl implements OrdersService {
         order.setStatus(orders.getStatus());
         order.setUpdatedAt(Utilities.getCurrentTime());
         order.setUpdatedBy(userService.getUserFromContext()) ;
+        order.setTotal(order.getTotal());
         return this.ordersRepository.updateMyOrder(order);
     }
 }

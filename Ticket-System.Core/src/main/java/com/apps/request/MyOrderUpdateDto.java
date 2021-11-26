@@ -9,4 +9,5 @@ public class MyOrderUpdateDto {
     private String status;
     private Boolean typeUser = false;
     private String note;
+    private double total;
 }
