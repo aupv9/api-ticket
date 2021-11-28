@@ -101,13 +101,13 @@ public class UserServiceImpl implements UserService {
         return theaterId;
     }
 
-    public boolean isOverManager(){
+    public boolean isManager(){
         var userId = this.getUserFromContext();
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
             for (var role : userRoles ) {
                 var roleName = this.roleService.findRoleById(role.getRoleId());
-                if (roleName.getName().equals(com.apps.contants.Role.DIRECTOR.getName())) {
+                if (roleName.getName().equals(com.apps.contants.Role.MANAGER.getName())) {
                     return true;
                 }
             }

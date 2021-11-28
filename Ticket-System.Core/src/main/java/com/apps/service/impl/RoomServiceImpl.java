@@ -33,16 +33,16 @@ public class RoomServiceImpl implements RoomService {
     private UserServiceImpl userService;
 
     @Override
-    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
+//    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
     public List<Room> findAll(Integer page, Integer size, String sort, String order, String search,
                               Integer theater) {
-        return this.roomRepository.findAll(size,page * size,sort,order,search, this.userService.isOverManager() ?
-                null: theater);
+        return this.roomRepository.findAll(size,page * size,sort,order,search,theater);
     }
 
     @Override
     public int insert(Room room) throws SQLException {
         String sql = "INSERT INTO booksystem.room (code, name, theater_id,type) VALUES (?,?,?,?)";
+        room.setTheaterId(this.userService.getTheaterByUser());
         int result = this.roomCustomRepository.insert(room,sql);
         cacheManager.clearCache("RoomService");
         return result;
@@ -81,7 +81,7 @@ public class RoomServiceImpl implements RoomService {
     @Cacheable(value = "RoomService" ,key = "'findCountAllRoom_'+#search+'-'+#theater", unless = "#result == null")
     public int findCountAll(String search, Integer theater) {
         var theaterId = this.userService.getTheaterByUser();
-        return this.roomRepository.findCountAll(search,this.userService.isOverManager() ? null : theaterId);
+        return this.roomRepository.findCountAll(search, theater);
     }
 
 

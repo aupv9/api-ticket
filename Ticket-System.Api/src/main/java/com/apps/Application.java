@@ -92,18 +92,18 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     ApplicationRunner applicationRunner(){
         return args -> {
-//            DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-//            Instant instant = Instant.parse("2021-10-14T06:40:04.813Z");
-//            ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-//            ZonedDateTime zdt = instant.atZone(zoneId);
-//            Timestamp  timestamp = Timestamp.from(instant);
-//            System.out.println(timestamp);
+            DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+            Instant instant = Instant.parse("2021-10-28T17:05:22.523Z");
+            ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+            ZonedDateTime zdt = instant.atZone(zoneId);
+            Timestamp  timestamp = Timestamp.from(instant);
+            System.out.println(timestamp);
 
-            Snowflake snowflake = new Snowflake(1, 1);
-            for (int i = 0; i < 100; i++) {
-                long id = snowflake.nextId();
-                System.out.println(id);
-            }
+//            Snowflake snowflake = new Snowflake(1, 1);
+//            for (int i = 0; i < 100; i++) {
+//                long id = snowflake.nextId();
+//                System.out.println(id);
+//            }
         };
     }
 

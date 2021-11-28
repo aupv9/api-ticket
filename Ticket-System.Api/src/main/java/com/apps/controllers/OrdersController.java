@@ -26,9 +26,31 @@ public class OrdersController {
         this.ordersService = ordersService;
     }
 
+    @GetMapping("orders-room")
+    public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "pageSize", required = false) Integer size,
+                                          @RequestParam(value = "page", required = false)Integer page,
+                                          @RequestParam(value = "sort", required = false) String sort,
+                                          @RequestParam(value = "order", required = false) String order,
+                                          @RequestParam(value = "user_id",  required = false) Integer userId,
+                                          @RequestParam(value = "type",  required = false) String type,
+                                          @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
+                                          @RequestParam(value = "status", required = false) String status,
+                                          @RequestParam(value = "creation", required = false) Integer creation,
+                                          @RequestParam(value = "date_gte", required = false) String dateGte
+    ){
+        var resultList = this.ordersService.findAllOrderRoom(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation,dateGte);
+
+        var totalElements = resultList.size();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("orders")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
+    public ResponseEntity<?> getOrders(@RequestParam(value = "pageSize", required = false) Integer size,
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
@@ -40,7 +62,7 @@ public class OrdersController {
                                           @RequestParam(value = "date_gte", required = false) String dateGte
                                           ){
         var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation,dateGte);
-        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation,dateGte);
+        var totalElements = resultList.size();
         var response = ResponseRA.builder()
                                     .content(resultList)
                                     .totalElements(totalElements)
@@ -63,7 +85,7 @@ public class OrdersController {
     ){
 
         var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation,dateGte);
-        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation,dateGte);
+        var totalElements = resultList.size();
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -122,4 +144,5 @@ public class OrdersController {
         this.ordersService.delete(id);
         return ResponseEntity.ok(id);
     }
+
 }

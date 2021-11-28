@@ -100,6 +100,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             throw new NotFoundException("Not Found Object have Id:" + id);
         }
         showTimesDetail.setTheaterId(room.getTheaterId());
+        showTimesDetail.setRoomName(room.getName());
         return showTimesDetail;
     }
 

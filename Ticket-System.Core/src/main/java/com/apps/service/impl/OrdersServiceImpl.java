@@ -4,6 +4,7 @@ import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.OrderStatus;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Concession;
+import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
@@ -11,6 +12,7 @@ import com.apps.mapper.OrderDto;
 import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.OrdersRepository;
 import com.apps.mybatis.mysql.PaymentRepository;
+import com.apps.mybatis.mysql.ShowTimesDetailRepository;
 import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.ConcessionMyOrder;
 import com.apps.response.entity.MyOrderResponse;
@@ -27,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +47,9 @@ public class OrdersServiceImpl implements OrdersService {
     private final PaymentRepository paymentRepository;
     private final OfferHistoryService offerHistoryService;
     private final PromotionService promotionService;
+    private final ShowTimesDetailService showTimesDetailService;
+    private final TheaterService theaterService;
+    private final LocationService locationService;
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() {
@@ -70,7 +76,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     private List<Orders> addTotalToOrder(List<Orders> orders){
         for (var order:orders){
-            order.setTotal(this.getTotalOrder(order));
+            if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+                order.setTotal(this.getTotalOrder(order));
+            }
         }
         return orders;
     }
@@ -78,30 +86,71 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
-        return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte)));
+        return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,
+                order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte),null));
+    }
+
+    @Override
+    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+
+        return this.addInfoToOrders(this.findAll(page,size,sort,
+                order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte)));
+    }
+
+    private List<OrderRoomDto> addInfoToOrders(List<Orders> orders){
+        var ordersRoom = new ArrayList<OrderRoomDto>();
+        for (var order: orders){
+            var orderRoom = OrderRoomDto.builder()
+                    .userId(order.getUserId()).createdDate(order.getCreatedDate())
+                    .creation(order.getCreation()).expirePayment(order.getExpirePayment())
+                    .id(order.getId()).tax(order.getTax()).profile(order.isProfile())
+                    .note(order.getNote()).status(order.getStatus()).total(order.getTotal())
+                    .updatedBy(order.getUpdatedBy()).updatedAt(order.getUpdatedAt())
+                    .showTimesDetailId(order.getShowTimesDetailId())
+                    .build();
+
+            var showTimes = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+            orderRoom.setRoomName(showTimes.getRoomName());
+            orderRoom.setTimeEnd(showTimes.getTimeEnd());
+            orderRoom.setTimeStart(showTimes.getTimeStart());
+            var theater = this.theaterService.findById(showTimes.getTheaterId());
+            orderRoom.setTheaterName(theater.getName());
+            var location  = this.locationService.findById(theater.getLocationId());
+            orderRoom.setLocationName(location.getName());
+            ordersRoom.add(orderRoom);
+        }
+        return ordersRoom;
+    }
+
+    @Override
+    public List<Orders> findCountAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+        return null;
     }
 
 
     @Override
     public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation,String dateGte) {
-        return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext(), this.convertLocalDate(dateGte)));
+        return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,
+                sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext(),
+                this.convertLocalDate(dateGte),true));
     }
 
     private String convertLocalDate(String date){
         if(date != null && !date.isEmpty()){
             return Utilities.convertIsoToDate(date);
         }
-        return date;
+        return null;
     }
+
     @Override
     public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation,String dateGte) {
         return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,
-                type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte));
+                type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte),true);
     }
 
     @Override
     public int findAllCount(Integer showTimes, String type, Integer userId,String status,Integer creation,String dateGte) {
-        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation,this.convertLocalDate(dateGte));
+        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation,this.convertLocalDate(dateGte),null);
     }
 
     private double getTotalOrder(Orders orders){
@@ -157,6 +206,9 @@ public class OrdersServiceImpl implements OrdersService {
         Orders orders = this.ordersRepository.findById(id);
         if(orders == null){
             throw new NotFoundException("Not Find Object Have Id :" + id);
+        }
+        if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+
         }
         var concessions = this.concessionRepository.findAllConcessionInOrder(id);
         var seats = this.ordersRepository.findSeatInOrders(id);
@@ -219,7 +271,6 @@ public class OrdersServiceImpl implements OrdersService {
                 .createdDate(Utilities.getCurrentTime())
                 .note("")
                 .build();
-
         int idOrderCreated = this.insert(orders);
         if(idOrderCreated > 0){
             for (Integer seat : orderDto.getSeats()){
@@ -249,6 +300,7 @@ public class OrdersServiceImpl implements OrdersService {
             var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
             var seats = this.ordersRepository.findSeatInOrders(orders.getId());
             double totalAmount = this.getTotalOrder(concessions,seats,this.ordersRepository.findById(orders.getId()));
+
             orders.setTotal(totalAmount);
             var listOrdersDetail = this.ordersRepository.findOrderDetailById(orders.getId());
             for (Integer orderDetail: listOrdersDetail){
@@ -263,16 +315,15 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     private int updateOrder(MyOrderUpdateDto orders){
-        var myOrder = this.findById(orders.getId());
         var order = new Orders();
-        order.setId(myOrder.getId());
+        order.setId(orders.getId());
         order.setProfile(orders.getTypeUser());
         order.setUserId(orders.getTypeUser() ? orders.getUserId() : 0);
         order.setNote(orders.getNote());
         order.setStatus(orders.getStatus());
         order.setUpdatedAt(Utilities.getCurrentTime());
         order.setUpdatedBy(userService.getUserFromContext()) ;
-        order.setTotal(order.getTotal());
+        order.setTotal(orders.getTotal());
         return this.ordersRepository.updateMyOrder(order);
     }
 }

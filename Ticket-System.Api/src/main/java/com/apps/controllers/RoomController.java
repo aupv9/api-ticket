@@ -21,7 +21,6 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin("*")
 public class RoomController {
 
     @Autowired
@@ -38,7 +37,7 @@ public class RoomController {
                                           @RequestParam(value = "search", required = false) String search){
         var theaterId = this.userService.getTheaterByUser();
         var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId);
-        var totalElement = this.roomService.findCountAll(search,theaterId);
+        var totalElement =resultList.size();
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElement)

@@ -24,11 +24,11 @@ public class Utilities {
     }
 
     public static String convertIsoToDate(String date){
-        Instant instant = Instant.parse(date);
+//        Instant instant = Instant.parse(date);
 //        ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
 //        ZonedDateTime zdt = instant.atZone(zoneId);
-        Timestamp  timestamp = Timestamp.from(instant);
-        return timestamp.toLocalDateTime().format(dateFormatter);
+        return LocalDate.parse(date).format(dateFormatter);
+//        return timestamp.toLocalDateTime().format(dateFormatter);
     }
 
     public static String getTimeExpirePayment5m(){

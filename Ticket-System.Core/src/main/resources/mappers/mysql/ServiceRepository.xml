@@ -1,0 +1,67 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.ServiceRepository">
+
+    <select id="findAll" resultType="com.apps.domain.entity.Service">
+        select * from service
+        <where>
+            <if test="search != null">
+                name like concat('%',#{search},'%')
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'name'">
+                    name
+                </when>
+                <otherwise>
+                    description
+                </otherwise>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+    <select id="findById" resultType="com.apps.domain.entity.Service">
+        select * from service where id = #{id}
+    </select>
+
+    <update id="update" >
+        update service
+        <set>
+            <if test="service.name != null">
+                name = #{service.name},
+            </if>
+            <if test="service.name != null">
+                desciption = #{service.desciption},
+            </if>
+            <if test="service.thumbnail != null">
+                thumbnail = #{service.thumbnail},
+            </if>
+        </set>
+        where id = #{service.id}
+    </update>
+
+    <delete id="delete">
+        delete from service where id = #{id}
+    </delete>
+
+    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO booksystem.room (code, name, theater_id,type)
+        VALUES (#{room.code},#{room.name},#{room.theaterId},#{room.type})
+        <selectKey keyProperty="returnedId" order="AFTER" resultType="INT" >
+            SELECT LAST_INSERT_ID() as returnedId;
+        </selectKey>
+    </insert>
+
+</mapper>
