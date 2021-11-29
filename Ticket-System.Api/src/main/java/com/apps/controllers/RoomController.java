@@ -3,6 +3,7 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.UserAccountStatus;
+import com.apps.request.RoomDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.response.ResponseStatus;
@@ -51,7 +52,7 @@ public class RoomController {
     }
 
     @PostMapping(value = "/rooms")
-    public ResponseEntity<?> createRoom(@RequestBody Room room) throws SQLException {
+    public ResponseEntity<?> createRoom(@RequestBody RoomDto room) throws SQLException {
         int id = this.roomService.insert(room);
         room.setId(id);
         System.out.println(id);

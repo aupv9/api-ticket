@@ -1,11 +1,16 @@
 package com.apps.controllers;
 
+import com.apps.domain.entity.Room;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
+import com.apps.response.RoleDto;
 import com.apps.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 
 @RestController
@@ -63,7 +68,6 @@ public class RoleController {
     }
 
 
-
     @GetMapping("privileges/{id}")
     public ResponseEntity<?> getPrivilege(@PathVariable(value = "id", required = false) Integer id){
         var result = this.roleService.findPrivilegeById(id);
@@ -76,6 +80,17 @@ public class RoleController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping(value = "roles/{id}")
+    public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id,
+                                        @RequestBody RoleDto roleDto){
+        roleDto.setId(id);
+        int result = this.roleService.update(roleDto);
+        var response = RAResponseUpdate.builder()
+                .id(result)
+                .previousData(result)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
 
 //

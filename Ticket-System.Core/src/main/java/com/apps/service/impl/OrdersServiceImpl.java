@@ -163,14 +163,6 @@ public class OrdersServiceImpl implements OrdersService {
         for (var seat : seats){
             totalAmount += seat.getPrice();
         }
-//        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
-//
-//        }else{
-//            var payment = this.paymentRepository.findByIdOrder(orders.getId());
-//            if(payment != null){
-//                totalAmount = payment.getAmount();
-//            }
-//        }
         var taxAmount = (totalAmount / 100) * orders.getTax();
         return totalAmount + taxAmount;
     }
@@ -183,19 +175,6 @@ public class OrdersServiceImpl implements OrdersService {
         for (var seat : seats){
             totalAmount += seat.getPrice();
         }
-//        if(!orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
-//            for (var concession: concessions){
-//                totalAmount += concession.getPrice() * concession.getQuantity();
-//            }
-//            for (var seat : seats){
-//                totalAmount += seat.getPrice();
-//            }
-//        }else{
-//            var payment = this.paymentRepository.findByIdOrder(orders.getId());
-//            if(payment != null){
-//                totalAmount = payment.getAmount();
-//            }
-//        }
         var taxAmount = (totalAmount / 100) * orders.getTax();
         return totalAmount + taxAmount;
     }

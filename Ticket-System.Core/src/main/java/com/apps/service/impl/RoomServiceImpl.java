@@ -6,6 +6,7 @@ import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.RoomCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoomRepository;
+import com.apps.request.RoomDto;
 import com.apps.service.RoomService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public int insert(Room room) throws SQLException {
+    public int insert(RoomDto room) throws SQLException {
         String sql = "INSERT INTO booksystem.room (code, name, theater_id,type) VALUES (?,?,?,?)";
-        room.setTheaterId(this.userService.getTheaterByUser());
-        int result = this.roomCustomRepository.insert(room,sql);
+        var room1 = Room.builder()
+                .name(room.getName()).code(room.getCode())
+
+                .build();
+        if(room.getTheaterId() != 0){
+            room1.setTheaterId(room.getTheaterId());
+        }else{
+            room.setTheaterId(this.userService.getTheaterByUser());
+        }
+        int result = this.roomCustomRepository.insert(room1,sql);
         cacheManager.clearCache("RoomService");
         return result;
     }

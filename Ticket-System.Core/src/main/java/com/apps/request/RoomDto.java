@@ -1,4 +1,4 @@
-package com.apps.domain.entity;
+package com.apps.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,13 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Role implements Serializable {
-    private static final long serialVersionUID = -7429850472498926355L;
+public class RoomDto implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Integer id;
     private String code;
     private String name;
+    private Integer theaterId;
+    private Integer[] services;
+    private boolean active;
 }

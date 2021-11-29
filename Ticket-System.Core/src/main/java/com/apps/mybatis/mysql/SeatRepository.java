@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface SeatRepository {
 
-    List<Seat> findAll(@Param("limit") Integer page, @Param("offset") Integer size,
+    List<Seat> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                        @Param("sort") String sort, @Param("order") String order,
                        @Param("search") String search, @Param("room") Integer room);
 
@@ -22,7 +22,7 @@ public interface SeatRepository {
     List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesId") Integer showTimesDetailId, @Param("roomId") Integer roomId);
     int findCountAll(@Param("search") String search, @Param("room") Integer room);
 
-    @Select("Select * from seat where room_id =#{room}")
+    @Select("Select * from seat where room_id =#{room} ")
     List<Seat> findByRoom(@Param("room") Integer room);
 
 

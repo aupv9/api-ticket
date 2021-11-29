@@ -55,6 +55,8 @@ public class TheaterServiceImpl implements TheaterService {
             theater1.setLatitude(theater.getLatitude());
             theater1.setLongitude(theater.getLongitude());
             theater1.setLocationId(theater.getLocationId());
+            theater1.setActive(theater.isActive());
+            theater1.setAddress(theater.getAddress());
         int result = this.theaterRepository.update(theater1);
         cacheManager.clearCache("TheaterService");
         return result;
@@ -65,9 +67,11 @@ public class TheaterServiceImpl implements TheaterService {
     public void deleteById(Integer id) {
         Theater theater = this.findById(id);
         this.theaterRepository.delete(theater.getId());
+        cacheManager.clearCache("TheaterService");
     }
 
     @Override
+    @Cacheable(value = "TheaterService" ,key = "'findByLocation_Theater_'+#id" , unless = "#result == null")
     public Theater findByLocation(Integer id) {
         return this.theaterRepository.findByLocation(id);
     }

@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
+import com.apps.request.RoomDto;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ public interface RoomService {
                        String sort, String order,
                        String search,
                        Integer theater);
-    int insert(Room room) throws SQLException;
+    int insert(RoomDto room) throws SQLException;
     Room findById(Integer id);
     int update(Room room);
     void delete(Integer id);

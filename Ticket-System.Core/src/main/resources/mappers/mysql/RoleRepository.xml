@@ -89,7 +89,7 @@
         select * from roles_privileges where role_id = #{roleId}
     </select>
     <select id="findPrivilegesById" resultType="com.apps.domain.entity.Privilege">
-        select * from privileges where id = #{id}
+        select * from privilege where id = #{id}
     </select>
 
     <insert id="insertUserRole">

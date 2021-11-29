@@ -117,8 +117,8 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public List<Seat> findByRoom(Integer room,Integer showTimes) {
-        var arrSeat = this.seatRepository.findByRoom(room);
+    public List<Seat> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes) {
+        var arrSeat = this.seatRepository.findAll(size,(page -1 ) * size,sort,order,null,room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
 
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
@@ -141,19 +141,23 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public List<Seat> findByShowTimes(int showTimes) {
-        var showTimesDetail = this.showTimesDetailService.findById(showTimes);
-        if(showTimesDetail != null){
-
-           return this.findByRoom(showTimesDetail.getRoomId(),showTimes);
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
     public List<List<Seat>> findByRoomShow(Integer showTimesDetailId, Integer roomId) {
-        var arrSeat = this.findByRoom(showTimesDetailId,roomId);
-        var seatWithRow = this.seatToSeat(arrSeat);
-        return seatWithRow;
+        return null;
     }
+
+//    @Override
+//    public List<Seat> findByShowTimes(int showTimes) {
+//        var showTimesDetail = this.showTimesDetailService.findById(showTimes);
+//        if(showTimesDetail != null){
+//           return this.findByRoom(null,showTimesDetail.getRoomId(),showTimes);
+//        }
+//        return new ArrayList<>();
+//    }
+
+//    @Override
+//    public List<List<Seat>> findByRoomShow(Integer showTimesDetailId, Integer roomId) {
+//        var arrSeat = this.findByRoom(showTimesDetailId,roomId);
+//        var seatWithRow = this.seatToSeat(arrSeat);
+//        return seatWithRow;
+//    }
 }

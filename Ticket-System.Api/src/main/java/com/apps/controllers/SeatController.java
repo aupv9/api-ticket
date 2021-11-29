@@ -39,11 +39,11 @@ public class SeatController {
 
     @GetMapping("seats")
     public ResponseEntity<?> getSeats(@RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
-                                          @RequestParam(value = "sort", required = false) String sort,
-                                          @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "search", required = false) String search,
-                                          @RequestParam(value = "room_id",required = false) Integer room){
+                                      @RequestParam(value = "page", required = false)Integer page,
+                                      @RequestParam(value = "sort", required = false) String sort,
+                                      @RequestParam(value = "order", required = false) String order,
+                                      @RequestParam(value = "search", required = false) String search,
+                                      @RequestParam(value = "room_id",required = false) Integer room){
         var result  = seatService.findAll(page - 1, size, sort, order,  search,  room);
         var totalElement = seatService.findCountAll(search,room);
         var response = ResponseRA.builder()
@@ -57,26 +57,36 @@ public class SeatController {
 
 
     @GetMapping("seats-room")
-    public ResponseEntity<?> getSeatByRoom(@RequestParam("showTimesId") Integer id,
+    public ResponseEntity<?> getSeatByRoom(@RequestParam(value = "pageSize", required = false,defaultValue = "100") Integer size,
+                                           @RequestParam(value = "page", required = false,defaultValue = "1")Integer page,
+                                           @RequestParam(value = "sort", required = false) String sort,
+                                           @RequestParam(value = "order", required = false) String order,
+                                           @RequestParam("showTimesId") Integer id,
                                            @RequestParam("room") Integer room){
-        var result  = seatService.findByRoom(room,id);
+        var result  = seatService.findByRoom(page,size,sort,order,room,id);
+        var totalElement = seatService.findCountAll(null,room);
+
         var response = ResponseRA.builder()
                 .content(result)
-                .totalElements(result.size())
+                .totalElements(totalElement)
                 .build();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("seats-room-shows")
-    public ResponseEntity<?> getSeatByRoomShow(@RequestParam("showTimesId") Integer id,
-                                           @RequestParam("room") Integer room){
-        var result  = seatService.findByRoomShow(room,id);
-        var response = ResponseRA.builder()
-                .content(result)
-                .totalElements(result.size())
-                .build();
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("seats-room-shows")
+//    public ResponseEntity<?> getSeatByRoomShow(@RequestParam(value = "pageSize", required = false) Integer size,
+//                                               @RequestParam(value = "page", required = false)Integer page,
+//                                               @RequestParam(value = "sort", required = false) String sort,
+//                                               @RequestParam(value = "order", required = false) String order,
+//                                               @RequestParam("showTimesId") Integer id,
+//                                               @RequestParam("room") Integer room){
+//        var result  = seatService.findByRoomShow(,room,id);
+//        var response = ResponseRA.builder()
+//                .content(result)
+//                .totalElements(result.size())
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
 
 
 

@@ -6,7 +6,7 @@
     <select id="findAll" resultType="com.apps.domain.entity.Theater">
         select theater.id, theater.name,code, location_id,
         theater.latitude, theater.longitude, thumbnail,image, l.name as locationName,
-        address
+        address,active
         from theater
         join location l on theater.location_id = l.id
         <where>
@@ -38,7 +38,9 @@
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
-        limit #{limit} offset #{offset}
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
     </select>
 
     <select id="findCountAll" resultType="INT">
@@ -65,28 +67,28 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-
         insert into booksystem.theater(code, name, location_id, latitude, longitude,thumbnail,image)
         VALUES (#{entity.code},#{entity.name},#{entity.locationId},
                 #{entity.latitude},#{entity.longitude},
-                #{entity.thumbnail},#{entity.image})
-
+                #{entity.thumbnail},#{entity.image},#{entity.active})
         <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
             SELECT LAST_INSERT_ID();
         </selectKey>
-
     </insert>
 
     <update id="update" parameterType="com.apps.domain.entity.Theater">
-        update theater set
-                        code = #{theater.code},
-                        name = #{theater.name},
-                        latitude = #{theater.latitude},
-                        longitude = #{theater.longitude},
-                        thumbnail = #{theater.thumbnail},
-                        image = #{theater.image},
-                        location_id = #{theater.locationId}
-                where id = #{theater.id}
+        update theater
+        <set>
+            code = #{theater.code},
+            name = #{theater.name},
+            latitude = #{theater.latitude},
+            longitude = #{theater.longitude},
+            thumbnail = #{theater.thumbnail},
+            image = #{theater.image},
+            location_id = #{theater.locationId},
+            active = #{theater.active}
+        </set>
+        where id = #{theater.id}
     </update>
 
     <delete id="delete">

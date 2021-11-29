@@ -19,4 +19,5 @@ public class Theater implements Serializable {
     private String thumbnail;
     private String image;
     private String address;
+    private boolean active;
 }

@@ -4,11 +4,12 @@ import com.apps.domain.entity.Privilege;
 import com.apps.domain.entity.Role;
 import com.apps.domain.entity.RolePrivileges;
 import com.apps.domain.entity.UserRole;
+import com.apps.response.RoleDto;
 
 import java.util.List;
 
 public interface RoleService {
-    Role findRoleById(Integer id);
+    RoleDto findRoleById(Integer id);
     List<Role> findAllRole(int limit,int offset,String sort,String order,Integer roleId,String search);
     int findAllCountRole( Integer roleId);
     List<UserRole> findUserRoleById(Integer userId);
@@ -31,4 +32,6 @@ public interface RoleService {
     void deleteUserRole(Integer userId,Integer iroleIdd);
 
     void deleteRolePrivilege(Integer roleId,Integer privilegeId);
+
+    int update(RoleDto roleDto);
 }

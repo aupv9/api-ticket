@@ -6,6 +6,7 @@ import com.apps.domain.entity.RolePrivileges;
 import com.apps.domain.entity.UserRole;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoleRepository;
+import com.apps.response.RoleDto;
 import com.apps.service.RoleService;
 import lombok.var;
 import org.apache.ibatis.annotations.Param;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -27,8 +29,13 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role findRoleById(Integer id) {
-        return this.roleRepository.findRoleById(id);
+    public RoleDto findRoleById(Integer id) {
+        var role = this.roleRepository.findRoleById(id);
+        var privileges = this.roleRepository.findPrivilegesByRole(role.getId());
+        return RoleDto.builder()
+                .id(role.getId()).name(role.getName()).code(role.getCode())
+                .privileges(privileges.stream().map(RolePrivileges::getPrivilegeId).collect(Collectors.toList()))
+                .build();
     }
 
     @Override
@@ -99,6 +106,18 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void deleteRolePrivilege(Integer roleId, Integer privilegeId) {
         this.roleRepository.deleteRolePrivilege(roleId,privilegeId);
+    }
+
+    @Override
+    public int update(RoleDto roleDto) {
+        var role = Role.builder()
+                .id(roleDto.getId()).name(roleDto.getName()).code(roleDto.getCode())
+                .build();
+        this.roleRepository.deleteRolePrivilegeByRole(roleDto.getId());
+        for (var privileges : roleDto.getPrivileges()){
+            this.roleRepository.insertRolePrivileges(roleDto.getId(),privileges);
+        }
+        return this.roleRepository.updateRole(role);
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities(final List<UserRole> roles) {
