@@ -1,13 +1,19 @@
 package com.apps.response.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 @Data
-public class OrderSeats {
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class OrderSeats implements Serializable {
 
-//    orders_id,seat_id, seat_type, tier, numbers,
-//    price
+     private static final long serialVersionUID = -2541672333875751258L;
      private Integer ordersId,seatId,numbers;
-     private Double price;
-     private String tier, seatType;
+     private String seatType,tier;
 }

@@ -14,7 +14,7 @@ public class Payment implements Serializable {
     private String status = PaymentStatus.Pending.getValue();
     private Integer paymentMethodId = 1;
     private String createdDate,updatedDate,note,transactionId;
-    private String useFor = "Ticket",code;
+    private String useFor = "Ticket",code = "";
     private Integer partId = 0, creation = 0,updatedBy = 0,userId = 0;
 
 }

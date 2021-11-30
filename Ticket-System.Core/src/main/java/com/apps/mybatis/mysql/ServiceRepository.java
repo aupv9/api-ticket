@@ -12,4 +12,5 @@ public interface ServiceRepository {
     Service findById(@Param("id")Integer id);
     int update(@Param("service")Service service);
     int delete(@Param("id")Integer id);
+    int insertRoomService(@Param("roomId")Integer roomId,@Param("serviceId")Integer serviceId);
 }

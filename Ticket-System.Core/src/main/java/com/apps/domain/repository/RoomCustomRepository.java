@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 
-@Component("commonRepository")
+@Component
 public class RoomCustomRepository implements Repository<Room>{
 
     @Autowired
@@ -28,7 +28,6 @@ public class RoomCustomRepository implements Repository<Room>{
             stmt.setString(1,room.getCode());
             stmt.setString(2,room.getName());
             stmt.setInt(3,room.getTheaterId());
-            stmt.setString(4,room.getType());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

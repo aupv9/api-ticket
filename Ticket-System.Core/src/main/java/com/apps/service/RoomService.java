@@ -16,7 +16,7 @@ public interface RoomService {
                        Integer theater);
     int insert(RoomDto room) throws SQLException;
     Room findById(Integer id);
-    int update(Room room);
+    int update(RoomDto room);
     void delete(Integer id);
     int findCountAll(String search, Integer theater);
 

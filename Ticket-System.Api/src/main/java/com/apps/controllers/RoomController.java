@@ -35,10 +35,11 @@ public class RoomController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "search", required = false) String search){
-        var theaterId = this.userService.getTheaterByUser();
+                                          @RequestParam(value = "search", required = false) String search,
+                                          @RequestParam(value = "theater_id", required = false,defaultValue = "0") Integer theaterId
+                                          ){
         var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId);
-        var totalElement =resultList.size();
+        var totalElement =this.roomService.findCountAll(search,theaterId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElement)
@@ -60,7 +61,7 @@ public class RoomController {
     }
 
     @PutMapping(value = "/rooms/{id}")
-    public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id,@RequestBody Room room) throws SQLException {
+    public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id,@RequestBody RoomDto room) throws SQLException {
 
         room.setId(id);
         int result = this.roomService.update(room);
@@ -69,7 +70,7 @@ public class RoomController {
                 .previousData(result)
                 .build();
 
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping(value = "/rooms/{id}")

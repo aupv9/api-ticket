@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Builder
 public class OrderRoomDto  implements Serializable {
     private static final long serialVersionUID = 4397172531321858408L;
-    private float tax;
+    private double tax;
     private Integer showTimesDetailId,userId,updatedBy = 0,creation,id;
     private String movieName,note,status,createdDate,expirePayment,
             updatedAt,timeStart,roomName,theaterName,locationName,timeEnd;

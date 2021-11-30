@@ -6,6 +6,7 @@ import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.SeatCustomRepository;
 import com.apps.mapper.ReservedDto;
 import com.apps.mybatis.mysql.SeatRepository;
+import com.apps.request.SeatDto;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
@@ -50,8 +51,12 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public int insert(Seat seat) throws SQLException {
-        String sql = "insert into seat(price, seat_type, tier, numbers,room_id) VALUES (?,?,?,?,?)";
+    public int insert(SeatDto seatDto) throws SQLException {
+        String sql = "insert into seat(seat_type, tier, numbers,room_id) VALUES (?,?,?,?)";
+        var seat = Seat.builder()
+                .tier(seatDto.getTier()).numbers(seatDto.getNumbers())
+                .seatType(seatDto.getSeatType()).roomId(seatDto.getRoomId())
+                .build();
         int result = this.seatCustomRepository.insert(seat,sql);
         if(result < 0) return 0;
         cacheManager.clearCache("SeatService");
@@ -65,7 +70,6 @@ public class SeatServiceImpl implements SeatService {
         seat1.setRoomId(seat.getRoomId());
         seat1.setTier(seat.getTier());
         seat1.setNumbers(seat.getNumbers());
-        seat1.setPrice(seat.getPrice());
         int result = this.seatRepository.update(seat1);
         if(result < 0) return 0;
         cacheManager.clearCache("SeatService");

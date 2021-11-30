@@ -160,9 +160,11 @@ public class OrdersServiceImpl implements OrdersService {
         for (var concession: concessions){
             totalAmount += concession.getPrice() * concession.getQuantity();
         }
+        var showTime = this.showTimesDetailService.findById(orders.getShowTimesDetailId());
         for (var seat : seats){
-            totalAmount += seat.getPrice();
+            totalAmount += showTime.getPrice();
         }
+
         var taxAmount = (totalAmount / 100) * orders.getTax();
         return totalAmount + taxAmount;
     }
@@ -172,8 +174,10 @@ public class OrdersServiceImpl implements OrdersService {
         for (var concession: concessions){
             totalAmount += concession.getPrice() * concession.getQuantity();
         }
+        var showTime = this.showTimesDetailService.findById(orders.getShowTimesDetailId());
+
         for (var seat : seats){
-            totalAmount += seat.getPrice();
+            totalAmount += showTime.getPrice();
         }
         var taxAmount = (totalAmount / 100) * orders.getTax();
         return totalAmount + taxAmount;
@@ -226,7 +230,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int insert(Orders orders) throws SQLException {
-        String sql = "Insert into orders(user_id,showtimes_detail_id,tax,created_date,note,creation,profile,status,expire_payment) values (?,?,?,?,?,?,?,?,?)";
+        String sql = "Insert into orders(user_id,showtimes_detail_id,created_date,note,creation,profile,status,expire_payment,total) values (?,?,?,?,?,?,?,?,?)";
         return this.ordersCustomRepository.insert(orders,sql);
     }
 
@@ -237,11 +241,11 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int orderNonPayment(OrderDto orderDto) throws SQLException {
-
+        var taxAmount = (orderDto.getTotalAmount() / 100) * 10;
         Orders orders = Orders.builder()
                 .creation(userService.getUserFromContext())
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
-                .total(orderDto.getTotalAmount())
+                .total(orderDto.getTotalAmount() + taxAmount)
                 .profile(orderDto.getTypeUser())
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())

@@ -1,8 +1,8 @@
 package com.apps.service;
 
 import com.apps.domain.entity.Seat;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.apps.request.SeatDto;
+
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,7 +12,7 @@ public interface SeatService {
     int findCountAll(String search, Integer room);
 
 
-    int insert(Seat seat) throws SQLException;
+    int insert(SeatDto seat) throws SQLException;
     int update(Seat seat);
 
     Seat findById(Integer id);

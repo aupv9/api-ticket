@@ -4,7 +4,8 @@
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
-        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
+               price
         <if test="theaterId != null">
             ,r.theater_id  as theaterId
         </if>
@@ -63,7 +64,9 @@
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
-        limit #{limit} offset #{offset}
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
     </select>
 
     <select id="findCountAll" resultType="INT">

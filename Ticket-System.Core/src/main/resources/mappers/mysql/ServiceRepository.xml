@@ -56,9 +56,9 @@
         delete from service where id = #{id}
     </delete>
 
-    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO booksystem.room (code, name, theater_id,type)
-        VALUES (#{room.code},#{room.name},#{room.theaterId},#{room.type})
+    <insert id="insertRoomService" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO room_service (room_id, service_id)
+        VALUES (#{roomId},#{serviceId})
         <selectKey keyProperty="returnedId" order="AFTER" resultType="INT" >
             SELECT LAST_INSERT_ID() as returnedId;
         </selectKey>

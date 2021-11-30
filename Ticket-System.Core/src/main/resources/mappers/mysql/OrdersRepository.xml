@@ -126,9 +126,7 @@
             <if test="typeUser != null">
                 and profile = #{typeUser}
             </if>
-            <!-- <if test="userId != null">-->
-            <!--     and user_id = #{userId}-->
-            <!-- </if>-->
+
             <if test="status != null">
                 and status = #{status}
             </if>
@@ -193,8 +191,7 @@
     </select>
 
     <select id="findSeatInOrders" resultType="com.apps.response.entity.OrderSeats">
-        select orders_id,seat_id, seat_type, tier, numbers,
-               price
+        select orders_id,seat_id, seat_type, tier, numbers
         from
             orders_seat
                 join seat s on s.id = orders_seat.seat_id

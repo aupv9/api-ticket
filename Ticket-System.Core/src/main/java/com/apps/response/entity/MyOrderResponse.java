@@ -16,8 +16,7 @@ import java.util.List;
 public class MyOrderResponse implements Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
-    private double totalAmount,discountAmount;
-    private float tax;
+    private double totalAmount,discountAmount,tax;
     private Integer showTimesDetailId;
     private Integer userId;
     private String createdDate;

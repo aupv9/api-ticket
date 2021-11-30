@@ -1,6 +1,7 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.Seat;
+import com.apps.request.SeatDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
@@ -114,11 +115,11 @@ public class SeatController {
     }
 
     @PostMapping(value = "/seats",produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<?> createSeat(@RequestBody Seat seat) throws SQLException {
-        int id = this.seatService.insert(seat);
-        seat.setId(id);
+    public ResponseEntity<?> createSeat(@RequestBody SeatDto seatDto) throws SQLException {
+        int id = this.seatService.insert(seatDto);
+        seatDto.setId(id);
         log.info("Id return : "+ id);
-        return ResponseEntity.ok(seat);
+        return ResponseEntity.ok(seatDto);
     }
 
     @PutMapping(value = "/seats/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })

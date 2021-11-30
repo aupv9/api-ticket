@@ -85,7 +85,7 @@ public class OrdersController {
     ){
 
         var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation,dateGte);
-        var totalElements = resultList.size();
+        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation,dateGte);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
