@@ -26,4 +26,8 @@ public interface UserAccountStatusRepository {
 
     @Select("SELECT * FROM user_account_status where name =#{name}")
     UserAccountStatus findByName(@Param("name")String name);
+
+    @Select("SELECT * FROM user_account_status where code =#{code}")
+    UserAccountStatus findByCode(@Param("code")String code);
+
 }

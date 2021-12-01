@@ -33,6 +33,9 @@ public interface RoleRepository {
     @Select("select * from role where name = #{name}")
     Role findByName(@Param("name")String name);
 
+    @Select("select * from role where code = #{code}")
+    Role findByCode(@Param("code")String code);
+
     List<UserRole> findUserRoleById(@Param("userId")Integer userId);
 
 
@@ -70,4 +73,6 @@ public interface RoleRepository {
 
     @Update("update role set name = #{role.name}, code = #{role.code} where id = #{role.id}")
     int updateRole(@Param("role") Role role);
+
+
 }

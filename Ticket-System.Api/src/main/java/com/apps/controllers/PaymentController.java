@@ -28,8 +28,8 @@ public class PaymentController {
                                           @RequestParam(value = "created_date",  required = false) String createdDate,
                                           @RequestParam(value = "use_for",  required = false) String useFor,
                                           @RequestParam(value = "status", required = false) String status,
-                                          @RequestParam(value = "creation", required = false) Integer creation,
-                                          @RequestParam(value = "method", required = false) Integer method){
+                                          @RequestParam(value = "creation", required = false,defaultValue = "0") Integer creation,
+                                          @RequestParam(value = "method", required = false,defaultValue = "0") Integer method){
 
         var resultList = this.paymentService.findAll(size, (page - 1 ) * size,sort,order,createdDate,
                 useFor,status,creation,method);

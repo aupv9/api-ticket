@@ -1,5 +1,6 @@
 package com.apps.controllers;
 
+import com.apps.domain.entity.Privilege;
 import com.apps.domain.entity.Room;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
 public class RoleController {
 
     private final RoleService roleService;
+
 
     public RoleController(RoleService roleService) {
         this.roleService = roleService;
@@ -75,10 +77,11 @@ public class RoleController {
     }
 
     @GetMapping("roles/{id}")
-    public ResponseEntity<?> getRole(@PathVariable(value = "id", required = false) Integer id){
+    public ResponseEntity<?> getRoles(@PathVariable(value = "id", required = false) Integer id){
         var result = this.roleService.findRoleById(id);
         return ResponseEntity.ok(result);
     }
+
 
     @PutMapping(value = "roles/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id,
@@ -93,13 +96,25 @@ public class RoleController {
     }
 
 
-//
-//    @PostMapping("categories")
-//    public ResponseEntity<?> createCategory(@RequestBody Category category) throws SQLException {
-//        int idReturned = this.categoryService.insert(category);
-//        category.setId(idReturned);
-//        return ResponseEntity.ok(category);
-//    }
+    @PostMapping("privileges")
+    public ResponseEntity<?> createPrivilege(@RequestBody Privilege privilege) throws SQLException {
+        int idReturned = this.roleService.insertPrivilege(privilege);
+        privilege.setId(idReturned);
+        return ResponseEntity.ok(privilege);
+    }
+
+    @PostMapping("roles")
+    public ResponseEntity<?> createRoles(@RequestBody RoleDto roleDto) throws SQLException {
+        int idReturned = this.roleService.insertRole(roleDto);
+        roleDto.setId(idReturned);
+        return ResponseEntity.ok(roleDto);
+    }
+
+    @DeleteMapping("roles/{id}")
+    public ResponseEntity<?> getRole(@PathVariable(value = "id", required = false) Integer id){
+        var result = this.roleService.deleteRole(id);
+        return ResponseEntity.ok(result);
+    }
 //
 //    @PutMapping("categories/{id}")
 //    public ResponseEntity<?> updateLocations(@PathVariable(value = "id") Integer idLocation,

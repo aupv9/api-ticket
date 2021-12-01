@@ -38,12 +38,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> findAll(int limit, int offset, String sort, String order, String createdDate, String useFor, String status, Integer creation,Integer method) {
 
-        return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,userService.getUserFromContext(),method > 0 ? method :null);
+        return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,
+                this.userService.isManager() ? null :
+                userService.getUserFromContext(),method > 0 ? method :null);
     }
 
     @Override
     public int findAllCount(String createdDate, String useFor, String status, Integer creation,Integer method) {
-        return this.paymentRepository.findAllCount(createdDate,useFor,status,userService.getUserFromContext(),method > 0 ? method :null);
+        return this.paymentRepository.findAllCount(createdDate,useFor,status,
+                this.userService.isManager() ? null : userService.getUserFromContext(),method > 0 ? method :null);
     }
 
     @Override

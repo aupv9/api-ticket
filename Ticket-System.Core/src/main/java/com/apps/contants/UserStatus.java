@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum UserStatus {
-    WAIT_CONFIRM("WAIT CONFIRM"),
+    WAIT_CONFIRM("WAIT_CONFIRM"),
     ACTIVE("ACTIVE"),
     NEW("NEW"),
     BLOCKED("BLOCKED")

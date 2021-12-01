@@ -6,6 +6,7 @@ import com.apps.domain.entity.RolePrivileges;
 import com.apps.domain.entity.UserRole;
 import com.apps.response.RoleDto;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface RoleService {
@@ -34,4 +35,10 @@ public interface RoleService {
     void deleteRolePrivilege(Integer roleId,Integer privilegeId);
 
     int update(RoleDto roleDto);
+
+    int insertPrivilege(Privilege privilege) throws SQLException;
+
+    int insertRole(RoleDto roleDto) throws SQLException;
+
+    int deleteRole(Integer idRole);
 }

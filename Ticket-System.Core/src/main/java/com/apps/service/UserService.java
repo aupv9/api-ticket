@@ -28,7 +28,9 @@ public interface UserService {
     int getUserFromContext();
     String getNowDateTime();
     boolean checkEmailAlready(String email);
-     int updateCurrentLogged(int userId,boolean isLogged);
-         int updateCurrentLoggedByEmail(String email);
+    int updateCurrentLogged(int userId,boolean isLogged);
+    int updateCurrentLoggedByEmail(String email);
+    int getTheaterByUser();
+    boolean isManager();
 
 }

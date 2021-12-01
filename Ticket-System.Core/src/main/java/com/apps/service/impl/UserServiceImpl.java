@@ -14,12 +14,12 @@ import com.apps.mybatis.mysql.SocialRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.request.GoogleLoginRequest;
-import com.apps.request.UpdateStatusLogin;
 import com.apps.response.UserLoginResponse;
 import com.apps.response.entity.UserSocial;
 import com.apps.service.EmployeeService;
 import com.apps.service.UserService;
 import com.nimbusds.jose.JOSEException;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserCustomRepository userCustomRepository;
@@ -67,17 +68,7 @@ public class UserServiceImpl implements UserService {
 //    @Value("${email.confirm.letters}")
 //    private Boolean isLetters;
 
-    public UserServiceImpl(UserCustomRepository userCustomRepository, UserAccountRepository userAccountRepository, PasswordEncoder encoder, RoleRepository roleRepository, UserAccountStatusRepository statusRepository, RoleServiceImpl roleService, JWTService jwtService, EmployeeService employeeService, SocialRepository socialRepository) {
-        this.userCustomRepository = userCustomRepository;
-        this.userAccountRepository = userAccountRepository;
-        this.encoder = encoder;
-        this.roleRepository = roleRepository;
-        this.statusRepository = statusRepository;
-        this.roleService = roleService;
-        this.jwtService = jwtService;
-        this.employeeService = employeeService;
-        this.socialRepository = socialRepository;
-    }
+
 
     public int getTheaterManagerByUser(){
         var userId = this.getUserFromContext();
@@ -107,7 +98,7 @@ public class UserServiceImpl implements UserService {
             var userRoles = this.roleService.findUserRoleById(userId);
             for (var role : userRoles ) {
                 var roleName = this.roleService.findRoleById(role.getRoleId());
-                if (roleName.getName().equals(com.apps.contants.Role.MANAGER.getName())) {
+                if (roleName.getCode().equals(com.apps.contants.Role.MANAGER.getName())) {
                     return true;
                 }
             }
@@ -115,6 +106,7 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    @Override
     public int getTheaterByUser(){
         int userId = this.getUserFromContext();
         int theaterId = 0;
@@ -151,11 +143,11 @@ public class UserServiceImpl implements UserService {
                     .registeredAt(getNowDateTime())
                     .address(userRegisterDto.getAddress())
                     .city(userRegisterDto.getCity()).state(userRegisterDto.getState())
-                    .userAccountStatusId(statusRepository.findByName(UserStatus.WAIT_CONFIRM.getName()).getId())
+                    .userAccountStatusId(statusRepository.findByCode(UserStatus.WAIT_CONFIRM.getName()).getId())
                     .build();
             int idUserReturned = this.userAccountRepository.insert(userAccount);
 
-            Role role = this.roleRepository.findByName(com.apps.contants.Role.USER.getName());
+            Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
             this.roleRepository.insertUserRole(idReturned,role.getId());
             return idUserReturned;
         }
@@ -242,7 +234,7 @@ public class UserServiceImpl implements UserService {
                     .city(userDto.getCity())
                     .modifiedDate(getNowDateTime())
                     .userAccountStatusId(userDto.getUasId())
-                    .password(userDto.getPassword())
+                    .password(encoder.encode(userDto.getPassword()))
                     .modifiedBy(modifiedBy)
                     .build();
             this.userAccountRepository.updateUserAccount(usAccount);
@@ -279,7 +271,9 @@ public class UserServiceImpl implements UserService {
         if(user == null){
             throw new NotFoundException("Invalid email or password");
         }
-        if(encoder.matches(password,user.getPassword()) && user.getUasId() >= 2 && user.getUasId() <= 3){
+        var userStatus = this.statusRepository.findById(user.getUasId());
+        if( encoder.matches(password,user.getPassword())
+                && userStatus.getCode().equals(UserStatus.ACTIVE.getName())){
             var roles = this.roleRepository.findUserRoleById(user.getId());
             var userInfo = this.userAccountRepository.findUserByEmail(email);
             String token = this.jwtService.generatorToken(email);

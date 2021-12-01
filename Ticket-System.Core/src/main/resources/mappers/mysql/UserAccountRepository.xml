@@ -116,12 +116,13 @@
     </select>
 
     <select id="findUserSocialById" resultType="com.apps.response.entity.UserSocial" >
-        select user_info.id as id,email,
+        select user_info.id as id,email,first_name as firstName,
+               last_name as lastName,
                last_login, full_name, photo,current_logged,
                is_login_social as isLoginSocial
         from user_info
         <where>
-            id = #{id}
+            id = #{id} and is_login_social = true
         </where>
     </select>
 

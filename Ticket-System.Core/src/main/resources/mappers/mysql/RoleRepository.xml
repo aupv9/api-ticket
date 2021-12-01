@@ -116,4 +116,12 @@
             </if>
         </where>
     </update>
+
+    <insert id="insertPrivileges" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO privilege (name)
+        VALUES (#{privilege.name})
+        <selectKey keyProperty="id" order="AFTER" resultType="INT" >
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+    </insert>
 </mapper>

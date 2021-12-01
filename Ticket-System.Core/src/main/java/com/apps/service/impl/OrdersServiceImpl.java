@@ -94,7 +94,7 @@ public class OrdersServiceImpl implements OrdersService {
     public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
 
         return this.addInfoToOrders(this.findAll(page,size,sort,
-                order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte)));
+                order,showTimes,type,userId,status,this.userService.isManager() ? null :this.userService.getUserFromContext(), this.convertLocalDate(dateGte)));
     }
 
     private List<OrderRoomDto> addInfoToOrders(List<Orders> orders){
@@ -131,7 +131,8 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation,String dateGte) {
         return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,
-                sort,order,showTimes > 0 ? showTimes :null ,type,status,userService.getUserFromContext(),
+                sort,order,showTimes > 0 ? showTimes :null ,type,status,
+                this.userService.isManager() ? null :userService.getUserFromContext(),
                 this.convertLocalDate(dateGte),true));
     }
 

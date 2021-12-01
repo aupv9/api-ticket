@@ -4,29 +4,32 @@ import com.apps.domain.entity.Privilege;
 import com.apps.domain.entity.Role;
 import com.apps.domain.entity.RolePrivileges;
 import com.apps.domain.entity.UserRole;
+import com.apps.domain.repository.PrivilegeRepository;
+import com.apps.domain.repository.RoleCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.response.RoleDto;
 import com.apps.service.RoleService;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
-
-    public RoleServiceImpl(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    private final PrivilegeRepository privilegeRepository;
+    private final RoleCustomRepository roleCustomRepository;
 
     @Override
     public RoleDto findRoleById(Integer id) {
@@ -118,6 +121,31 @@ public class RoleServiceImpl implements RoleService {
             this.roleRepository.insertRolePrivileges(roleDto.getId(),privileges);
         }
         return this.roleRepository.updateRole(role);
+    }
+
+    @Override
+    public int insertPrivilege(Privilege privilege) throws SQLException {
+        String sql = "insert into privilege(name) values(?)";
+        return this.privilegeRepository.insert(privilege,sql);
+    }
+
+    @Override
+    public int insertRole(RoleDto roleDto) throws SQLException {
+        String sql = "insert into role(name,code) values(?,?)";
+        var role = Role.builder()
+                .name(roleDto.getName()).code(roleDto.getCode())
+                .build();
+        int idRole = this.roleCustomRepository.insert(role,sql);
+        for (var privileges : roleDto.getPrivileges()){
+            this.roleRepository.insertRolePrivileges(idRole,privileges);
+        }
+        return idRole;
+    }
+
+    @Override
+    public int deleteRole(Integer idRole) {
+
+        return 0;
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities(final List<UserRole> roles) {

@@ -63,7 +63,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             ,String dateStart) {
         var theaterId = this.userService.getTheaterManagerByUser();
         return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id,
-                time_start,search,dateStart, theaterId> 0 ? theaterId : null ,Utilities.getCurrentTime());
+                time_start,search,dateStart, theaterId > 0 ? theaterId : null ,Utilities.getCurrentTime());
     }
 
     @Override
