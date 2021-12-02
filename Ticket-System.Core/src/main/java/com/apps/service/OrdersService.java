@@ -28,10 +28,11 @@ public interface OrdersService {
 
     List<Orders> findAllMyOrders( int page, int size,
                           String sort,  String order,
-                          Integer showTimes, String type,String status,Integer creation,String dateGte);
+                          Integer showTimes, String type,String status,
+                                  Integer creation,String dateGte,Boolean isYear);
 
     int findCountAllMyOrder(Integer showTimes, String type, String status,
-                            Integer creation,String dateGte);
+                            Integer creation,String dateGte,Boolean isYear);
 
     int findAllCount(Integer showTimes,String type,
                      Integer userId,String status,Integer creation,String dateGte);

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -62,7 +63,6 @@ public class OrdersServiceImpl implements OrdersService {
                     int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
                 }
             }
-
             var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
             if(listOrdersSeat.size() > 0){
                 for (Integer orderSeat: listOrdersSeat){
@@ -70,7 +70,6 @@ public class OrdersServiceImpl implements OrdersService {
                 }
             }
             int deleted = this.ordersRepository.delete(order);
-
         }
     }
 
@@ -83,6 +82,13 @@ public class OrdersServiceImpl implements OrdersService {
         return orders;
     }
 
+    private List<OrderRoomDto> filterOrderByTheater(List<OrderRoomDto> orders){
+        return orders.stream().filter(order ->{
+            var item = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+            return item.getTheaterId() == this.userService.getTheaterByUser();
+        }).collect(Collectors.toList());
+    }
+
     @Override
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
@@ -91,10 +97,12 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId,
+                                               String status, Integer creation, String dateGte) {
 
         return this.addInfoToOrders(this.findAll(page,size,sort,
-                order,showTimes,type,userId,status,this.userService.isManager() ? null :this.userService.getUserFromContext(), this.convertLocalDate(dateGte)));
+                order,showTimes,type,userId,status,this.userService.isManager() ? null :
+                        this.userService.getUserFromContext(), this.convertLocalDate(dateGte)));
     }
 
     private List<OrderRoomDto> addInfoToOrders(List<Orders> orders){
@@ -119,7 +127,7 @@ public class OrdersServiceImpl implements OrdersService {
             orderRoom.setLocationName(location.getName());
             ordersRoom.add(orderRoom);
         }
-        return ordersRoom;
+        return this.filterOrderByTheater(ordersRoom);
     }
 
     @Override
@@ -129,11 +137,14 @@ public class OrdersServiceImpl implements OrdersService {
 
 
     @Override
-    public List<Orders> findAllMyOrders(int page, int size, String sort, String order, Integer showTimes, String type, String status, Integer creation,String dateGte) {
+    public List<Orders> findAllMyOrders(int page, int size, String sort, String order,
+                                        Integer showTimes, String type, String status, Integer creation,
+                                        String dateGte,
+            Boolean isYear) {
         return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,
                 sort,order,showTimes > 0 ? showTimes :null ,type,status,
                 this.userService.isManager() ? null :userService.getUserFromContext(),
-                this.convertLocalDate(dateGte),true));
+                this.convertLocalDate(dateGte), isYear ? true : null));
     }
 
     private String convertLocalDate(String date){
@@ -144,13 +155,15 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation,String dateGte) {
+    public int findCountAllMyOrder(Integer showTimes, String type,
+                                   String status, Integer creation,String dateGte,Boolean isYear) {
         return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,
-                type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte),true);
+                type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte),isYear ? true : null);
     }
 
     @Override
-    public int findAllCount(Integer showTimes, String type, Integer userId,String status,Integer creation,String dateGte) {
+    public int findAllCount(Integer showTimes, String type, Integer userId,
+                            String status,Integer creation,String dateGte) {
         return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation,this.convertLocalDate(dateGte),null);
     }
 
@@ -276,6 +289,8 @@ public class OrdersServiceImpl implements OrdersService {
         }
         return idOrderCreated;
     }
+
+
 
     @Override
     public int updateMyOrder(MyOrderUpdateDto orders) {

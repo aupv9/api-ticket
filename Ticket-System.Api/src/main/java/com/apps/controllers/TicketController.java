@@ -66,20 +66,20 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("reserved/{id}")
-    public ResponseEntity<?> reservedSeat(@PathVariable("id")Integer id,
-                                          @RequestBody Reserved reserved){
-
-        int result = this.ticketService.reserved(reserved.getSeats(), reserved.getUser(),
-                reserved.getShowTime(),reserved.getRoom());
-        reserved.setUser(userService.getUserFromContext());
-        var response = RAResponseUpdate.builder()
-                .id(result)
-                .previousData(reserved)
-                .data(reserved)
-                .build();
-        return ResponseEntity.ok(response);
-    }
+//    @PutMapping("reserved/{id}")
+//    public ResponseEntity<?> reservedSeat(@PathVariable("id")Integer id,
+//                                          @RequestBody Reserved reserved){
+//
+//        int result = this.ticketService.reserved(reserved.getSeats(), reserved.getUser(),
+//                reserved.getShowTime(),reserved.getRoom());
+//        reserved.setUser(userService.getUserFromContext());
+//        var response = RAResponseUpdate.builder()
+//                .id(result)
+//                .previousData(reserved)
+//                .data(reserved)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
 
 
 

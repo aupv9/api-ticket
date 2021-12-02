@@ -39,6 +39,7 @@ public interface UserAccountRepository {
     int updateUserInfo(@Param("user")UserInfo userInfo);
 
     User findUserByEmail(@Param("email")String email);
+
     UserSocial findUserInfoByEmail(@Param("email")String email);
 
     @Select("select * from google_account where google_id = #{googleId}")

@@ -24,11 +24,13 @@ public interface OrdersRepository {
                                  @Param("sort")String sort, @Param("order") String order,
                                  @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                                  @Param("status")String status,
-                              @Param("creation") Integer creation,@Param("dateGte") String dateGte,@Param("isYear")Boolean isYear);
+                              @Param("creation") Integer creation,@Param("dateGte") String dateGte,
+                              @Param("isYear")Boolean isYear);
 
     int findCountAll(@Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                      @Param("userId")Integer userId,@Param("status")String status
-                    ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,@Param("isYear")Boolean isYear);
+                    ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,
+                     @Param("isYear")Boolean isYear);
 
     int findCountAllMyOrder(@Param("showTimes")Integer showTimes, @Param("typeUser")String type
                             ,@Param("status")String status,@Param("creation") Integer creation,@Param("dateGte") String dateGte,

@@ -35,9 +35,12 @@ public class OrdersController {
                                           @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false) Integer creation,
-                                          @RequestParam(value = "date_gte", required = false) String dateGte
+                                          @RequestParam(value = "date_gte", required = false) String dateGte,
+                                            @RequestHeader("Authorization") String token
+
     ){
-        var resultList = this.ordersService.findAllOrderRoom(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation,dateGte);
+        var resultList = this.ordersService.findAllOrderRoom(page - 1 ,size,sort,order,
+                showTimesId,type,userId,status,creation,dateGte);
 
         var totalElements = resultList.size();
         var response = ResponseRA.builder()
@@ -58,10 +61,12 @@ public class OrdersController {
                                           @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false) Integer creation,
-                                          @RequestParam(value = "date_gte", required = false) String dateGte
+                                          @RequestParam(value = "date_gte", required = false) String dateGte,
+                                          @RequestHeader("Authorization") String token
                                           ){
-        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,showTimesId,type,userId,status,creation,dateGte);
-        var totalElements = resultList.size();
+        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,
+                showTimesId,type,userId,status,creation,dateGte);
+        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation,dateGte);
         var response = ResponseRA.builder()
                                     .content(resultList)
                                     .totalElements(totalElements)
@@ -79,12 +84,15 @@ public class OrdersController {
                                           @RequestParam(value = "showTimes_id", required = false,defaultValue = "0") Integer showTimesId,
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false,defaultValue = "0") Integer creation,
-                                          @RequestParam(value = "date_gte", required = false) String dateGte
+                                          @RequestParam(value = "date_gte", required = false) String dateGte,
+                                          @RequestParam(value = "creation", required = false,defaultValue = "false") boolean isYear,
+                                          @RequestHeader("Authorization") String token
+                                          ){
 
-    ){
-
-        var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,type,status,creation,dateGte);
-        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,creation,dateGte);
+        var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,
+                type,status,creation,dateGte,isYear);
+        var totalElements = this.ordersService.findCountAllMyOrder(showTimesId,type,status,
+                creation,dateGte,isYear);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -100,7 +108,8 @@ public class OrdersController {
 
     @PutMapping(value = "my-orders/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable("id") Integer id,
-                                        @RequestBody MyOrderUpdateDto myOrderUpdateDto) {
+                                         @RequestBody MyOrderUpdateDto myOrderUpdateDto,
+                                         @RequestHeader("Authorization")String token) {
 
         myOrderUpdateDto.setId(id);
         int result = this.ordersService.updateMyOrder(myOrderUpdateDto);
@@ -120,7 +129,8 @@ public class OrdersController {
 
 
     @PostMapping("orders")
-    public ResponseEntity<?> createCategory(@RequestBody OrderDto orders) throws SQLException {
+    public ResponseEntity<?> createCategory(@RequestBody OrderDto orders,
+                                            @RequestHeader("Authorization")String token) throws SQLException {
         int idReturned = this.ordersService.orderNonPayment(orders);
         orders.setId(idReturned);
         return ResponseEntity.ok(orders);
@@ -128,7 +138,8 @@ public class OrdersController {
 
     @PutMapping("orders/{id}")
     public ResponseEntity<?> updateLocations(@PathVariable(value = "id") Integer id,
-                                             @RequestBody Orders orders){
+                                             @RequestBody Orders orders,
+                                             @RequestHeader("Authorization")String token){
         orders.setId(id);
         var resultUpdate = this.ordersService.update(orders);
         var response = RAResponseUpdate.builder()

@@ -28,7 +28,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public int reserved(List<Integer> seats, Integer user, Integer showtime, Integer room) {
         if(user == 0){
-            user = this.userService.getUserFromContext();
+//            user = this.userService.getUserFromContext();
         }
         for (Integer seat: seats){
             if(!this.isReserved(seat,showtime,room)){

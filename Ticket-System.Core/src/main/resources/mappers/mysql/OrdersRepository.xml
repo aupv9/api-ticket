@@ -67,6 +67,7 @@
     <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">
         select *
             from orders
+
         <where>
             <if test="showTimes != null">
                 showtimes_detail_id = #{showTimes}
@@ -126,7 +127,6 @@
             <if test="typeUser != null">
                 and profile = #{typeUser}
             </if>
-
             <if test="status != null">
                 and status = #{status}
             </if>

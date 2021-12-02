@@ -1,6 +1,5 @@
 package com.apps.controllers;
 
-
 import com.apps.domain.entity.Payment;
 import com.apps.response.ResponseRA;
 import com.apps.service.PaymentService;
@@ -29,7 +28,9 @@ public class PaymentController {
                                           @RequestParam(value = "use_for",  required = false) String useFor,
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false,defaultValue = "0") Integer creation,
-                                          @RequestParam(value = "method", required = false,defaultValue = "0") Integer method){
+                                          @RequestParam(value = "method", required = false,defaultValue = "0") Integer method,
+                                          @RequestHeader("Authorization") String token
+    ){
 
         var resultList = this.paymentService.findAll(size, (page - 1 ) * size,sort,order,createdDate,
                 useFor,status,creation,method);
@@ -42,7 +43,9 @@ public class PaymentController {
     }
 
     @PostMapping("payments")
-    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException {
+    public ResponseEntity<?> createCategory(@RequestBody Payment payment,
+                                            @RequestHeader("Authorization") String token
+    ) throws SQLException {
         int idReturned = this.paymentService.insertReturnedId(payment);
         payment.setId(idReturned);
         return ResponseEntity.ok(payment);

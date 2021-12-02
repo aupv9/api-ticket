@@ -8,6 +8,7 @@ import com.apps.request.GoogleLoginRequest;
 import com.apps.response.UserLoginResponse;
 import com.apps.response.entity.UserSocial;
 import com.nimbusds.jose.JOSEException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -25,12 +26,11 @@ public interface UserService {
     int update(UserDto userDto);
     UserLoginResponse authenticate(String email, String password) throws JOSEException;
     UserLoginResponse authenticateWithGoogle(GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException;
-    int getUserFromContext();
     String getNowDateTime();
     boolean checkEmailAlready(String email);
     int updateCurrentLogged(int userId,boolean isLogged);
     int updateCurrentLoggedByEmail(String email);
     int getTheaterByUser();
     boolean isManager();
-
+    int getUserFromContext();
 }

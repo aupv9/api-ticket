@@ -53,7 +53,8 @@ public class UserController {
     }
 
     @PostMapping("users")
-    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
+    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto,
+                                        @RequestHeader("Authorization") String token) throws SQLException {
         if(this.userService.checkEmailAlready(userRegisterDto.getEmail())){
             return ResponseEntity.badRequest().body("Email Already");
         }
@@ -69,7 +70,8 @@ public class UserController {
 
     @PutMapping("users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id")Integer id,
-                                        @RequestBody UserDto userDto) {
+                                        @RequestBody UserDto userDto,
+                                        @RequestHeader("Authorization") String token) {
         userDto.setId(id);
         var resultUpdate = this.userService.update(userDto);
         var response = RAResponseUpdate.builder()

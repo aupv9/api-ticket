@@ -1,12 +1,10 @@
 package com.apps.filter;
 
-import com.apps.domain.entity.UserInfo;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.entity.UserSocial;
 import com.apps.service.UserService;
 import com.apps.service.impl.RoleServiceImpl;
-import io.lettuce.core.ScriptOutputType;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,9 @@ import java.io.IOException;
 public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
     private final static String TOKEN_HEADER = "Authorization";
+    static {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
 
     @Autowired
     private  JWTServiceImp jwtService;

@@ -2,22 +2,24 @@ package com.apps.contants;
 
 
 import com.apps.domain.entity.Offer;
+import com.apps.filter.JWTService;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 
-
 public class Utilities {
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
-
 
     public static String getCurrentTime(){
         return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().format(timeFormatter);
@@ -44,4 +46,6 @@ public class Utilities {
         var authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         return  (UserDetails)authentication.getPrincipal();
     }
+
+
 }

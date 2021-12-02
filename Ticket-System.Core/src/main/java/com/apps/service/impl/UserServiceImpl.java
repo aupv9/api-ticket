@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -104,6 +105,15 @@ public class UserServiceImpl implements UserService {
             }
         }
         return false;
+    }
+
+    public UserDetails getAuthenticationFromContext() {
+        var authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        if((UserDetails) authentication.getPrincipal() != null){
+            var userDetails = (UserDetails) authentication.getPrincipal();
+            System.out.println(userDetails.getUsername());
+        }
+        return  (UserDetails)authentication.getPrincipal();
     }
 
     @Override
@@ -234,7 +244,7 @@ public class UserServiceImpl implements UserService {
                     .city(userDto.getCity())
                     .modifiedDate(getNowDateTime())
                     .userAccountStatusId(userDto.getUasId())
-                    .password(encoder.encode(userDto.getPassword()))
+                    .password(userDto.getPassword()!= null ? encoder.encode(userDto.getPassword()) : null )
                     .modifiedBy(modifiedBy)
                     .build();
             this.userAccountRepository.updateUserAccount(usAccount);
@@ -353,23 +363,22 @@ public class UserServiceImpl implements UserService {
         return this.updateCurrentLogged(user.getId(),false);
     }
 
-    @Override
     public int getUserFromContext() {
-       var userDetails = Utilities.getUserDetails();
-        int modifiedBy = 0;
-        if(userDetails != null){
+        int userId = 0;
+        var userDetails = this.getAuthenticationFromContext();
+        if( userDetails != null){
             String email = userDetails.getUsername();
             var user = this.userAccountRepository.findUserByEmail(email);
             if( user!= null){
-                modifiedBy = user.getId();
+                userId = user.getId();
             }else{
                 var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
                 if(userInfo1 != null){
-                    modifiedBy = userInfo1.getId();
+                    userId = userInfo1.getId();
                 }
             }
         }
-        return modifiedBy;
+        return userId;
     }
 
     @Override
