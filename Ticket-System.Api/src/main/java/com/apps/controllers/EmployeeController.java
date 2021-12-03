@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin(value = "*")
 public class EmployeeController {
 
     private final EmployeeService employeeService;

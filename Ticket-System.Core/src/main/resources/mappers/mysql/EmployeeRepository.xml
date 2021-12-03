@@ -4,13 +4,10 @@
 <mapper namespace="com.apps.mybatis.mysql.EmployeeRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Employee" >
-        select id, user_id, role_id, theater_id, createdBy,
+        select id, user_id, theater_id, createdBy,
                createdAt, status,updatedAt,startsAt, endsAt, notes
         from employee
         <where>
-            <if test="roleId != null">
-                role_id = #{roleId}
-            </if>
             <if test="theaterId != null">
                 and theater_id = #{theaterId}
             </if>
@@ -21,9 +18,7 @@
                 <when test="sort == 'id'">
                     id
                 </when>
-                <when test="sort == 'roleId'">
-                    role_id
-                </when>
+
                 <when test="sort == 'userId'">
                     user_id
                 </when>
@@ -52,9 +47,7 @@
         select count(*)
         from employee
         <where>
-            <if test="roleId != null ">
-                role_id = #{roleId}
-            </if>
+
             <if test="theaterId != null ">
                 and theater_id = #{theaterId}
             </if>
@@ -62,7 +55,7 @@
     </select>
 
     <select id="findById" resultType="com.apps.domain.entity.Employee" >
-        select id, user_id, role_id, theater_id, createdBy,
+        select id, user_id, theater_id, createdBy,
                createdAt, status,updatedAt,startsAt, endsAt, notes
         from employee
         <where>
@@ -71,7 +64,7 @@
     </select>
 
     <insert id="insert">
-        insert into employee(user_id,role_id,createdBy,status,createdAt)
+        insert into employee(user_id,createdBy,status,createdAt)
         values (#{userId},#{roleId},#{createdBy},#{status},#{createdAt})
     </insert>
 
@@ -81,9 +74,7 @@
             <if test="employee.theaterId != null">
                 theater_id = #{employee.theaterId},
             </if>
-            <if test="employee.roleId != null">
-                role_id = #{employee.roleId},
-            </if>
+
             <if test="employee.updatedBy != null">
                 updatedBy = #{employee.updatedBy},
             </if>
