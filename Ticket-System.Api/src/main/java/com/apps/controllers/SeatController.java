@@ -66,7 +66,6 @@ public class SeatController {
                                            @RequestParam("room") Integer room){
         var result  = seatService.findByRoom(page,size,sort,order,room,id);
         var totalElement = seatService.findCountAll(null,room);
-
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

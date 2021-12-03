@@ -54,7 +54,6 @@
 
 
     <select id="findSeatInRoomByShowTimesDetail" resultType="com.apps.domain.entity.Seat" >
-
         select * from seat where room_id = #{roomId} and seat.id
             not in (select seat_id from orders
                                          join orders_seat os on orders.id = os.orders_id

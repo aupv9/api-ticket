@@ -33,4 +33,10 @@ public interface SeatRepository {
 
     @Delete("DELETE FROM SEAT WHERE ID = #{id}")
     void delete(@Param("id") Integer id);
+
+    @Select(" select seat_id as id from orders\n" +
+            "             join orders_seat os on orders.id = os.orders_id\n" +
+            "                                 where showtimes_detail_id = #{showTimeId};")
+    List<Seat> findAllSeatInShowTimeUnavailable(@Param("showTimeId") Integer showTimesId);
 }
+

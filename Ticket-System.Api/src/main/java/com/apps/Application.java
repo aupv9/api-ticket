@@ -93,11 +93,13 @@ public class Application extends SpringBootServletInitializer {
     ApplicationRunner applicationRunner(){
         return args -> {
             DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-            Instant instant = Instant.parse("2021-10-28T17:05:22.523Z");
-            ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-            ZonedDateTime zdt = instant.atZone(zoneId);
-            Timestamp  timestamp = Timestamp.from(instant);
-            System.out.println(timestamp);
+//            Instant instant = Instant.parse("2021-10-28T17:05:22.523Z");
+//            ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+//            ZonedDateTime zdt = instant.atZone(zoneId);
+//            Timestamp  timestamp = Timestamp.from(instant);
+//            System.out.println(timestamp);
+
+            System.out.println(LocalDate.parse("2021-11-13 00:00:00",simpleDateFormat));;
 
 //            Snowflake snowflake = new Snowflake(1, 1);
 //            for (int i = 0; i < 100; i++) {

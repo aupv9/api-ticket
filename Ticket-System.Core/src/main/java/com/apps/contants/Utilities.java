@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Utilities {
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
 
@@ -32,6 +33,12 @@ public class Utilities {
         return LocalDate.parse(date).format(dateFormatter);
 //        return timestamp.toLocalDateTime().format(dateFormatter);
     }
+
+    public static LocalDate convertStringToLocalDate(String date){
+        return LocalDate.parse(date,dateTimeFormatter);
+    }
+
+
 
     public static String getTimeExpirePayment5m(){
         return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().plusMinutes(5).format(timeFormatter);

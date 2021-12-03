@@ -6,13 +6,11 @@ import com.apps.contants.Utilities;
 import com.apps.domain.entity.Concession;
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
+import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
-import com.apps.mybatis.mysql.ConcessionRepository;
-import com.apps.mybatis.mysql.OrdersRepository;
-import com.apps.mybatis.mysql.PaymentRepository;
-import com.apps.mybatis.mysql.ShowTimesDetailRepository;
+import com.apps.mybatis.mysql.*;
 import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.ConcessionMyOrder;
 import com.apps.response.entity.MyOrderResponse;
@@ -51,6 +49,7 @@ public class OrdersServiceImpl implements OrdersService {
     private final ShowTimesDetailService showTimesDetailService;
     private final TheaterService theaterService;
     private final LocationService locationService;
+    private final SeatRepository seatRepository;
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() {
@@ -253,8 +252,23 @@ public class OrdersServiceImpl implements OrdersService {
         return this.ordersRepository.update(orders);
     }
 
+    private boolean isSeatsAvailable(Integer seat,List<Seat> idSeats){
+        for(var item : idSeats){
+            if(item.getId() == seat) return true;
+        }
+        return false;
+    }
+
     @Override
     public int orderNonPayment(OrderDto orderDto) throws SQLException {
+        var idSeats = this.seatRepository.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
+        for (var seat : orderDto.getSeats()){
+            System.out.println(seat);
+            if(isSeatsAvailable(seat,idSeats)){
+                throw new NotFoundException("Seat !" + seat + "reserved!");
+            }
+        }
+
         var taxAmount = (orderDto.getTotalAmount() / 100) * 10;
         Orders orders = Orders.builder()
                 .creation(userService.getUserFromContext())

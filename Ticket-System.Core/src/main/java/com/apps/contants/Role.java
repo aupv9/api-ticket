@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public enum Role {
     STAFF("ROLE_STAFF"),
-    USER("Role_User"),
-    MANAGER("ROLE_Manager_Theater"),
-    DIRECTOR("ROLE_DIRECTOR")
-
+    USER("ROLE_USER"),
+    MANAGER("ROLE_MANAGER"),
+    SENIOR_MANAGER("ROLE_SENIOR_MANAGER"),
+    ADMIN("ADMIN")
     ;
 
     Role(String name) {

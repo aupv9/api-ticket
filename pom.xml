@@ -20,6 +20,17 @@
     </properties>
 
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-websocket</artifactId>-->
+<!--            <version>5.2.3.RELEASE</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-messaging</artifactId>-->
+<!--            <version>5.2.3.RELEASE</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-stream</artifactId>

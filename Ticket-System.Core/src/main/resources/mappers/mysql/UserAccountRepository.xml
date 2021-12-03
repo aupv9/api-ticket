@@ -187,6 +187,9 @@
             <if test="user.fullName != null">
                 full_name = #{user.fullName},
             </if>
+            <if test="user.email != null">
+                email = #{user.email},
+            </if>
             <if test="user.photo != null">
                 photo = #{user.photo},
             </if>

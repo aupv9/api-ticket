@@ -22,6 +22,7 @@ import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.tomcat.jni.Local;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -218,6 +220,7 @@ public class UserServiceImpl implements UserService {
                 user.setLastName(userSocial.getLastName());
                 user.setFullName(userSocial.getFullName());
                 user.setCurrentLogged(userSocial.getCurrentLogged());
+                user.setPhoto(userSocial.getPhoto());
                 return user;
             }
         }
@@ -258,11 +261,9 @@ public class UserServiceImpl implements UserService {
                 throw new NotFoundException("Not Role Have Id:" + role.getId());
             }
             this.roleRepository.insertUserRole(userDto.getId(),roleId);
-            if(role.getName().equals(com.apps.contants.Role.STAFF.getName()) ||
-                    role.getName().equals(com.apps.contants.Role.MANAGER.getName())){
+            if(!role.getCode().equals(com.apps.contants.Role.USER.getName())){
                 var employee = this.employeeService.findByUserId(userInfo.getId());
                 if(employee != null){
-                    employee.setRoleId(role.getId());
                     employee.setStatus(EmployeeStatus.Active.name());
                     this.employeeService.update(employee);
                 }else{
@@ -282,24 +283,53 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("Invalid email or password");
         }
         var userStatus = this.statusRepository.findById(user.getUasId());
-        if( encoder.matches(password,user.getPassword())
+        if(encoder.matches(password,user.getPassword())
                 && userStatus.getCode().equals(UserStatus.ACTIVE.getName())){
             var roles = this.roleRepository.findUserRoleById(user.getId());
             var userInfo = this.userAccountRepository.findUserByEmail(email);
             String token = this.jwtService.generatorToken(email);
             updateCurrentLogged(user.getId(),true);
             var privilege = roleService.getAuthorities(roles);
-            return UserLoginResponse.builder()
-                    .token(token)
-                    .email(email).id(user.getId())
-                    .fullName(userInfo.getFullName())
-                    .photo(userInfo.getPhoto())
-                    .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                    .build();
+            if(this.isEmployee(userInfo.getId())){
+                if(this.isActiveTimeAvailable(userInfo.getId())){
+                    return UserLoginResponse.builder()
+                            .token(token)
+                            .email(email).id(user.getId())
+                            .fullName(userInfo.getFullName())
+                            .photo(userInfo.getPhoto())
+                            .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                            .build();
+                }else {
+                    var employee = this.employeeService.findByUserId(userInfo.getId());
+                    employee.setStatus(EmployeeStatus.Blocked.name());
+                    this.employeeService.update(employee);
+                    return UserLoginResponse.builder()
+                            .build();
+                }
+            }else{
+                return UserLoginResponse.builder()
+                        .token(token)
+                        .email(email).id(user.getId())
+                        .fullName(userInfo.getFullName())
+                        .photo(userInfo.getPhoto())
+                        .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                        .build();
+            }
         }
         return  UserLoginResponse.builder()
                 .build();
     }
+
+    private boolean isEmployee(int userId){
+        var employee = this.employeeService.findByUserId(userId);
+        return employee != null && !employee.getStatus().equals(EmployeeStatus.Blocked.name());
+    }
+
+    private boolean isActiveTimeAvailable(int userId){
+        var employee = this.employeeService.findByUserId(userId);
+        return LocalDate.now().isBefore(Utilities.convertStringToLocalDate(employee.getEndsAt()));
+    }
+
 
 
     @Override
@@ -308,14 +338,34 @@ public class UserServiceImpl implements UserService {
           if(accountGoogle != null){
               var user = this.userAccountRepository.findUserSocialById(accountGoogle.getUserInfoId());
               var roles = this.roleRepository.findUserRoleById(accountGoogle.getUserInfoId());
-              var privilege = roleService.getAuthorities(roles);
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());
               updateCurrentLogged(accountGoogle.getUserInfoId(),true);
-              return UserLoginResponse.builder().fullName(user.getFullName())
-                      .photo(user.getPhoto()).id(user.getId())
-                      .token(token).email(googleLoginRequest.getEmail())
-                      .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                      .build();
+              var privilege = roleService.getAuthorities(roles);
+              if(this.isEmployee(user.getId())){
+                  if(this.isActiveTimeAvailable(user.getId())){
+                      return UserLoginResponse.builder()
+                              .token(token)
+                              .email(user.getEmail()).id(user.getId())
+                              .fullName(user.getFullName())
+                              .photo(user.getPhoto())
+                              .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                              .build();
+                  }else {
+                      var employee = this.employeeService.findByUserId(user.getId());
+                      employee.setStatus(EmployeeStatus.Blocked.name());
+                      this.employeeService.update(employee);
+                      return UserLoginResponse.builder()
+                              .build();
+                  }
+              }else{
+                  return UserLoginResponse.builder()
+                          .token(token)
+                          .email(user.getEmail()).id(user.getId())
+                          .fullName(user.getFullName())
+                          .photo(user.getPhoto())
+                          .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                          .build();
+              }
           }else{
               UserInfo userInfo = UserInfo.builder()
                       .email(googleLoginRequest.getEmail())
@@ -326,12 +376,11 @@ public class UserServiceImpl implements UserService {
                       .photo(googleLoginRequest.getImageUrl())
                       .build();
               int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
-              Role role = this.roleRepository.findByName("ROLE_USER");
+              Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
               this.roleRepository.insertUserRole(idReturned,role.getId());
 
               this.socialRepository.insertGoogleAccount(idReturned,googleLoginRequest.getGoogleId());
 
-              assert accountGoogle != null;
               var roles = this.roleRepository.findUserRoleById(idReturned);
               var privilege = roleService.getAuthorities(roles);
               String token = this.jwtService.generatorToken(googleLoginRequest.getEmail());

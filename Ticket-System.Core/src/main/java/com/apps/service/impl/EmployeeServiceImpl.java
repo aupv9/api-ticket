@@ -45,6 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .notes(employee.getNotes()).updatedAt(employee.getUpdatedAt())
                     .updatedBy(employee.getUpdatedBy()).theaterId(employee.getTheaterId())
                     .status(employee.getStatus()).userId(employee.getUserId())
+                    .startsAt(employee.getStartsAt()).endsAt(employee.getEndsAt())
                     .build();
             employeeDto.setRoleIds(this.getRolesByUser(employee.getUserId()));
             listEmployee.add(employeeDto);
@@ -76,6 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .notes(employee.getNotes()).updatedAt(employee.getUpdatedAt())
                 .updatedBy(employee.getUpdatedBy()).theaterId(employee.getTheaterId())
                 .status(employee.getStatus()).userId(employee.getUserId())
+                .startsAt(employee.getStartsAt()).endsAt(employee.getEndsAt())
                 .roleIds(listRoles)
                 .build();
     }
@@ -126,9 +128,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee1.setStatus(employee.getStatus());
         employee1.setTheaterId(employee.getTheaterId());
         employee1.setNotes(employee.getNotes());
-
-        employee1.setRoleIds(this.getRolesByUser(employee1.getUserId()));
-
         employee1.setUpdatedBy(modifiedBy);
         return this.employeeRepository.update(employee);
     }

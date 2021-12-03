@@ -20,7 +20,7 @@ public interface SeatService {
     List<List<Seat>> findSeatInRoomByShowTimesDetail( Integer showTimesDetailId,Integer roomId);
     Boolean validateSeat( Integer room, String tier, Integer numbers);
     void delete(Integer id);
-    List<Seat> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes);
+    List<SeatDto> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes);
     List<List<Seat>> findByRoomShow( Integer showTimesDetailId,Integer roomId);
 
 }

@@ -1,6 +1,7 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.contants.SeatStatus;
 import com.apps.domain.entity.Reserved;
 import com.apps.domain.entity.Seat;
 import com.apps.domain.repository.SeatCustomRepository;
@@ -12,6 +13,7 @@ import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
 import com.apps.service.TicketService;
 import javafx.application.Application;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,30 +24,27 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
 
-    @Autowired
-    private SeatRepository seatRepository;
+    private final SeatRepository seatRepository;
 
-    @Autowired
-    private SeatCustomRepository seatCustomRepository;
+    private final SeatCustomRepository seatCustomRepository;
 
-    @Autowired
-    private ApplicationCacheManager cacheManager;
+    private final ApplicationCacheManager cacheManager;
 
-    @Autowired
-    private ShowTimesDetailService showTimesDetailService;
+    private final ShowTimesDetailService showTimesDetailService;
 
-    @Autowired
-    private TicketService ticketService;
+    private final TicketService ticketService;
 
     @Override
-    @Cacheable(cacheNames = "SeatService",key = "'SeatList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
+    @Cacheable(cacheNames = "SeatService",key = "'SeatList_findAll_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
     public List<Seat> findAll(Integer page, Integer size, String sort , String order, String search, Integer room) {
         return seatRepository.findAll(size, page * size, sort, order,  search,  room);
     }
 
     @Override
+    @Cacheable(cacheNames = "SeatService",key = "'SeatList_findCountAll_'+#search +'-'+#room",unless = "#result == null")
     public int findCountAll(String search, Integer room) {
         return seatRepository.findCountAll(search,room);
     }
@@ -121,28 +120,41 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-    public List<Seat> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes) {
+//    @Cacheable(cacheNames = "SeatService",key = "'findByRoom_'+#page +'-'+#size+'-'+#sort+'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
+    public List<SeatDto> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes) {
         var arrSeat = this.seatRepository.findAll(size,(page -1 ) * size,sort,order,null,room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
-
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
-
         for (Seat seat : arrSeatAvailable){
             arrIdSeatAvailable.add(seat.getId());
         }
-
         for (Seat seat : arrSeat) {
             if (arrIdSeatAvailable.contains(seat.getId())) {
                 seat.setIsSelected(false);
-                seat.setStatus(2);
+                seat.setStatus(SeatStatus.Available.name());
             } else {
                 seat.setIsSelected(true);
-                seat.setStatus(1);
+                seat.setStatus(SeatStatus.Unavailable.name());
             }
         }
-
-        return arrSeat;
+        return this.convertSeatToSeatHavePrice(arrSeat,showTimes);
     }
+
+    private List<SeatDto> convertSeatToSeatHavePrice(List<Seat> seats,int showId){
+        var seatList = new ArrayList<SeatDto>();
+        var showTime = this.showTimesDetailService.findById(showId);
+        seats.forEach(seat -> {
+            var seatDto = SeatDto.builder()
+                    .id(seat.getId()).seatType(seat.getSeatType())
+                    .isSelected(seat.getIsSelected()).status(seat.getStatus())
+                    .tier(seat.getTier()).numbers(seat.getNumbers()).roomId(seat.getRoomId())
+                    .price(showTime.getPrice())
+                    .build();
+            seatList.add(seatDto);
+        });
+        return seatList;
+    }
+
 
     @Override
     public List<List<Seat>> findByRoomShow(Integer showTimesDetailId, Integer roomId) {

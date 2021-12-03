@@ -11,6 +11,7 @@ import com.apps.mybatis.mysql.ShowTimesDetailRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.TimePick;
 import com.apps.service.*;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,28 +32,19 @@ import java.util.Map;
 
 
 @Service
+@RequiredArgsConstructor
 public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
-    @Autowired
-    private ShowTimesDetailRepository showTimesDetailRepository;
+    private final ShowTimesDetailRepository showTimesDetailRepository;
 
-    @Autowired
-    private ShowTimesDetailsCustomRepository repository;
+    private final ShowTimesDetailsCustomRepository repository;
 
-    @Autowired
-    private RoomService roomService;
+    private final RoomService roomService;
 
-    @Autowired
-    private EmployeeService employeeService;
+    private final ApplicationCacheManager cacheManager;
 
-    @Autowired
-    private UserAccountRepository userAccountRepository;
+    private final UserServiceImpl userService;
 
-    @Autowired
-    private ApplicationCacheManager cacheManager;
-
-    @Autowired
-    private UserServiceImpl userService;
 
 
     @Override

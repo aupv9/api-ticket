@@ -18,5 +18,9 @@ public class SeatDto implements Serializable {
     private Integer roomId;
     private Integer numbers;
     private String tier;
+    private Boolean isSelected = false;
+    private String status;
+    private double price;
+
 }
 
