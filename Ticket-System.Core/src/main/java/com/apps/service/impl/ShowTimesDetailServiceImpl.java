@@ -143,6 +143,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         }
         showTimesDetail1.setMovieId(showTimesDetail.getMovieId());
         showTimesDetail1.setRoomId(showTimesDetail.getRoomId());
+        showTimesDetail1.setPrice(showTimesDetail.getPrice());
         int result = this.showTimesDetailRepository.update(showTimesDetail1);
         cacheManager.clearCache("ShowTimesDetailService");
         return result;

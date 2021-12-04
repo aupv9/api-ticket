@@ -134,7 +134,10 @@
                 room_id = #{entity.roomId},
             </if>
             <if test="entity.timeStart != null">
-                time_start = #{entity.timeStart}
+                time_start = #{entity.timeStart},
+            </if>
+            <if test="entity.price != null">
+                price = #{entity.price}
             </if>
         </set>
         where id = #{entity.id}
