@@ -4,7 +4,9 @@ import com.apps.contants.OfferStatus;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.OfferCode;
+import com.apps.domain.entity.OfferDetail;
 import com.apps.domain.repository.OfferCustomRepository;
+import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.request.OfferDto;
 import com.apps.service.PromotionService;
@@ -97,13 +99,31 @@ public class PromotionServiceImp implements PromotionService {
     }
 
     @Override
-    public OfferCode checkPromotionCode(String code) {
-        return this.promotionRepository.checkPromotionCode(code);
+    public OfferCode checkPromotionCode(String code,Integer movie) {
+
+        var offerCode = this.promotionRepository.checkPromotionCode(code);
+        if(offerCode != null){
+            var offerMovie = this.promotionRepository.findOfferMovie(offerCode.getOfferId(),movie);
+            if(offerMovie == null){
+                throw new NotFoundException("Promo Code of movie invalid");
+            }
+        }
+        return offerCode;
     }
 
     @Override
     public Offer findById(int id) {
         return this.promotionRepository.findById(id);
+    }
+
+    @Override
+    public List<OfferDetail> findAllOfferDetail(int limit, int offset, String sort, String order, Integer offer) {
+        return this.promotionRepository.findAllOfferDetail(limit,offset,sort,order,offer > 0 ? offer : null);
+    }
+
+    @Override
+    public int findAllCountOfferDetail(Integer offer) {
+        return this.promotionRepository.findAllCountOfferDetail(offer > 0 ? offer : null);
     }
 
     private String convertISOtoLocalDatetime(String isoDate){

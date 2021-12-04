@@ -33,11 +33,10 @@ public class RoomServiceImpl implements RoomService {
     private final ServiceRepository serviceRepository;
 
     @Override
-//    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater", unless = "#result == null")
+    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater+'-'+#isSeniorManager", unless = "#result == null")
     public List<Room> findAll(Integer page, Integer size, String sort, String order, String search,
-                              Integer theater) {
-        if(theater == 0) theater = this.userService.getTheaterByUser();
-        return this.roomRepository.findAll(size,page * size,sort,order,search,theater);
+                              Integer theater,Boolean isSeniorManager) {
+        return this.roomRepository.findAll(size,page * size,sort,order,search,isSeniorManager ? null : theater);
     }
 
     @Override
@@ -92,10 +91,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Cacheable(value = "RoomService" ,key = "'findCountAllRoom_'+#search+'-'+#theater", unless = "#result == null")
-    public int findCountAll(String search, Integer theater) {
-         if(theater == 0) theater = this.userService.getTheaterByUser();
-        return this.roomRepository.findCountAll(search, theater);
+    @Cacheable(value = "RoomService" ,key = "'findCountAllRoom_'+#search+'-'+#theater+'-'+#isSeniorManager", unless = "#result == null")
+    public int findCountAll(String search, Integer theater,Boolean isSeniorManager) {
+        return this.roomRepository.findCountAll(search, isSeniorManager ? null : theater);
     }
 
 

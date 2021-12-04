@@ -10,7 +10,6 @@ import com.apps.service.PaymentService;
 import com.apps.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
                                  Integer creation,Integer method) {
 
         return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,
-                this.userService.isManager() ? null :
+                this.userService.isSeniorManager() ? null :
                 userService.getUserFromContext(),method > 0 ? method :null);
     }
 
@@ -48,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     public int findAllCount(String createdDate, String useFor, String status,
                             Integer creation,Integer method) {
         return this.paymentRepository.findAllCount(createdDate,useFor,status,
-                this.userService.isManager() ? null : userService.getUserFromContext(),
+                this.userService.isSeniorManager() ? null : userService.getUserFromContext(),
                 method > 0 ? method :null);
     }
 

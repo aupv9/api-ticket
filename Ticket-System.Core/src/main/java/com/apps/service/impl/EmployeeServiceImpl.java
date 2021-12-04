@@ -88,8 +88,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public int insert(Integer userId, Integer roleId, Integer createdBy, String status,String createdAt) {
-        return this.employeeRepository.insert(userId,roleId,createdBy,status,createdAt);
+    public int insert(Integer userId, Integer createdBy, String status,String createdAt) {
+        return this.employeeRepository.insert(userId,createdBy,status,createdAt);
     }
     public int getUserFromContext() {
         int userId = 0;
@@ -121,14 +121,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
         EmployeeDto employee1 = this.findById(employee.getId());
-        int modifiedBy = this.getUserFromContext();
+//        int modifiedBy = this.getUserFromContext();
         employee1.setStartsAt(employee.getStartsAt());
         employee1.setEndsAt(employee.getEndsAt());
         employee1.setUpdatedAt(localDateTime.format(simpleDateFormat));
         employee1.setStatus(employee.getStatus());
         employee1.setTheaterId(employee.getTheaterId());
         employee1.setNotes(employee.getNotes());
-        employee1.setUpdatedBy(modifiedBy);
+//        employee1.setUpdatedBy(modifiedBy);
         return this.employeeRepository.update(employee);
     }
 

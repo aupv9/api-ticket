@@ -43,9 +43,7 @@ public class PaymentController {
     }
 
     @PostMapping("payments")
-    public ResponseEntity<?> createCategory(@RequestBody Payment payment,
-                                            @RequestHeader("Authorization") String token
-    ) throws SQLException {
+    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException {
         int idReturned = this.paymentService.insertReturnedId(payment);
         payment.setId(idReturned);
         return ResponseEntity.ok(payment);

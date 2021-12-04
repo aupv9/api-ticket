@@ -13,11 +13,11 @@ public interface RoomService {
     List<Room> findAll(Integer page, Integer size,
                        String sort, String order,
                        String search,
-                       Integer theater);
+                       Integer theater,Boolean isSeniorManager);
     int insert(RoomDto room) throws SQLException;
     Room findById(Integer id);
     int update(RoomDto room);
     void delete(Integer id);
-    int findCountAll(String search, Integer theater);
+    int findCountAll(String search, Integer theater,Boolean isSeniorManager);
 
 }

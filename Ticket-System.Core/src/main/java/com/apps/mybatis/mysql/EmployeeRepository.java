@@ -20,7 +20,7 @@ public interface EmployeeRepository {
             " createdAt, status,updatedAt,startsAt, endsAt, notes from employee where user_id = #{id}")
     Employee findByUserId(@Param("id")Integer id);
 
-    int insert(@Param("userId")Integer userId,@Param("roleId")Integer roleId,
+    int insert(@Param("userId")Integer userId,
                @Param("createdBy")Integer createBy,@Param("status")String status,
                @Param("createdAt")String createdAt);
 

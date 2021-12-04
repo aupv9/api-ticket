@@ -65,7 +65,7 @@
 
     <insert id="insert">
         insert into employee(user_id,createdBy,status,createdAt)
-        values (#{userId},#{roleId},#{createdBy},#{status},#{createdAt})
+        values (#{userId},#{createdBy},#{status},#{createdAt})
     </insert>
 
     <update id="update" >

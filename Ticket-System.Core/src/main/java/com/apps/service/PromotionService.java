@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.OfferCode;
+import com.apps.domain.entity.OfferDetail;
 import com.apps.request.OfferDto;
 
 import java.sql.SQLException;
@@ -18,7 +19,14 @@ public interface PromotionService {
                       String promotionType, String method,boolean multi ,String search);
     int insertOffer(OfferDto offerDto) throws SQLException;
 
-    OfferCode checkPromotionCode(String code);
+    OfferCode checkPromotionCode(String code,Integer movie);
 
     Offer findById(int id);
+
+    List<OfferDetail> findAllOfferDetail(int limit, int offset, String sort, String order,
+                              Integer offer);
+    int findAllCountOfferDetail(Integer offer);
+
+
+
 }

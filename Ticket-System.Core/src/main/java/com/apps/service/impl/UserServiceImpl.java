@@ -95,7 +95,22 @@ public class UserServiceImpl implements UserService {
         return theaterId;
     }
 
-    public boolean isManager(){
+    public boolean isSeniorManager(){
+        var userId = this.getUserFromContext();
+        if(userId > 0){
+            var userRoles = this.roleService.findUserRoleById(userId);
+            for (var role : userRoles ) {
+                var roleName = this.roleService.findRoleById(role.getRoleId());
+                if (roleName.getCode().equals(com.apps.contants.Role.SENIOR_MANAGER.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isManager() {
         var userId = this.getUserFromContext();
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
@@ -210,7 +225,7 @@ public class UserServiceImpl implements UserService {
         var roleIds = roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         if(user == null) {
             var userSocial = this.userAccountRepository.findUserSocialById(id);
-            if (userSocial.getIsLoginSocial()) {
+            if (userSocial != null) {
                 user = new com.apps.response.entity.UserDto();
                 user.setEmail(userSocial.getEmail());
                 user.setRoleIds(roleIds);
@@ -268,7 +283,7 @@ public class UserServiceImpl implements UserService {
                     this.employeeService.update(employee);
                 }else{
                     this.employeeService
-                            .insert(userInfo.getId(),role.getId(),modifiedBy,EmployeeStatus.New.name(),
+                            .insert(userInfo.getId(),modifiedBy,EmployeeStatus.New.name(),
                             getNowDateTime());
                 }
             }
@@ -292,6 +307,9 @@ public class UserServiceImpl implements UserService {
             var privilege = roleService.getAuthorities(roles);
             if(this.isEmployee(userInfo.getId())){
                 if(this.isActiveTimeAvailable(userInfo.getId())){
+                    var employee = this.employeeService.findByUserId(userInfo.getId());
+                    employee.setStatus(EmployeeStatus.Active.name());
+                    this.employeeService.update(employee);
                     return UserLoginResponse.builder()
                             .token(token)
                             .email(email).id(user.getId())
@@ -343,12 +361,16 @@ public class UserServiceImpl implements UserService {
               var privilege = roleService.getAuthorities(roles);
               if(this.isEmployee(user.getId())){
                   if(this.isActiveTimeAvailable(user.getId())){
+                      var employee = this.employeeService.findByUserId(user.getId());
+                      employee.setStatus(EmployeeStatus.Active.name());
+                      this.employeeService.update(employee);
                       return UserLoginResponse.builder()
                               .token(token)
                               .email(user.getEmail()).id(user.getId())
                               .fullName(user.getFullName())
                               .photo(user.getPhoto())
-                              .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                              .privileges(privilege.stream()
+                                      .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                               .build();
                   }else {
                       var employee = this.employeeService.findByUserId(user.getId());

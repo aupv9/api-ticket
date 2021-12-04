@@ -92,7 +92,9 @@ public class OrdersServiceImpl implements OrdersService {
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
         return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,
-                order,showTimes,type,userId,status,creation, this.convertLocalDate(dateGte),null));
+                order,showTimes,type,userId,status,this.userService.isSeniorManager()
+                        || this.userService.isManager() ? null : creation,
+                this.convertLocalDate(dateGte),null));
     }
 
     @Override
@@ -100,7 +102,9 @@ public class OrdersServiceImpl implements OrdersService {
                                                String status, Integer creation, String dateGte) {
 
         return this.addInfoToOrders(this.findAll(page,size,sort,
-                order,showTimes,type,userId,status,this.userService.isManager() ? null :
+                        order,showTimes,type,userId,status,
+                        this.userService.isSeniorManager()
+                        || this.userService.isManager() ? null :
                         this.userService.getUserFromContext(), this.convertLocalDate(dateGte)));
     }
 
@@ -126,7 +130,8 @@ public class OrdersServiceImpl implements OrdersService {
             orderRoom.setLocationName(location.getName());
             ordersRoom.add(orderRoom);
         }
-        return this.filterOrderByTheater(ordersRoom);
+        return this.userService.isSeniorManager() ? ordersRoom
+                : this.userService.isManager() ? this.filterOrderByTheater(ordersRoom) : ordersRoom;
     }
 
     @Override
@@ -141,8 +146,7 @@ public class OrdersServiceImpl implements OrdersService {
                                         String dateGte,
             Boolean isYear) {
         return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,
-                sort,order,showTimes > 0 ? showTimes :null ,type,status,
-                this.userService.isManager() ? null :userService.getUserFromContext(),
+                sort,order,showTimes > 0 ? showTimes :null ,type,status, userService.getUserFromContext(),
                 this.convertLocalDate(dateGte), isYear ? true : null));
     }
 
@@ -263,12 +267,10 @@ public class OrdersServiceImpl implements OrdersService {
     public int orderNonPayment(OrderDto orderDto) throws SQLException {
         var idSeats = this.seatRepository.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
         for (var seat : orderDto.getSeats()){
-            System.out.println(seat);
             if(isSeatsAvailable(seat,idSeats)){
                 throw new NotFoundException("Seat !" + seat + "reserved!");
             }
         }
-
         var taxAmount = (orderDto.getTotalAmount() / 100) * 10;
         Orders orders = Orders.builder()
                 .creation(userService.getUserFromContext())

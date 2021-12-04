@@ -50,11 +50,32 @@ public class PromotionController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("offers-detail")
+    public ResponseEntity<?> getOffers(@RequestParam(value =  "pageSize", required = false) Integer size,
+                                       @RequestParam(value = "page", required = false)Integer page,
+                                       @RequestParam(value = "sort", required = false) String sort,
+                                       @RequestParam(value = "order", required = false) String order,
+                                       @RequestParam(value =  "offer_id", required = false,defaultValue = "0") Integer offer
+    ){
+
+        var resultList = this.promotionService.findAllOfferDetail(size, (page - 1 ) * size,sort,order,offer);
+        var totalElements = this.promotionService.findAllCountOfferDetail(offer);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
 
     @GetMapping("check-promoCode")
-    public ResponseEntity<?> checkPromotionCode(@RequestParam(value = "code", required = false) String code) {
-        var resultList = this.promotionService.checkPromotionCode(code);
-        return ResponseEntity.ok(resultList);
+    public ResponseEntity<?> checkPromotionCode(@RequestParam(value = "code", required = false) String code,
+                                                @RequestParam(value = "movie", required = false) Integer movie) {
+        var result = this.promotionService.checkPromotionCode(code,movie);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("offers/{id}")

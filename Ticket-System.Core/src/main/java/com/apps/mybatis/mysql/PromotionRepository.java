@@ -1,8 +1,6 @@
 package com.apps.mybatis.mysql;
 
-import com.apps.domain.entity.Offer;
-import com.apps.domain.entity.OfferCode;
-import com.apps.domain.entity.OfferHistory;
+import com.apps.domain.entity.*;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -24,6 +22,12 @@ public interface PromotionRepository {
                      @Param("type") String promotionType, @Param("method")String method,@Param("multi")boolean multi,
                      @Param("search")String search);
 
+    List<OfferDetail> findAllOfferDetail(@Param("limit") int limit, @Param("offset")int offset, @Param("sort") String sort, @Param("order")String order,
+                                         @Param("offerId") Integer offer);
+
+    int findAllCountOfferDetail(@Param("offerId") Integer offer);
+
+
 
     @Insert("insert into offer_detail(offer_id,code) values(#{offerId},#{code})")
     int insertOfferDetail(@Param("offerId")int offerId,@Param("code")String code);
@@ -36,6 +40,9 @@ public interface PromotionRepository {
 
     @Select("select * from offer_detail where code = #{code}")
     OfferCode checkPromotionCode(@Param("code")String code);
+
+    @Select("select * from offer_movie where offer_id =#{offer} and movie_id = #{movie}")
+    OfferMovie findOfferMovie(@Param("offer")Integer offer,@Param("movie")Integer movie);
 
     @Select("select * from offer where id = #{id}")
     Offer findById(@Param("id") int id);

@@ -36,10 +36,13 @@ public class RoomController {
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search", required = false) String search,
-                                          @RequestParam(value = "theater_id", required = false,defaultValue = "0") Integer theaterId
+                                          @RequestParam(value = "theater_id", required = false,
+                                                  defaultValue = "0") Integer theaterId
                                           ){
-        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId);
-        var totalElement =this.roomService.findCountAll(search,theaterId);
+        var isSeniorManager = this.userService.isSeniorManager();
+        if(theaterId == 0) theaterId = this.userService.getTheaterByUser();
+        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId,isSeniorManager);
+        var totalElement = this.roomService.findCountAll(search,theaterId,isSeniorManager);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElement)

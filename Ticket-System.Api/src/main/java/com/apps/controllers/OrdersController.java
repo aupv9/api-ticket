@@ -27,17 +27,15 @@ public class OrdersController {
 
     @GetMapping("orders-room")
     public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
-                                          @RequestParam(value = "sort", required = false) String sort,
-                                          @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "user_id",  required = false) Integer userId,
-                                          @RequestParam(value = "type",  required = false) String type,
-                                          @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
-                                          @RequestParam(value = "status", required = false) String status,
-                                          @RequestParam(value = "creation", required = false) Integer creation,
-                                          @RequestParam(value = "date_gte", required = false) String dateGte,
-                                            @RequestHeader("Authorization") String token
-
+                                              @RequestParam(value = "page", required = false)Integer page,
+                                              @RequestParam(value = "sort", required = false) String sort,
+                                              @RequestParam(value = "order", required = false) String order,
+                                              @RequestParam(value = "user_id",  required = false) Integer userId,
+                                              @RequestParam(value = "type",  required = false) String type,
+                                              @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
+                                              @RequestParam(value = "status", required = false) String status,
+                                              @RequestParam(value = "creation", required = false) Integer creation,
+                                              @RequestParam(value = "date_gte", required = false) String dateGte
     ){
         var resultList = this.ordersService.findAllOrderRoom(page - 1 ,size,sort,order,
                 showTimesId,type,userId,status,creation,dateGte);

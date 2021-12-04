@@ -12,7 +12,7 @@ public interface EmployeeService {
     int findCountAll(Integer roleId,Integer theaterId);
     EmployeeDto findById(Integer id);
     Employee findByUserId(Integer userId);
-    int insert(Integer userId, Integer roleId,
+    int insert(Integer userId,
                Integer createdBy, String status,String createdAt);
     int update(Employee employee);
     int delete(int id);

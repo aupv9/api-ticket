@@ -104,6 +104,46 @@
 
     </select>
 
+    <select id="findAllOfferDetail" resultType="com.apps.domain.entity.OfferDetail">
+        select * from offer_detail
+        <where>
+            <if test="offerId != null">
+                offer_id = #{offerId}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'offerId'">
+                    offer_id
+                </when>
+                <otherwise>
+                    code
+                </otherwise>
+
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+    <select id="findAllCountOfferDetail" resultType="INT">
+        select count(*) offer_detail
+        <where>
+            <if test="offerId != null">
+                offer_id = #{offerId}
+            </if>
+        </where>
+    </select>
+
+
+
+
     <insert id="insertOfferHistory" useGeneratedKeys="true" keyProperty="id">
         insert into offer_history(user_id, status, offer_id, time_used, total_discount,code,order_id)
         values (#{offer.userId},#{offer.status},#{offer.offerId},
