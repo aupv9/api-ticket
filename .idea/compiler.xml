@@ -17,6 +17,7 @@
     <bytecodeTargetLevel>
       <module name="Authenticate" target="8" />
       <module name="AuthorizationServer" target="8" />
+      <module name="WebsocketModule" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

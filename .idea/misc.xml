@@ -14,6 +14,7 @@
       <set>
         <option value="$PROJECT_DIR$/Authenticate/pom.xml" />
         <option value="$PROJECT_DIR$/AuthorizationServer/pom.xml" />
+        <option value="$PROJECT_DIR$/WebsocketModule/pom.xml" />
       </set>
     </option>
   </component>
