@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -127,8 +128,7 @@ public class OrdersController {
 
 
     @PostMapping("orders")
-    public ResponseEntity<?> createCategory(@RequestBody OrderDto orders,
-                                            @RequestHeader("Authorization")String token) throws SQLException {
+    public ResponseEntity<?> createCategory(@RequestBody OrderDto orders) throws SQLException, ExecutionException, InterruptedException {
         int idReturned = this.ordersService.orderNonPayment(orders);
         orders.setId(idReturned);
         return ResponseEntity.ok(orders);

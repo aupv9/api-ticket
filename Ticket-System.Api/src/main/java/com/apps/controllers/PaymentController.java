@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -43,7 +44,7 @@ public class PaymentController {
     }
 
     @PostMapping("payments")
-    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException {
+    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException, ExecutionException, InterruptedException {
         int idReturned = this.paymentService.insertReturnedId(payment);
         payment.setId(idReturned);
         return ResponseEntity.ok(payment);

@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.config.kafka.Message;
 import com.apps.contants.*;
 import com.apps.domain.entity.*;
 import com.apps.domain.repository.PaymentCustomRepository;
@@ -10,10 +11,12 @@ import com.apps.service.PaymentService;
 import com.apps.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PromotionRepository promotionRepository;
 
+    private final KafkaTemplate<String, Message> kafkaTemplate;
 
     @Override
     public int insert(Payment payment) {
@@ -38,16 +42,18 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> findAll(int limit, int offset, String sort, String order, String createdDate, String useFor, String status,
                                  Integer creation,Integer method) {
 
+        var userId = userService.getUserFromContext();
         return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,
-                this.userService.isSeniorManager() ? null :
-                userService.getUserFromContext(),method > 0 ? method :null);
+                this.userService.isSeniorManager(userId) ? null :
+                        userId,method > 0 ? method :null);
     }
 
     @Override
     public int findAllCount(String createdDate, String useFor, String status,
                             Integer creation,Integer method) {
+        var userId = userService.getUserFromContext();
         return this.paymentRepository.findAllCount(createdDate,useFor,status,
-                this.userService.isSeniorManager() ? null : userService.getUserFromContext(),
+                this.userService.isSeniorManager(userId) ? null : userId,
                 method > 0 ? method :null);
     }
 
@@ -62,7 +68,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public int insertReturnedId(Payment payment) throws SQLException {
+    public int insertReturnedId(Payment payment) throws SQLException, ExecutionException, InterruptedException {
         payment.setStatus(PaymentStatus.Verified.getValue());
         String sql = "Insert into payment(part_id,payment_method_id," +
                 "creation,status,transaction_id,created_date,amount,use_for," +
@@ -97,6 +103,11 @@ public class PaymentServiceImpl implements PaymentService {
                 this.promotionRepository.insertOfferHistory(offerHistory);
             }
             this.ordersService.update(orders);
+            var listOrderNew = this.ordersService.findAllOrderRoom(0,25,
+                    "updatedAt","DESC",null,null,null,null,
+                    null,Utilities.subDate(30));
+            kafkaTemplate.send("test-websocket","order-chart",
+                    new com.apps.config.kafka.Message("order",listOrderNew)).get();
         }
         return result;
     }

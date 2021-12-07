@@ -28,6 +28,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 @ConditionalOnExpression("'${spring.cache.type}'=='redis' && '${application.redis.cache.custom.enable}'=='true'")
@@ -134,7 +135,7 @@ public class RedisCacheConfig {
             config = config.disableKeyPrefix();
         }
 
-        String keyPrefix = Arrays.asList(defaultRedisProperties.getKeyPrefix(), redisProperties.getKeyPrefix()).stream().filter(k -> !CommonUtils.isNullOrEmpty(k)).collect(Collectors.joining());
+        String keyPrefix = Stream.of(defaultRedisProperties.getKeyPrefix(), redisProperties.getKeyPrefix()).filter(k -> !CommonUtils.isNullOrEmpty(k)).collect(Collectors.joining());
 
         if (!CommonUtils.isNullOrEmpty(keyPrefix)) {
             config = config.computePrefixWith(cacheName -> keyPrefix + cacheName + "::");

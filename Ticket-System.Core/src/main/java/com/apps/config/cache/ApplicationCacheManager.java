@@ -1,6 +1,7 @@
 package com.apps.config.cache;
 
 import com.apps.utils.CommonUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -9,7 +10,6 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +18,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ApplicationCacheManager {
-    private CacheManager cacheManager;
-    private RedisTemplate<Object, Object> redisTemplate;
-    private String redisKeyPrefix;
+    private final CacheManager cacheManager;
+    private final RedisTemplate<Object, Object> redisTemplate;
+    private final String redisKeyPrefix;
 
-    public ApplicationCacheManager(CacheManager cacheManager,
-                                   RedisTemplate<Object, Object> redisTemplate,
-                                   String redisKeyPrefix) {
-        this.cacheManager = cacheManager;
-        this.redisTemplate = redisTemplate;
-        this.redisKeyPrefix = redisKeyPrefix;
-    }
 
     public List<Object> getKeys(String pattern) {
         List<Object> allkeys = new ArrayList<>();

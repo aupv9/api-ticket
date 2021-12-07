@@ -39,7 +39,8 @@ public class RoomController {
                                           @RequestParam(value = "theater_id", required = false,
                                                   defaultValue = "0") Integer theaterId
                                           ){
-        var isSeniorManager = this.userService.isSeniorManager();
+        var userId = this.userService.getUserFromContext();
+        var isSeniorManager = this.userService.isSeniorManager(userId);
         if(theaterId == 0) theaterId = this.userService.getTheaterByUser();
         var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId,isSeniorManager);
         var totalElement = this.roomService.findCountAll(search,theaterId,isSeniorManager);

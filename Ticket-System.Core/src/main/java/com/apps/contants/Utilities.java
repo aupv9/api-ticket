@@ -54,5 +54,8 @@ public class Utilities {
         return  (UserDetails)authentication.getPrincipal();
     }
 
+    public static String subDate(int countDate){
+        return LocalDate.now().minusDays(countDate).format(dateFormatter);
+    }
 
 }

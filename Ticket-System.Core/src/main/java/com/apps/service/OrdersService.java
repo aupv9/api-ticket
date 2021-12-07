@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface OrdersService {
     List<Orders> findAll( int page, int size,
@@ -40,7 +41,7 @@ public interface OrdersService {
     void delete(int id);
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);
-    int orderNonPayment(OrderDto orderDto) throws SQLException;
+    int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException;
     int updateMyOrder(MyOrderUpdateDto orders);
 
 }

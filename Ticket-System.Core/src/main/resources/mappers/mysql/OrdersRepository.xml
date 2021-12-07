@@ -48,6 +48,9 @@
                 <when test="sort == 'showTimes'">
                     showtimes_detail_id
                 </when>
+                <when test="sort == 'updatedAt'">
+                    updatedAt
+                </when>
                 <otherwise>
                     profile
                 </otherwise>

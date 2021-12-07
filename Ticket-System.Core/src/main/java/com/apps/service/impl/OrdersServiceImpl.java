@@ -16,9 +16,12 @@ import com.apps.response.entity.ConcessionMyOrder;
 import com.apps.response.entity.MyOrderResponse;
 import com.apps.response.entity.OrderSeats;
 import com.apps.service.*;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +34,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class Message{
+    private String from;
+    private String text;
+
+    public Message(String text) {
+        this.text = text;
+    }
+}
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -51,8 +66,17 @@ public class OrdersServiceImpl implements OrdersService {
     private final LocationService locationService;
     private final SeatRepository seatRepository;
 
+
+    @Autowired
+    private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
+//
+//    @Scheduled(fixedDelay = 1000)
+//    public void sendMessage() throws ExecutionException, InterruptedException {
+//        kafkaTemplate.send("test-websocket", new com.apps.config.kafka.Message("Notification","1","")).get();
+//    }
+
     @Scheduled(fixedDelay = 100000)
-    public void reportCurrentTime() {
+    public void reportCurrentTime() throws ExecutionException, InterruptedException {
         String currentTime = Utilities.getCurrentTime();
         var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
@@ -69,6 +93,13 @@ public class OrdersServiceImpl implements OrdersService {
                 }
             }
             int deleted = this.ordersRepository.delete(order);
+        }
+        if(this.userService.getUserFromContext() != 0){
+            var listOrderNew = this.findAllOrderRoom(0,25,
+                    "updatedAt","DESC",null,null,null,null,
+                    null,Utilities.subDate(30));
+            kafkaTemplate.send("test-websocket","order-chart",
+                    new com.apps.config.kafka.Message("order",listOrderNew)).get();
         }
     }
 
@@ -89,26 +120,29 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+//    @Cacheable(value = "OrdersService" ,key = "'ListOrders'+#page +'-'+#size +'-'+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#showTimes", unless = "#result == null")
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
+        var idUserContext = this.userService.getUserFromContext();
         return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,
-                order,showTimes,type,userId,status,this.userService.isSeniorManager()
-                        || this.userService.isManager() ? null : creation,
+                order,showTimes,type,userId,status,this.userService.isSeniorManager(idUserContext)
+                        || this.userService.isManager(idUserContext) ? null : idUserContext,
                 this.convertLocalDate(dateGte),null));
     }
 
     @Override
-    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId,
+    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order,
+                                               Integer showTimes, String type, Integer userId,
                                                String status, Integer creation, String dateGte) {
-
+        var idUserContext = this.userService.getUserFromContext();
+        var isManager =  this.userService.isSeniorManager(idUserContext);
+        var isSenior = this.userService.isManager(idUserContext);
         return this.addInfoToOrders(this.findAll(page,size,sort,
-                        order,showTimes,type,userId,status,
-                        this.userService.isSeniorManager()
-                        || this.userService.isManager() ? null :
-                        this.userService.getUserFromContext(), this.convertLocalDate(dateGte)));
+                        order,showTimes,type,userId,status,isManager || isSenior ? null :
+                        this.userService.getUserFromContext(), this.convertLocalDate(dateGte)),isManager,isSenior);
     }
 
-    private List<OrderRoomDto> addInfoToOrders(List<Orders> orders){
+    private List<OrderRoomDto> addInfoToOrders(List<Orders> orders,boolean isManager,boolean isSeniorManager){
         var ordersRoom = new ArrayList<OrderRoomDto>();
         for (var order: orders){
             var orderRoom = OrderRoomDto.builder()
@@ -130,8 +164,8 @@ public class OrdersServiceImpl implements OrdersService {
             orderRoom.setLocationName(location.getName());
             ordersRoom.add(orderRoom);
         }
-        return this.userService.isSeniorManager() ? ordersRoom
-                : this.userService.isManager() ? this.filterOrderByTheater(ordersRoom) : ordersRoom;
+        return isSeniorManager ? ordersRoom
+                : isManager ? this.filterOrderByTheater(ordersRoom) : ordersRoom;
     }
 
     @Override
@@ -264,7 +298,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public int orderNonPayment(OrderDto orderDto) throws SQLException {
+    public int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
         var idSeats = this.seatRepository.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
         for (var seat : orderDto.getSeats()){
             if(isSeatsAvailable(seat,idSeats)){
@@ -300,6 +334,12 @@ public class OrdersServiceImpl implements OrdersService {
             for (Map.Entry<Integer,Integer> concession : map.entrySet() ){
                 this.ordersRepository.insertOrderConcession(concession.getKey(),idOrderCreated,concession.getValue());
             }
+            cacheManager.clearCache("");
+            var listOrderNew = this.findAllOrderRoom(0,25,
+                    "updatedAt","DESC",null,null,null,null,
+                    null,Utilities.subDate(30));
+            kafkaTemplate.send("test-websocket","order-chart",
+                    new com.apps.config.kafka.Message("order",listOrderNew)).get();
         }else{
             return 0;
         }

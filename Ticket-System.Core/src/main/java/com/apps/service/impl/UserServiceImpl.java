@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.tomcat.jni.Local;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -95,8 +96,8 @@ public class UserServiceImpl implements UserService {
         return theaterId;
     }
 
-    public boolean isSeniorManager(){
-        var userId = this.getUserFromContext();
+    @Cacheable(value = "OrdersService" ,key = "'isSeniorManager_'+#userId", unless = "#result == null")
+    public boolean isSeniorManager(Integer userId){
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
             for (var role : userRoles ) {
@@ -110,8 +111,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isManager() {
-        var userId = this.getUserFromContext();
+    @Cacheable(value = "OrdersService" ,key = "'isManager_'+#userId", unless = "#result == null")
+    public boolean isManager(Integer userId) {
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
             for (var role : userRoles ) {

@@ -15,10 +15,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +36,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/v1/authenticate",
                 "/api/v1/authenticate-social").permitAll()
                 .antMatchers(HttpMethod.PUT,"/api/v1/update-status-login").permitAll();
-        http.cors().configurationSource(httpServletRequest -> corsConfiguration());
+//        http.cors().configurationSource(httpServletRequest -> corsConfiguration());
+//        http.cors(httpSecurityCorsConfigurer -> corsFilter())
+                http.cors().configurationSource(httpServletRequest -> corsConfiguration());
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtAuthenticationTokenFilter(),JwtAuthenticationTokenFilter.class);
@@ -47,10 +52,33 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfiguration corsConfiguration(){
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(Collections.singletonList("*"));
-        cors.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
+        cors.setAllowedMethods(Collections.singletonList("*"));
         cors.setAllowedHeaders(Collections.singletonList("*"));
+        cors.setAllowedOriginPatterns(Collections.singletonList("*"));
+        cors.setAllowedOriginPatterns(Collections.singletonList("*"));
         return cors;
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        //  Whether to allow requests with verification information
+        config.setAllowCredentials(true);
+
+        List<String> allowedOriginPatterns = new ArrayList<>();
+        allowedOriginPatterns.add("*");
+        config.setAllowedOriginPatterns(allowedOriginPatterns);
+
+        //  Set access source address
+        // config.addAllowedOrigin("*");
+        //  Set access source request header
+        config.addAllowedHeader("*");
+        //  Set access source request method
+        config.addAllowedMethod("*");
+        //  Configure cross-domain settings to interfaces
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 
     @Bean

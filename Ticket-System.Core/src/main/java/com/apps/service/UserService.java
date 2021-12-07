@@ -31,7 +31,7 @@ public interface UserService {
     int updateCurrentLogged(int userId,boolean isLogged);
     int updateCurrentLoggedByEmail(String email);
     int getTheaterByUser();
-    boolean isSeniorManager();
-    boolean isManager();
+    boolean isSeniorManager(Integer userId);
+    boolean isManager(Integer userId);
     int getUserFromContext();
 }
