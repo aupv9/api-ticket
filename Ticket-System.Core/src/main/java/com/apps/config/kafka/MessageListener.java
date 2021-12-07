@@ -16,7 +16,16 @@ public class MessageListener {
             groupId = "real-time"
     )
     public void listen(ConsumerRecord<String, Message> record) {
-        System.out.println("sending via kafka listener..");
-        template.convertAndSend("/topic/chart", record.value());
+        switch (record.key()){
+            case "order-chart":
+                System.out.println("get key == order-chart");
+                template.convertAndSend("/topic/notification", record.value());
+                break;
+            case "seat-map":
+                System.out.println("get key == seat-map");
+                template.convertAndSend("/topic/notification", record.value());
+            default:
+                break;
+        }
     }
 }

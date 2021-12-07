@@ -8,6 +8,7 @@ import com.apps.mybatis.mysql.PaymentRepository;
 import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.service.OrdersService;
 import com.apps.service.PaymentService;
+import com.apps.service.SeatService;
 import com.apps.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
@@ -32,6 +33,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final PromotionRepository promotionRepository;
 
     private final KafkaTemplate<String, Message> kafkaTemplate;
+
+    private final SeatService seatService;
 
     @Override
     public int insert(Payment payment) {
@@ -108,6 +111,10 @@ public class PaymentServiceImpl implements PaymentService {
                     null,Utilities.subDate(30));
             kafkaTemplate.send("test-websocket","order-chart",
                     new com.apps.config.kafka.Message("order",listOrderNew)).get();
+            var showTimes = this.seatService.findShowTimesById(order.getShowTimesDetailId());
+            var seatMap = this.seatService.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),order.getShowTimesDetailId());
+            kafkaTemplate.send("test-websocket","seat-map",
+                    new com.apps.config.kafka.Message("seat",seatMap)).get();
         }
         return result;
     }

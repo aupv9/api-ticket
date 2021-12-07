@@ -64,7 +64,7 @@ public class OrdersServiceImpl implements OrdersService {
     private final ShowTimesDetailService showTimesDetailService;
     private final TheaterService theaterService;
     private final LocationService locationService;
-    private final SeatRepository seatRepository;
+    private final SeatService seatService;
 
 
     @Autowired
@@ -299,7 +299,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
-        var idSeats = this.seatRepository.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
+        var idSeats = this.seatService.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
         for (var seat : orderDto.getSeats()){
             if(isSeatsAvailable(seat,idSeats)){
                 throw new NotFoundException("Seat !" + seat + "reserved!");
@@ -340,6 +340,10 @@ public class OrdersServiceImpl implements OrdersService {
                     null,Utilities.subDate(30));
             kafkaTemplate.send("test-websocket","order-chart",
                     new com.apps.config.kafka.Message("order",listOrderNew)).get();
+            var showTimes = this.seatService.findShowTimesById(orderDto.getShowTimesDetailId());
+            var seatMap = this.seatService.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),orderDto.getShowTimesDetailId());
+            kafkaTemplate.send("test-websocket","seat-map",
+                    new com.apps.config.kafka.Message("seat",seatMap)).get();
         }else{
             return 0;
         }

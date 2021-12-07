@@ -4,6 +4,7 @@ import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.SeatStatus;
 import com.apps.domain.entity.Reserved;
 import com.apps.domain.entity.Seat;
+import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.repository.SeatCustomRepository;
 import com.apps.mapper.ReservedDto;
 import com.apps.mybatis.mysql.SeatRepository;
@@ -36,6 +37,9 @@ public class SeatServiceImpl implements SeatService {
     private final ShowTimesDetailService showTimesDetailService;
 
     private final TicketService ticketService;
+
+
+
 
     @Override
     @Cacheable(cacheNames = "SeatService",key = "'SeatList_findAll_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
@@ -122,7 +126,7 @@ public class SeatServiceImpl implements SeatService {
     @Override
 //    @Cacheable(cacheNames = "SeatService",key = "'findByRoom_'+#page +'-'+#size+'-'+#sort+'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
     public List<SeatDto> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes) {
-        var arrSeat = this.seatRepository.findAll(size,(page -1 ) * size,sort,order,null,room);
+        var arrSeat = this.seatRepository.findAll(size,(page - 1 ) * size,sort,order,null,room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
         for (Seat seat : arrSeatAvailable){
@@ -159,6 +163,16 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public List<List<Seat>> findByRoomShow(Integer showTimesDetailId, Integer roomId) {
         return null;
+    }
+
+    @Override
+    public List<Seat> findAllSeatInShowTimeUnavailable(Integer showTimesId) {
+        return this.seatRepository.findAllSeatInShowTimeUnavailable(showTimesId);
+    }
+
+    @Override
+    public ShowTimesDetail findShowTimesById(Integer id) {
+        return this.showTimesDetailService.findById(id);
     }
 
 //    @Override

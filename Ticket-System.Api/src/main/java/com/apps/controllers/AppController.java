@@ -81,9 +81,15 @@ public class AppController {
         }
     }
 
-    @MessageMapping("/sendMessage")
-    @SendTo("/topic/chart")
-    public Message broadcastGroupMessage(@Payload Message message) {
+    @SendTo("/topic/notification")
+    public Message broadcastAllOrder(@Payload Message message) {
+        System.out.println(message);
+        //Sending this message to all the subscribers
+        return message;
+    }
+
+    @SendTo("/topic/seat-map")
+    public Message broadcastAllSeatMap(@Payload Message message) {
         //Sending this message to all the subscribers
         return message;
     }
