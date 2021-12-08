@@ -83,7 +83,6 @@ public class AppController {
 
     @SendTo("/topic/notification")
     public Message broadcastAllOrder(@Payload Message message) {
-        System.out.println(message);
         //Sending this message to all the subscribers
         return message;
     }

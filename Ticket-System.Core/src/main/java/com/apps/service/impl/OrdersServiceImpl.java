@@ -326,7 +326,7 @@ public class OrdersServiceImpl implements OrdersService {
             var showTimes = this.seatService.findShowTimesById(orderDto.getShowTimesDetailId());
             var seatMap = this.seatService.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),orderDto.getShowTimesDetailId());
             kafkaTemplate.send("test-websocket","seat-map",
-                    new com.apps.config.kafka.Message("seat",seatMap)).get();
+                    new com.apps.config.kafka.Message("seat",showTimes.getId(),seatMap)).get();
         }else{
             return 0;
         }
