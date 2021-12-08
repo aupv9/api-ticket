@@ -14,8 +14,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final HttpHandshakeInterceptor handshakeInterceptor;
 
-
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // chat client will use this to connect to the server

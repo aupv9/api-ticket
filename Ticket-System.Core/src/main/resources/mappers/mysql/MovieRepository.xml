@@ -12,7 +12,7 @@
     </select>
 
     <select id="findAll" resultType="com.apps.domain.entity.Movie">
-        select id, name as name, thumbnail, image from movie
+        select * from movie
         <where>
             <if test="search != null">
                 name like concat('%',#{search},'%')
@@ -32,7 +32,9 @@
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
-        limit #{limit} offset #{offset}
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
     </select>
 
     <select id="findAllCount" resultType="INT">

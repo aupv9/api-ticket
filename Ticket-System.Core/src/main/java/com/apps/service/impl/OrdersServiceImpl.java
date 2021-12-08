@@ -19,17 +19,11 @@ import com.apps.service.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,17 +31,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class Message{
-    private String from;
-    private String text;
-
-    public Message(String text) {
-        this.text = text;
-    }
-}
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -135,10 +118,10 @@ public class OrdersServiceImpl implements OrdersService {
                                                Integer showTimes, String type, Integer userId,
                                                String status, Integer creation, String dateGte) {
         var idUserContext = this.userService.getUserFromContext();
-        var isManager =  this.userService.isSeniorManager(idUserContext);
-        var isSenior = this.userService.isManager(idUserContext);
+        var isSenior =  this.userService.isSeniorManager(idUserContext);
+        var isManager= this.userService.isManager(idUserContext);
         return this.addInfoToOrders(this.findAll(page,size,sort,
-                        order,showTimes,type,userId,status,isManager || isSenior ? null :
+                        order,showTimes,type,userId,status, isManager || isSenior ? null :
                         this.userService.getUserFromContext(), this.convertLocalDate(dateGte)),isManager,isSenior);
     }
 
