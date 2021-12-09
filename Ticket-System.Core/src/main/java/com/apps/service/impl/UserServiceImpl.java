@@ -14,6 +14,7 @@ import com.apps.mybatis.mysql.SocialRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
 import com.apps.request.GoogleLoginRequest;
+import com.apps.request.ScheduleEmailRequest;
 import com.apps.response.UserLoginResponse;
 import com.apps.response.entity.UserSocial;
 import com.apps.service.EmployeeService;
@@ -31,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -60,6 +62,8 @@ public class UserServiceImpl implements UserService {
     private final EmployeeService employeeService;
 
     private final SocialRepository socialRepository;
+
+    private final RestTemplate restTemplate;
 
     private String sqlInsertUserInfo = "insert into user_info(email,first_name,last_name,full_name,is_login_social,photo) values(?,?,?,?,?,?)";
 
@@ -158,14 +162,12 @@ public class UserServiceImpl implements UserService {
                 .build();
         int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
         if(idReturned > 0){
-            String generatedToken = RandomStringUtils.random(15, true, true);
             var createdBy = this.getUserFromContext();
             String passwordEncode = encoder.encode(userRegisterDto.getPassword());
             UserAccount userAccount = UserAccount.builder()
                     .userInfoId(idReturned)
                     .email(userRegisterDto.getEmail())
                     .password(passwordEncode)
-                    .emailConfirmationToken(generatedToken)
                     .createdBy(createdBy)
                     .createdDate(getNowDateTime())
                     .registeredAt(getNowDateTime())
@@ -174,12 +176,59 @@ public class UserServiceImpl implements UserService {
                     .userAccountStatusId(statusRepository.findByCode(UserStatus.WAIT_CONFIRM.getName()).getId())
                     .build();
             int idUserReturned = this.userAccountRepository.insert(userAccount);
-
+//            var scheduleEmail = new ScheduleEmailRequest();
+//            scheduleEmail.setEmail("sendmailticket@gmail.com");
+//            scheduleEmail.setSubject("Email confirm");
+//            scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
+//                    "<br/> <a href='http://localhost:8080/api/v1/confirm?token="+ "121212" +"'>Link Confirm<a/>");
+//            var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);
             Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
             this.roleRepository.insertUserRole(idReturned,role.getId());
             return idUserReturned;
         }
         return 0;
+    }
+
+    @Override
+    public UserRegisterDto registerUser(UserRegisterDto userRegisterDto) throws SQLException {
+        UserInfo userInfo = UserInfo.builder()
+                .email(userRegisterDto.getEmail())
+                .isLoginSocial(userRegisterDto.getIsLoginSocial())
+                .firstName(userRegisterDto.getFirstName())
+                .lastName(userRegisterDto.getLastName())
+                .fullName(userRegisterDto.getFirstName() + " " + userRegisterDto.getLastName())
+                .photo(userRegisterDto.getPhoto())
+                .build();
+        int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
+        if(idReturned > 0){
+            String generatedToken = RandomStringUtils.random(15, true, true);
+            String passwordEncode = encoder.encode(userRegisterDto.getPassword());
+            UserAccount userAccount = UserAccount.builder()
+                    .userInfoId(idReturned)
+                    .email(userRegisterDto.getEmail())
+                    .password(passwordEncode)
+                    .emailConfirmationToken(generatedToken)
+                    .createdBy(0)
+                    .createdDate(getNowDateTime())
+                    .registeredAt(getNowDateTime())
+                    .address(userRegisterDto.getAddress())
+                    .city(userRegisterDto.getCity()).state(userRegisterDto.getState())
+                    .userAccountStatusId(statusRepository.findByCode(UserStatus.WAIT_CONFIRM.getName()).getId())
+                    .build();
+            int idUserReturned = this.userAccountRepository.insert(userAccount);
+            var scheduleEmail = new ScheduleEmailRequest();
+            scheduleEmail.setEmail("aupv96@gmail.com");
+            scheduleEmail.setSubject("test email");
+            scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
+                    "<br/> <a href='http://localhost:8080/api/v1/confirm?token="+ generatedToken +"'>Link Confirm<a/>");
+            var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);
+            Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
+            this.roleRepository.insertUserRole(idReturned,role.getId());
+
+             userRegisterDto.setId(idUserReturned);
+            return userRegisterDto;
+        }
+        return userRegisterDto;
     }
 
 

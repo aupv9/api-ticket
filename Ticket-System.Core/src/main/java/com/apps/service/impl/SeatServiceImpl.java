@@ -1,6 +1,7 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.config.kafka.Message;
 import com.apps.contants.SeatStatus;
 import com.apps.domain.entity.Reserved;
 import com.apps.domain.entity.Seat;
@@ -19,10 +20,12 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +42,8 @@ public class SeatServiceImpl implements SeatService {
     private final TicketService ticketService;
 
 
-
+    @Autowired
+    private KafkaTemplate<String, Message> kafkaTemplate;
 
     @Override
     @Cacheable(cacheNames = "SeatService",key = "'SeatList_findAll_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
@@ -173,6 +177,14 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public ShowTimesDetail findShowTimesById(Integer id) {
         return this.showTimesDetailService.findById(id);
+    }
+
+    @Override
+    public void sendDataToClient(Integer showTimesId) throws ExecutionException, InterruptedException {
+        var showTimes = this.findShowTimesById(showTimesId);
+        var seatMap = this.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),showTimesId);
+        kafkaTemplate.send("test-websocket","seat-map",
+                new com.apps.config.kafka.Message("seat",showTimes.getId(),seatMap)).get();
     }
 
 //    @Override

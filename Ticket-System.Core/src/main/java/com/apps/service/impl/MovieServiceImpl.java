@@ -1,6 +1,7 @@
 package com.apps.service.impl;
 
 import com.apps.config.cache.ApplicationCacheManager;
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Movie;
 import com.apps.domain.repository.MovieCustomRepository;
 import com.apps.mybatis.mysql.MovieRepository;
@@ -72,5 +73,15 @@ public class MovieServiceImpl implements MovieService {
         Movie movie1 = findById(id);
         this.movieRepository.delete(id);
         cacheManager.clearCache("MovieService");
+    }
+
+    @Override
+    public List<Movie> findAllCurrentWeek() {
+        return this.movieRepository.findAllCurrentWeek(Utilities.startOfWeek("yyyy-MM-dd"),Utilities.currentWeekEndDate());
+    }
+
+    @Override
+    public List<Movie> findAllComingSoon() {
+        return this.movieRepository.findAllComingSoon(Utilities.currentWeekEndDate());
     }
 }

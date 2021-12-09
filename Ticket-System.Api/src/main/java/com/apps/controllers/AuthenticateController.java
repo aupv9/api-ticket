@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 
 
+import com.apps.mapper.UserRegisterDto;
 import com.apps.request.GoogleLoginRequest;
 import com.apps.request.UpdateStatusLogin;
 import com.apps.request.UserLoginDto;
@@ -24,6 +25,17 @@ public class AuthenticateController {
         this.userService = userService;
     }
 
+    @PostMapping("registerUser")
+    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
+        if(this.userService.checkEmailAlready(userRegisterDto.getEmail())){
+            return ResponseEntity.badRequest().body("Email Already");
+        }
+        int idReturned = this.userService.registerAccountUser(userRegisterDto);
+        userRegisterDto.setId(idReturned);
+        return ResponseEntity.ok(userRegisterDto);
+    }
+
+
 
     @PostMapping("authenticate")
     public ResponseEntity<?> authenticate(@RequestBody UserLoginDto userLoginDto) throws JOSEException {
@@ -31,6 +43,7 @@ public class AuthenticateController {
         if(response.getToken() == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(response);
     }
+
 
 
     @PostMapping("authenticate-social")

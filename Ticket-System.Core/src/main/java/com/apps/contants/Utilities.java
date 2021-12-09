@@ -12,8 +12,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class Utilities {
@@ -58,4 +61,37 @@ public class Utilities {
         return LocalDate.now().minusDays(countDate).format(dateFormatter);
     }
 
+    public static Date startOfWeek() {
+        return startOfWeek(new Date());
+    }
+
+    public static Date startOfWeek(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        return cal.getTime();
+    }
+
+    public static String startOfWeek(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(startOfWeek(date));
+    }
+
+    public static String startOfWeek(String format) {
+        return startOfWeek(new Date(), format);
+    }
+    public static String currentWeekEndDate() {
+        Calendar mth = Calendar.getInstance();
+        mth.set(mth.get(Calendar.YEAR), mth.get(Calendar.MONTH),
+                mth.get(Calendar.DAY_OF_MONTH) - (mth.get(Calendar.DAY_OF_WEEK) + 6) % 7 + 7);
+        return (new SimpleDateFormat("yyyy-MM-dd").format(mth.getTime()));
+    }
+
+    public static String currentWeekEndDate(Date date) {
+        Calendar mth = Calendar.getInstance();
+        mth.setTime(date);
+        mth.set(mth.get(Calendar.YEAR), mth.get(Calendar.MONTH),
+                mth.get(Calendar.DAY_OF_MONTH) - (mth.get(Calendar.DAY_OF_WEEK) + 6) % 7 + 7);
+        return (new SimpleDateFormat("yyyy-MM-dd").format(mth.getTime()));
+    }
 }

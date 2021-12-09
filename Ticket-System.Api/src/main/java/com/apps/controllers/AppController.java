@@ -4,10 +4,7 @@ import com.apps.config.kafka.Message;
 import com.apps.filter.JWTService;
 import com.apps.request.ScheduleEmailRequest;
 import com.nimbusds.jose.JOSEException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.var;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -22,7 +19,9 @@ import org.springframework.web.client.RestTemplate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -84,6 +83,8 @@ public class AppController {
     @SendTo("/topic/notification")
     public Message broadcastAllOrder(@Payload Message message) {
         //Sending this message to all the subscribers
+        Calendar calendar = Calendar.getInstance();
+        calendar.getFirstDayOfWeek();
         return message;
     }
 

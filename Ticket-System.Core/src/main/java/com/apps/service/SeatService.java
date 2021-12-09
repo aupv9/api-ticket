@@ -7,6 +7,7 @@ import com.apps.request.SeatDto;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface SeatService {
     List<Seat> findAll(Integer page, Integer size,String sort ,String order, String search, Integer room);
@@ -26,4 +27,6 @@ public interface SeatService {
     List<Seat> findAllSeatInShowTimeUnavailable(Integer showTimesId);
 
     ShowTimesDetail findShowTimesById(Integer id);
+
+    void sendDataToClient(Integer showTimesId) throws ExecutionException, InterruptedException;
 }

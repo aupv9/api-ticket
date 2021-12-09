@@ -108,7 +108,7 @@ public class OrdersController {
     @PutMapping(value = "my-orders/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable("id") Integer id,
                                          @RequestBody MyOrderUpdateDto myOrderUpdateDto,
-                                         @RequestHeader("Authorization")String token) {
+                                         @RequestHeader("Authorization")String token) throws ExecutionException, InterruptedException {
 
         myOrderUpdateDto.setId(id);
         int result = this.ordersService.updateMyOrder(myOrderUpdateDto);

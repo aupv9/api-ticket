@@ -318,15 +318,8 @@ public class OrdersServiceImpl implements OrdersService {
                 this.ordersRepository.insertOrderConcession(concession.getKey(),idOrderCreated,concession.getValue());
             }
             cacheManager.clearCache("");
-            var listOrderNew = this.findAllOrderRoom(0,25,
-                    "updatedAt","DESC",null,null,null,null,
-                    null,Utilities.subDate(30));
-            kafkaTemplate.send("test-websocket","order-chart",
-                    new com.apps.config.kafka.Message("order",listOrderNew)).get();
-            var showTimes = this.seatService.findShowTimesById(orderDto.getShowTimesDetailId());
-            var seatMap = this.seatService.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),orderDto.getShowTimesDetailId());
-            kafkaTemplate.send("test-websocket","seat-map",
-                    new com.apps.config.kafka.Message("seat",showTimes.getId(),seatMap)).get();
+            this.sendDataToClient();
+            this.seatService.sendDataToClient(orders.getShowTimesDetailId());
         }else{
             return 0;
         }
@@ -335,9 +328,9 @@ public class OrdersServiceImpl implements OrdersService {
 
 
 
-    @Override
-    public int updateMyOrder(MyOrderUpdateDto orders) {
 
+    @Override
+    public int updateMyOrder(MyOrderUpdateDto orders) throws ExecutionException, InterruptedException {
         if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
             var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
             var seats = this.ordersRepository.findSeatInOrders(orders.getId());
@@ -354,6 +347,16 @@ public class OrdersServiceImpl implements OrdersService {
             }
         }
         return this.updateOrder(orders);
+    }
+
+    @Override
+    public void sendDataToClient() throws ExecutionException, InterruptedException {
+        var listOrderNew = this.findAllOrderRoom(0,25,
+                "updatedAt","DESC",null,null,null,null,
+                null,Utilities.subDate(30));
+        kafkaTemplate.send("test-websocket","order-chart",
+                new com.apps.config.kafka.Message("order",listOrderNew)).get();
+
     }
 
     private int updateOrder(MyOrderUpdateDto orders){

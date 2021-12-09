@@ -1,6 +1,7 @@
 package com.apps.service;
 
 import com.apps.domain.entity.Movie;
+import org.apache.ibatis.annotations.Param;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,4 +14,7 @@ public interface MovieService {
     int update(Movie movie);
     int insert(Movie movie) throws SQLException;
     void delete(Integer id);
+    List<Movie> findAllCurrentWeek();
+    List<Movie> findAllComingSoon();
+
 }

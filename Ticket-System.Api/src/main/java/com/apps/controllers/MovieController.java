@@ -11,6 +11,7 @@ import lombok.var;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -35,6 +36,29 @@ public class MovieController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("movies-showHaveOfWeek")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> findMovieHaveOfWeek() {
+        var resultList = this.movieService.findAllCurrentWeek();
+        var response = ResponseList.builder()
+                .data(resultList)
+                .total(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("movies-comingSoon")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> findMovieComingSoon() {
+        var resultList = this.movieService.findAllComingSoon();
+        var response = ResponseList.builder()
+                .data(resultList)
+                .total(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("movies")
     public ResponseEntity<?> getMovies(@RequestParam(value = "pageSize", required = false) Integer size,

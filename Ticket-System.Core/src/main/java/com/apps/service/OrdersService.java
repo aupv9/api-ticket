@@ -42,6 +42,6 @@ public interface OrdersService {
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);
     int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException;
-    int updateMyOrder(MyOrderUpdateDto orders);
-
+    int updateMyOrder(MyOrderUpdateDto orders) throws ExecutionException, InterruptedException;
+    void sendDataToClient() throws ExecutionException, InterruptedException;
 }
