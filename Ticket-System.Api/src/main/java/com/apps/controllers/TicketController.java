@@ -1,5 +1,6 @@
 package com.apps.controllers;
 
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Reserved;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
@@ -40,8 +41,10 @@ public class TicketController {
                                           @RequestParam(value = "date_start", required = false) String dateStart,
                                           @RequestParam(value = "time_start", required = false) String timeStart
     ){
-        var result  = showTimesDetailService.findAllShow(page - 1, size, sort, order, movieId,roomId,timeStart,search,dateStart);
-        var totalElement = showTimesDetailService.findCountAllShow(movieId,roomId,timeStart,search,dateStart);
+        var theaterId = this.userService.getTheaterByUser();
+        var result  = showTimesDetailService.findAllShow(page - 1, size, sort, order, movieId,roomId,theaterId,
+                search,dateStart, Utilities.getCurrentTime());
+        var totalElement = showTimesDetailService.findCountAllShow(movieId,roomId,search,theaterId,dateStart,Utilities.getCurrentTime());
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

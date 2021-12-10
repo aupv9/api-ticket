@@ -13,14 +13,22 @@ import java.util.List;
 public interface ShowTimesDetailRepository {
     List<ShowTimesDetail> findAll(@Param("limit") int limit, @Param("offset") int offset,
                                   @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
-                                  @Param("roomId")Integer roomId, @Param("timeStart")String timeStart,
+                                  @Param("roomId")Integer roomId,
                                   @Param("search")String search, @Param("dateStart") String dateStart,
                                   @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
 
-    int findCountAll( @Param("movieId")Integer movieId,
-                     @Param("roomId")Integer roomId, @Param("timeStart")String timeStart,
+    int findCountAll(@Param("movieId")Integer movieId,
+                     @Param("roomId")Integer roomId,
                       @Param("search")String search, @Param("dateStart") String dateStart,
                       @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+
+
+
+    List<ShowTimesDetail> findAllByMovie(@Param("limit") int limit, @Param("offset") int offset,
+                                  @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
+                                         @Param("search")String search, @Param("dateStart") String dateStart,
+                                  @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+
 
     @Select("Select * from showtimes_detail where id = #{id}")
     ShowTimesDetail findById(int id);

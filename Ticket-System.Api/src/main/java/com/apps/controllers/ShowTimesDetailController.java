@@ -1,10 +1,12 @@
 package com.apps.controllers;
 
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.response.ResponseCount;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
 import com.apps.service.ShowTimesDetailService;
+import com.apps.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -26,6 +27,9 @@ public class ShowTimesDetailController {
 
     @Autowired
     private ShowTimesDetailService showTimesDetailService;
+
+    @Autowired(required = false)
+    private UserService userService;
 
 
     @GetMapping("showTimesAnonymous")
@@ -38,12 +42,11 @@ public class ShowTimesDetailController {
                                                   @RequestParam(value = "movieId", required = false,defaultValue = "0") Integer movieId,
                                                   @RequestParam(value = "roomId", required = false,defaultValue = "0") Integer roomId,
                                                   @RequestParam(value = "dateStart", required = false) String dateStart,
-                                                  @RequestParam(value = "timeStart", required = false) String timeStart,
                                                   @RequestParam(value = "theaterId", required = false,defaultValue = "0") Integer theater
                                                   ) {
         var resultList = this.showTimesDetailService.findAllByMovie(page - 1, size, sort, order,
-                movieId,roomId,timeStart,search,dateStart,theater);
-        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
+                movieId,roomId,search,dateStart,theater, Utilities.getCurrentTime());
+        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,Utilities.getCurrentTime());
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -70,8 +73,8 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "time_start", required = false) String timeStart,
                                           @RequestParam(value = "theaterId", required = false)Integer theater){
         var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
-                movieId,roomId,timeStart,search,dateStart,theater);
-        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
+                movieId,roomId,search,dateStart,theater,Utilities.getCurrentTime());
+        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,Utilities.getCurrentTime());
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

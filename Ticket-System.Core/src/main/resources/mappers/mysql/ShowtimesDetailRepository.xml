@@ -69,6 +69,68 @@
         </if>
     </select>
 
+    <select id="findAllByMovie" resultType="com.apps.domain.entity.ShowTimesDetail">
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
+        price
+        <if test="theaterId != null">
+            ,r.theater_id  as theaterId
+        </if>
+        from showtimes_detail
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
+        </if>
+        <if test="search != null">
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
+
+        <where>
+            <if test="movieId != null">
+                and movie_id = #{movieId}
+            </if>
+            <if test="dateStart != null">
+                and date(time_start)= #{dateStart}
+            </if>
+            <if test="search != null">
+                and m.name like concat('%',#{search},'%')
+            </if>
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
+            </if>
+            <if test="currentTime != null">
+                and time_start > #{currentTime}
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'showtimes_id'">
+                    showtimes_id
+                </when>
+                <when test="sort == 'movie_id'">
+                    movie_id
+                </when>
+                <when test="sort == 'dateStart'">
+                    date
+                </when>
+                <otherwise>
+                    time_start
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+
+
     <select id="findCountAll" resultType="INT">
         select count(*)
         from showtimes_detail

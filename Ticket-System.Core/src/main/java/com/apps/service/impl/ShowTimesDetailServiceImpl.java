@@ -48,45 +48,60 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
 
     @Override
-//    @Cacheable(cacheNames = "ShowTimesDetailService",
-//            key = "'ShowTimesDetailList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#movieId +'-'+#room_id+'-'+#time_start +'-'+#search")
+    @Cacheable(cacheNames = "ShowTimesDetailService",
+            key = "'ShowTimesDetailList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#movieId +'-'+#room_id+'-'+#search+'-'" +
+                    "+#dateStart+'-'+#theater+'-'+#currentTime")
     public List<ShowTimesDetail> findAll(int page, int size,String sort, String order,
-                                         Integer movieId, Integer room_id, String time_start,String search
-                                        ,String dateStart,Integer theater) {
+                                         Integer movieId, Integer room_id,String search
+                                        ,String dateStart,Integer theater,String currentTime) {
         var userId = this.userService.getUserFromContext();
         var theaterId = this.userService.getTheaterManagerByUser(userId);
         var isSeniorManager = this.userService.isManager(userId);
 
-        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id,
-                time_start,search,dateStart, isSeniorManager ? theater > 0 ? theater : null : theaterId,Utilities.getCurrentTime());
+        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId,room_id
+                ,search,dateStart, isSeniorManager ? theater > 0 ? theater : null : theaterId,currentTime);
     }
 
 
     @Override
-    public int findCountAll( Integer movieId, Integer room_id, String time_start,String search,String dateStart) {
-        return this.showTimesDetailRepository.findCountAll(movieId,room_id,time_start,search, dateStart,
-                this.userService.getTheaterByUser(),Utilities.getCurrentTime());
+    @Cacheable(cacheNames = "ShowTimesDetailService",
+            key = "'ShowTimesDetailListCount_'+#movieId +'-'+#room_id+'-'+#search+'-'" +
+                    "+#dateStart+'-'+#theater+'-'+#currentTime")
+    public int findCountAll( Integer movieId, Integer room_id,String search,Integer theater,String dateStart,String currentTime) {
+        var userId = this.userService.getUserFromContext();
+        var theaterId = this.userService.getTheaterManagerByUser(userId);
+        var isSeniorManager = this.userService.isManager(userId);
+        return this.showTimesDetailRepository.findCountAll(movieId,room_id,search, dateStart,
+                isSeniorManager ? theater > 0 ? theater : null : theaterId,currentTime);
+    }
+
+    @Override
+    public int findAllCountByMovie(Integer movieId, Integer roomId, String search, String dateStart, Integer theater, String currentTime) {
+        return 0;
     }
 
 
     @Override
-    public List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order, Integer movieId, Integer roomid, String timeStart,String search,String dateStart){
-        int theaterId = this.userService.getTheaterByUser();
-        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,movieId > 0 ? movieId : null,roomid > 0 ? roomid : null,timeStart,search,dateStart,theaterId,
-                Utilities.getCurrentTime());
+    public List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order,
+                                             Integer movieId, Integer roomId,Integer theater,
+                                             String search,String dateStart,String currentTime){
+        return this.showTimesDetailRepository.findAll(size, page * size,sort,order,
+                movieId > 0 ? movieId : null,roomId > 0 ? roomId : null,search,dateStart,theater,
+                currentTime);
     }
 
     @Override
     public List<ShowTimesDetail> findAllByMovie(int page, int size, String sort, String order, Integer movieId, Integer roomid,
-                                                String timeStart, String search, String dateStart,Integer theater) {
-        return this.findAll(page, size, sort, order, movieId > 0 ? movieId : null,
-                roomid > 0 ? roomid : null, timeStart, search, dateStart,theater > 0 ? theater : null);
+                                                String search, String dateStart,Integer theater,String currentTime) {
+        return this.showTimesDetailRepository.findAllByMovie(page, size, sort, order, movieId > 0 ? movieId : null,
+                search, dateStart,theater > 0 ? theater : null,currentTime);
     }
 
     @Override
-    public int findCountAllShow(Integer movieId, Integer roomid, String time_start,String search,String dateStart){
+    public int findCountAllShow(Integer movieId, Integer roomId,String search,Integer theater,String dateStart,String currentTime){
         int theaterId = this.userService.getTheaterByUser();
-        return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null, roomid > 0 ? roomid : null, time_start, search, dateStart, theaterId, Utilities.getCurrentTime());
+        return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,
+                roomId > 0 ? roomId : null, search, dateStart, theaterId, currentTime);
     }
 
     @Override
