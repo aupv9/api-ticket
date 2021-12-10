@@ -37,7 +37,6 @@ public class SeatController {
     }
 
 
-
     @GetMapping("seats")
     public ResponseEntity<?> getSeats(@RequestParam(value = "pageSize", required = false) Integer size,
                                       @RequestParam(value = "page", required = false)Integer page,

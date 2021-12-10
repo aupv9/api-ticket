@@ -60,6 +60,7 @@ public class MovieController {
     }
 
 
+
     @GetMapping("movies")
     public ResponseEntity<?> getMovies(@RequestParam(value = "pageSize", required = false) Integer size,
                                        @RequestParam(value = "page", required = false) Integer page,

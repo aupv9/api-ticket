@@ -35,4 +35,7 @@ public interface UserService {
     boolean isSeniorManager(Integer userId);
     boolean isManager(Integer userId);
     int getUserFromContext();
+    boolean checkTokenEmail(String token);
+
+
 }

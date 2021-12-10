@@ -23,7 +23,7 @@ public interface MovieRepository {
                                    @Param("endWeek")String endWeek);
 
     @Select("select * from movie where id in\n" +
-            "(select movie_id from showtimes_detail where date(time_start) > #{dateGte}")
+            "(select movie_id from showtimes_detail where date(time_start) > #{dateGte})")
     List<Movie> findAllComingSoon(@Param("dateGte")String dateGte);
 
 

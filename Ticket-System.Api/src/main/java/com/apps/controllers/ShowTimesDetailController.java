@@ -27,6 +27,36 @@ public class ShowTimesDetailController {
     @Autowired
     private ShowTimesDetailService showTimesDetailService;
 
+
+    @GetMapping("showTimesAnonymous")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getMoviesByAnonymous(@RequestParam(value = "pageSize", required = false,defaultValue = "25") Integer size,
+                                                  @RequestParam(value = "page", required = false,defaultValue = "1") Integer page,
+                                                  @RequestParam(value = "sort", required = false) String sort,
+                                                  @RequestParam(value = "order", required = false) String order,
+                                                  @RequestParam(value = "search", required = false) String search,
+                                                  @RequestParam(value = "movieId", required = false,defaultValue = "0") Integer movieId,
+                                                  @RequestParam(value = "roomId", required = false,defaultValue = "0") Integer roomId,
+                                                  @RequestParam(value = "dateStart", required = false) String dateStart,
+                                                  @RequestParam(value = "timeStart", required = false) String timeStart,
+                                                  @RequestParam(value = "theaterId", required = false,defaultValue = "0") Integer theater
+                                                  ) {
+        var resultList = this.showTimesDetailService.findAllByMovie(page - 1, size, sort, order,
+                movieId,roomId,timeStart,search,dateStart,theater);
+        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("showTimeAnonymous/{id}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getShowTimesAnonymous(@PathVariable("id") Integer id){
+        return ResponseEntity.ok(this.showTimesDetailService.findById(id));
+    }
+
     @GetMapping("showTimesDetails")
     @PreAuthorize("hasAuthority('READ_SHOWTIME')")
     public ResponseEntity<?> getShowTimes(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -37,9 +67,10 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "room_id", required = false) Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
                                           @RequestParam(value = "date_start", required = false) String dateStart,
-                                          @RequestParam(value = "time_start", required = false) String timeStart){
+                                          @RequestParam(value = "time_start", required = false) String timeStart,
+                                          @RequestParam(value = "theaterId", required = false)Integer theater){
         var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
-                movieId,roomId,timeStart,search,dateStart);
+                movieId,roomId,timeStart,search,dateStart,theater);
         var totalElement = showTimesDetailService.findCountAll(movieId,roomId,timeStart,search,dateStart);
         var response = ResponseRA.builder()
                 .content(result)

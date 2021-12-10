@@ -26,6 +26,7 @@
                address, city, state, activeDate, registeredAt,uas.id as uasId,
                user_info.current_logged as currentLogged,user_info.photo as photo,
                user_info.full_name as fullName
+
         from user_info
                  join user_account ua on ua.user_info_id = user_info.id
                  join user_account_status uas on ua.user_account_status_id = uas.id

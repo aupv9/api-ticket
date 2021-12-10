@@ -78,8 +78,7 @@ public class UserServiceImpl implements UserService {
 
 
 
-    public int getTheaterManagerByUser(){
-        var userId = this.getUserFromContext();
+    public int getTheaterManagerByUser(Integer userId){
         int theaterId = 0;
         if(userId > 0){
             var employee = this.employeeService.findByUserId(userId);
@@ -133,7 +132,6 @@ public class UserServiceImpl implements UserService {
         var authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         if((UserDetails) authentication.getPrincipal() != null){
             var userDetails = (UserDetails) authentication.getPrincipal();
-            System.out.println(userDetails.getUsername());
         }
         return  (UserDetails)authentication.getPrincipal();
     }
@@ -176,12 +174,7 @@ public class UserServiceImpl implements UserService {
                     .userAccountStatusId(statusRepository.findByCode(UserStatus.WAIT_CONFIRM.getName()).getId())
                     .build();
             int idUserReturned = this.userAccountRepository.insert(userAccount);
-//            var scheduleEmail = new ScheduleEmailRequest();
-//            scheduleEmail.setEmail("sendmailticket@gmail.com");
-//            scheduleEmail.setSubject("Email confirm");
-//            scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
-//                    "<br/> <a href='http://localhost:8080/api/v1/confirm?token="+ "121212" +"'>Link Confirm<a/>");
-//            var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);
+            var scheduleEmail = new ScheduleEmailRequest();
             Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
             this.roleRepository.insertUserRole(idReturned,role.getId());
             return idUserReturned;
@@ -220,7 +213,7 @@ public class UserServiceImpl implements UserService {
             scheduleEmail.setEmail("aupv96@gmail.com");
             scheduleEmail.setSubject("test email");
             scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
-                    "<br/> <a href='http://localhost:8080/api/v1/confirm?token="+ generatedToken +"'>Link Confirm<a/>");
+                    "<br/> <a href='http://localhost:8080/api/v1/confirmEmail?token="+ generatedToken +"'>Link Confirm<a/>");
             var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);
             Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
             this.roleRepository.insertUserRole(idReturned,role.getId());
@@ -500,6 +493,15 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userId;
+    }
+
+    @Override
+    public boolean checkTokenEmail(String token) {
+        var user = this.userAccountRepository.findUserByTokenEmail(token);
+        if(user == null) return false;
+        var userStatus = this.statusRepository.findByCode("ACTIVE");
+        this.userAccountRepository.activeUser(user.getId(),userStatus.getId());
+        return true;
     }
 
     @Override

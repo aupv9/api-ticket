@@ -82,6 +82,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<Movie> findAllComingSoon() {
-        return this.movieRepository.findAllComingSoon(Utilities.currentWeekEndDate());
+        String date = Utilities.currentWeekEndDate();
+        return this.movieRepository.findAllComingSoon(date);
     }
 }

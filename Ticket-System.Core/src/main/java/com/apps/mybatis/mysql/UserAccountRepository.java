@@ -9,6 +9,7 @@ import com.apps.response.entity.UserSocial;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -35,6 +36,9 @@ public interface UserAccountRepository {
 
     UserDto findUserById(@Param("id")Integer id);
 
+    @Select("select * from user_account where email_confirmation_token = #{token}")
+    User findUserByTokenEmail(@Param("token")String token);
+
     int updateUserAccount(@Param("user")UserAccount userAccount);
     int updateUserInfo(@Param("user")UserInfo userInfo);
 
@@ -45,4 +49,6 @@ public interface UserAccountRepository {
     @Select("select * from google_account where google_id = #{googleId}")
     AccountGoogle findUserByGoogleAccount(@Param("googleId")String googleId);
 
+    @Update("update user_account set status = #{status} where user_info_id = #{id}")
+    int activeUser(@Param("id")Integer idUser,@Param("status")Integer status);
 }

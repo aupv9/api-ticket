@@ -10,6 +10,7 @@ import com.apps.response.RAResponseUpdate;
 import com.apps.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import lombok.var;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,10 @@ public class AuthenticateController {
         return ResponseEntity.ok(userRegisterDto);
     }
 
+    @GetMapping("confirmEmail")
+    public ResponseEntity<?> createUser(@RequestParam("token") String token){
+        return ResponseEntity.ok(this.userService.checkTokenEmail(token));
+    }
 
 
     @PostMapping("authenticate")
@@ -43,8 +48,6 @@ public class AuthenticateController {
         if(response.getToken() == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(response);
     }
-
-
 
     @PostMapping("authenticate-social")
     public ResponseEntity<?> authenticateSocial(@RequestBody GoogleLoginRequest googleLoginRequest) throws JOSEException, SQLException {
