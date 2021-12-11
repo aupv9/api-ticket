@@ -9,6 +9,7 @@ import com.apps.service.OrdersService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -124,7 +125,14 @@ public class OrdersController {
         return ResponseEntity.ok(result);
     }
 
-
+    @PostMapping("ordersAnonymous")
+//    @PreAuthorize("hasAuthority("")")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> ordersAnonymous(@RequestBody OrderDto orders) throws SQLException, ExecutionException, InterruptedException {
+        int idReturned = this.ordersService.orderNonPaymentAnonymous(orders);
+        orders.setId(idReturned);
+        return ResponseEntity.ok(orders);
+    }
 
     @PostMapping("orders")
     public ResponseEntity<?> createCategory(@RequestBody OrderDto orders) throws SQLException, ExecutionException, InterruptedException {

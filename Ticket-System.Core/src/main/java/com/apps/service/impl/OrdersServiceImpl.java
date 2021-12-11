@@ -313,28 +313,38 @@ public class OrdersServiceImpl implements OrdersService {
         return false;
     }
 
-    @Override
-    @Caching(evict =
-            { @CacheEvict(value = "OrdersService",allEntries = true),
-                    @CacheEvict(value = "SeatService",allEntries = true)
-            })
-    public int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
+
+
+    public void checkSeatIsAvailable(OrderDto orderDto){
         var idSeats = this.seatService.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
         for (var seat : orderDto.getSeats()){
             if(isSeatsAvailable(seat,idSeats)){
                 throw new NotFoundException("Seat !" + seat + "reserved!");
             }
         }
+    }
+
+    @Override
+    @Caching(evict =
+            { @CacheEvict(value = "OrdersService",allEntries = true),
+                    @CacheEvict(value = "SeatService",allEntries = true)
+            })
+    public int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
+        checkSeatIsAvailable(orderDto);
+        return reservedSeatAndConcession(orderDto,this.userService.getUserFromContext(),0);
+    }
+
+    private int reservedSeatAndConcession(OrderDto orderDto,int creation,int userId) throws ExecutionException, InterruptedException, SQLException {
         var taxAmount = (orderDto.getTotalAmount() / 100) * 10;
         Orders orders = Orders.builder()
-                .creation(userService.getUserFromContext())
+                .creation(creation)
                 .showTimesDetailId(orderDto.getShowTimesDetailId())
                 .total(orderDto.getTotalAmount() + taxAmount)
                 .profile(orderDto.getTypeUser())
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
                 .expirePayment(Utilities.getTimeExpirePayment5m())
-                .userId(0)
+                .userId(userId)
                 .createdDate(Utilities.getCurrentTime())
                 .note("")
                 .build();
@@ -355,14 +365,23 @@ public class OrdersServiceImpl implements OrdersService {
                 this.ordersRepository.insertOrderConcession(concession.getKey(),idOrderCreated,concession.getValue());
             }
             this.sendDataToClient();
-            this.seatService.sendDataToClient(orders.getShowTimesDetailId());
+            this.seatService.sendDataToClient(orderDto.getShowTimesDetailId());
+
         }else{
             return 0;
         }
         return idOrderCreated;
     }
 
-
+    @Override
+    @Caching(evict =
+            { @CacheEvict(value = "OrdersService",allEntries = true),
+                    @CacheEvict(value = "SeatService",allEntries = true)
+            })
+    public int orderNonPaymentAnonymous(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
+        checkSeatIsAvailable(orderDto);
+        return reservedSeatAndConcession(orderDto,orderDto.getUserId(),orderDto.getUserId());
+    }
 
 
     @Override

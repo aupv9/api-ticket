@@ -7,6 +7,7 @@ import com.apps.service.ConcessionsService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -16,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin(value = "*")
 public class ConcessionController {
 
 
@@ -28,22 +28,16 @@ public class ConcessionController {
 
 
     @GetMapping("concessions")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) int size,
-                                          @RequestParam(value = "page", required = false)int page,
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false,defaultValue = "25") int size,
+                                          @RequestParam(value = "page", required = false,defaultValue = "1")int page,
                                           @RequestParam(value = "sort", required = false)String sort,
                                           @RequestParam(value = "order", required = false)String order,
                                           @RequestParam(value = "search", required = false)String name,
-                                          @RequestParam(value = "category_id", required = false) Integer categoryId){
-        List<Concession> resultList = null;
-        int totalElements = 0;
-        try{
-            resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,categoryId);
-            totalElements = this.concessionsService.findCountAll(name,categoryId);
-        }catch (NullPointerException nullPointerException){
-            resultList = this.concessionsService.findAll(page - 1,size,sort,order,name,null);
-            totalElements = this.concessionsService.findCountAll(name,null);
-        }
+                                          @RequestParam(value = "category_id", required = false,defaultValue = "0") Integer categoryId){
 
+        var resultList = this.concessionsService.findAll(size,size * (page - 1),sort,order,name,categoryId);
+        var totalElements = this.concessionsService.findCountAll(name,categoryId);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
