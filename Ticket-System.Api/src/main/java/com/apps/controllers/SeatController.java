@@ -10,6 +10,7 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -54,6 +55,23 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("seatRoomAnonymous")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getSeatsByRoomOfAnonymous(@RequestParam(value = "pageSize", required = false,defaultValue = "100") Integer size,
+                                           @RequestParam(value = "page", required = false,defaultValue = "1")Integer page,
+                                           @RequestParam(value = "sort", required = false) String sort,
+                                           @RequestParam(value = "order", required = false) String order,
+                                           @RequestParam("showTimesId") Integer id,
+                                           @RequestParam("room") Integer room){
+        var result  = seatService.findByRoom(size,(page - 1)*size,sort,order,room,id);
+        var totalElement = seatService.findCountAll(null,room);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(totalElement)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
 
     @GetMapping("seats-room")
