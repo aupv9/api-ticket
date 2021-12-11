@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.domain.entity.Privilege;
 import com.apps.domain.entity.Role;
 import com.apps.domain.entity.RolePrivileges;
@@ -12,7 +13,8 @@ import com.apps.response.RoleDto;
 import com.apps.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import org.apache.ibatis.annotations.Param;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,10 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final PrivilegeRepository privilegeRepository;
     private final RoleCustomRepository roleCustomRepository;
+    private final ApplicationCacheManager cacheManager;
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findRoleById_'+#id", unless = "#result == null")
     public RoleDto findRoleById(Integer id) {
         var role = this.roleRepository.findRoleById(id);
         var privileges = this.roleRepository.findPrivilegesByRole(role.getId());
@@ -42,38 +46,47 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findAllRole_'+#limit+'-'+#offset" +
+            "+'-'+#sort+'-'+#order+'-'+#search+'-'+#roleId", unless = "#result == null")
     public List<Role> findAllRole(int limit,int offset,String sort,String order,Integer roleId,String search) {
         return this.roleRepository.findAll(limit, offset,sort,order,roleId,search);
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findAllCountRole_'+#roleId", unless = "#result == null")
     public int findAllCountRole(Integer roleId) {
         return this.roleRepository.findAllCountRole(roleId);
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findUserRoleById_'+#userId", unless = "#result == null")
     public List<UserRole> findUserRoleById(Integer userId) {
         return this.roleRepository.findUserRoleById(userId);
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findAllPrivilege_'+#limit+'-'+#offset" +
+            "+#sort+'-'+#order+'-'+#search", unless = "#result == null")
     public List<Privilege> findAllPrivilege(int limit, int offset, String sort, String order, String search) {
         return this.roleRepository.findAllPrivilege(limit,offset,sort,order,search);
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findAllCountPrivilege_'+#search", unless = "#result == null")
     public int findAllCountPrivilege(String search) {
         return this.roleRepository.findAllCountPrivilege(search);
     }
 
     @Override
+    @Cacheable(value = "RoleService" ,key = "'findPrivilegesByRole_'+#roleId", unless = "#result == null")
     public List<RolePrivileges> findPrivilegesByRole(Integer roleId) {
         return this.roleRepository.findPrivilegesByRole(roleId);
     }
 
     @Override
-    public List<Privilege> findAllPrivilegesByIdRole(Integer id) {
-        var rolePrivileges = this.findPrivilegesByRole(id);
+    @Cacheable(value = "RoleService" ,key = "'findAllPrivilegesByIdRole_'+#roleId", unless = "#result == null")
+    public List<Privilege> findAllPrivilegesByIdRole(Integer roleId) {
+        var rolePrivileges = this.findPrivilegesByRole(roleId);
         List<Privilege> listPrivilege = new ArrayList<Privilege>();
         for (var privileges : rolePrivileges){
             var privilege = this.findPrivilegeById(privileges.getPrivilegeId());
@@ -83,35 +96,41 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<Privilege> findAllPrivilegesById(Integer id) {
-        return this.roleRepository.findPrivilegesById(id);
+    @Cacheable(value = "RoleService" ,key = "'findAllPrivilegesById_'+#roleId", unless = "#result == null")
+    public List<Privilege> findAllPrivilegesById(Integer roleId) {
+        return this.roleRepository.findPrivilegesById(roleId);
     }
 
     @Override
-    public Privilege findPrivilegeById(Integer id) {
-        return this.roleRepository.findPrivilegeById(id);
+    @Cacheable(value = "RoleService" ,key = "'findPrivilegeById_'+#roleId", unless = "#result == null")
+    public Privilege findPrivilegeById(Integer roleId) {
+        return this.roleRepository.findPrivilegeById(roleId);
     }
 
     @Override
-    public void deletePrivilege(Integer id) {
-        Privilege privilege = this.roleRepository.findPrivilegeById(id);
+    @CacheEvict(value = "RoleService",key = "'findPrivilegeById_'+#roleId",allEntries = true)
+    public void deletePrivilege(Integer roleId) {
+        Privilege privilege = this.roleRepository.findPrivilegeById(roleId);
         if(privilege == null){
-            throw new NotFoundException("Not found obejct have id :" +id);
+            throw new NotFoundException("Not found object have id :" +roleId);
         }
         this.roleRepository.deletePrivilege(privilege.getId());
     }
 
     @Override
+    @CacheEvict(value = "RoleService",key = "'findUserRoleById_'+#userId",allEntries = true)
     public void deleteUserRole(Integer userId, Integer roleId) {
         this.roleRepository.deleteUserRole(userId,roleId);
     }
 
     @Override
+    @CacheEvict(value = "RoleService",key = "'findPrivilegesByRole_'+#roleId",allEntries = true)
     public void deleteRolePrivilege(Integer roleId, Integer privilegeId) {
         this.roleRepository.deleteRolePrivilege(roleId,privilegeId);
     }
 
     @Override
+    @CacheEvict(value = "RoleService",allEntries = true)
     public int update(RoleDto roleDto) {
         var role = Role.builder()
                 .id(roleDto.getId()).name(roleDto.getName()).code(roleDto.getCode())
@@ -124,12 +143,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @CacheEvict(value = "RoleService",allEntries = true)
     public int insertPrivilege(Privilege privilege) throws SQLException {
         String sql = "insert into privilege(name) values(?)";
         return this.privilegeRepository.insert(privilege,sql);
     }
 
     @Override
+    @CacheEvict(value = "RoleService",allEntries = true)
     public int insertRole(RoleDto roleDto) throws SQLException {
         String sql = "insert into role(name,code) values(?,?)";
         var role = Role.builder()
@@ -144,14 +165,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public int deleteRole(Integer idRole) {
-
         return 0;
     }
 
+//    @Cacheable(value = "RoleService",key = "'getAuthorities_'+#roles")
     public Collection<? extends GrantedAuthority> getAuthorities(final List<UserRole> roles) {
         return getGrantedAuthorities(getPrivileges(roles));
     }
-    private List<String> getPrivileges(final List<UserRole> roles) {
+
+//    @Cacheable(value = "RoleService",key = "'getPrivileges_'+#roles")
+    public List<String> getPrivileges(final List<UserRole> roles) {
         final List<String> privileges = new ArrayList<>();
         final List<RolePrivileges> collection = new ArrayList<>();
         for (final UserRole role : roles) {
@@ -167,7 +190,8 @@ public class RoleServiceImpl implements RoleService {
         return privileges;
     }
 
-    private List<GrantedAuthority> getGrantedAuthorities(final List<String> privileges) {
+    @Cacheable(value = "RoleService",key = "'getGrantedAuthorities_'+#privileges")
+    public List<GrantedAuthority> getGrantedAuthorities(final List<String> privileges) {
         final List<GrantedAuthority> authorities = new ArrayList<>();
         for (final String privilege : privileges) {
             authorities.add(new SimpleGrantedAuthority(privilege));

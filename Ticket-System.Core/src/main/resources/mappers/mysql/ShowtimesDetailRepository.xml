@@ -129,7 +129,38 @@
         </if>
     </select>
 
+    <select id="findCountAllByMovie" resultType="INT">
+        select count(*)
+        from showtimes_detail
+        <if test="theaterId != null">
+            ,r.theater_id  as theaterId
+        </if>
+        from showtimes_detail
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
+        </if>
+        <if test="search != null">
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
 
+        <where>
+            <if test="movieId != null">
+                and movie_id = #{movieId}
+            </if>
+            <if test="dateStart != null">
+                and date(time_start)= #{dateStart}
+            </if>
+            <if test="search != null">
+                and m.name like concat('%',#{search},'%')
+            </if>
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
+            </if>
+            <if test="currentTime != null">
+                and time_start > #{currentTime}
+            </if>
+        </where>
+    </select>
 
     <select id="findCountAll" resultType="INT">
         select count(*)

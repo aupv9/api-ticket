@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
                 var userRoles = this.roleService.findUserRoleById(employee.getUserId());
                 for (var role : userRoles ){
                     var roleName = this.roleService.findRoleById(role.getRoleId());
-                    if(roleName.getName().equals(com.apps.contants.Role.MANAGER.getName())){
+                    if(roleName.getCode().equals(com.apps.contants.Role.MANAGER.getName())){
                         isManager = true;
                         break;
                     }
@@ -210,8 +210,8 @@ public class UserServiceImpl implements UserService {
                     .build();
             int idUserReturned = this.userAccountRepository.insert(userAccount);
             var scheduleEmail = new ScheduleEmailRequest();
-            scheduleEmail.setEmail("aupv96@gmail.com");
-            scheduleEmail.setSubject("test email");
+            scheduleEmail.setEmail(userInfo.getEmail());
+            scheduleEmail.setSubject("Confirm Email");
             scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
                     "<br/> <a href='http://localhost:8080/api/v1/confirmEmail?token="+ generatedToken +"'>Link Confirm<a/>");
             var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);

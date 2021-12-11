@@ -70,7 +70,6 @@
     <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">
         select *
             from orders
-
         <where>
             <if test="showTimes != null">
                 showtimes_detail_id = #{showTimes}

@@ -66,13 +66,12 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "movie_id", required = false)Integer movieId,
-                                          @RequestParam(value = "room_id", required = false) Integer roomId,
+                                          @RequestParam(value = "movie_id", required = false,defaultValue = "0")Integer movieId,
+                                          @RequestParam(value = "room_id", required = false,defaultValue = "0") Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
                                           @RequestParam(value = "date_start", required = false) String dateStart,
-                                          @RequestParam(value = "time_start", required = false) String timeStart,
-                                          @RequestParam(value = "theaterId", required = false)Integer theater){
-        var result  = showTimesDetailService.findAll(page - 1, size, sort, order,
+                                          @RequestParam(value = "theaterId", required = false,defaultValue = "0")Integer theater){
+        var result  = showTimesDetailService.findAll(size, (page - 1) * size, sort, order,
                 movieId,roomId,search,dateStart,theater,Utilities.getCurrentTime());
         var totalElement = showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,Utilities.getCurrentTime());
         var response = ResponseRA.builder()

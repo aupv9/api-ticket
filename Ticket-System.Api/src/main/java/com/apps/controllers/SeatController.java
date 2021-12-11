@@ -63,7 +63,7 @@ public class SeatController {
                                            @RequestParam(value = "order", required = false) String order,
                                            @RequestParam("showTimesId") Integer id,
                                            @RequestParam("room") Integer room){
-        var result  = seatService.findByRoom(page,size,sort,order,room,id);
+        var result  = seatService.findByRoom(size,(page - 1)*size,sort,order,room,id);
         var totalElement = seatService.findCountAll(null,room);
         var response = ResponseRA.builder()
                 .content(result)

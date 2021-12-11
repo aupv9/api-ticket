@@ -16,7 +16,7 @@ public interface EmployeeRepository {
 
     Employee findById(@Param("id")Integer id);
 
-    @Select("select id, theater_id, createdBy,\n" +
+    @Select("select id,user_id, theater_id, createdBy,\n" +
             " createdAt, status,updatedAt,startsAt, endsAt, notes from employee where user_id = #{id}")
     Employee findByUserId(@Param("id")Integer id);
 

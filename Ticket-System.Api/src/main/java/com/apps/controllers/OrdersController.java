@@ -84,8 +84,7 @@ public class OrdersController {
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false,defaultValue = "0") Integer creation,
                                           @RequestParam(value = "date_gte", required = false) String dateGte,
-                                          @RequestParam(value = "creation", required = false,defaultValue = "false") boolean isYear,
-                                          @RequestHeader("Authorization") String token
+                                          @RequestParam(value = "creation", required = false,defaultValue = "false") boolean isYear
                                           ){
 
         var resultList = this.ordersService.findAllMyOrders(page - 1 ,size,sort,order,showTimesId,

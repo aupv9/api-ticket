@@ -35,14 +35,15 @@ public class TicketController {
                                           @RequestParam(value = "page", required = false)Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
-                                          @RequestParam(value = "movie_id", required = false)Integer movieId,
-                                          @RequestParam(value = "room_id", required = false) Integer roomId,
+                                          @RequestParam(value = "movie_id", required = false,
+                                                  defaultValue = "0")Integer movieId,
+                                          @RequestParam(value = "room_id", required = false,
+                                                  defaultValue = "0") Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
-                                          @RequestParam(value = "date_start", required = false) String dateStart,
-                                          @RequestParam(value = "time_start", required = false) String timeStart
+                                          @RequestParam(value = "date_start", required = false) String dateStart
     ){
         var theaterId = this.userService.getTheaterByUser();
-        var result  = showTimesDetailService.findAllShow(page - 1, size, sort, order, movieId,roomId,theaterId,
+        var result  = showTimesDetailService.findAllShow(size, (page - 1) * size, sort, order, movieId,roomId,theaterId,
                 search,dateStart, Utilities.getCurrentTime());
         var totalElement = showTimesDetailService.findCountAllShow(movieId,roomId,search,theaterId,dateStart,Utilities.getCurrentTime());
         var response = ResponseRA.builder()

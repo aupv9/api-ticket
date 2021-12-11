@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class ApplicationCacheManager {
+
     private final CacheManager cacheManager;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final String redisKeyPrefix;

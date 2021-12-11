@@ -10,16 +10,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface ShowTimesDetailService {
-    List<ShowTimesDetail> findAll(int page, int size, String sort, String order,
+    List<ShowTimesDetail> findAll(int limit, int offset, String sort, String order,
                                   Integer movieId, Integer roomid,String search,String dateStart,Integer theater,
                                   String currentTime);
 
-    List<ShowTimesDetail> findAllShow(int page, int size, String sort, String order,
+    List<ShowTimesDetail> findAllShow(int limit, int offset, String sort, String order,
                                       Integer movieId, Integer roomId,Integer theater,
                                       String search,String dateStart,String currentTime);
 
     List<ShowTimesDetail> findAllByMovie(int page, int size, String sort, String order,
-                                  Integer movieId, Integer roomid,String search,String dateStart,Integer theater,String currentTime);
+                                  Integer movieId, Integer roomId,String search,String dateStart,Integer theater,String currentTime);
 
     int findCountAll(Integer movieId, Integer room_id,String search,Integer theater,String dateStart,String currentTime);
     int findAllCountByMovie(Integer movieId, Integer roomid,String search,String dateStart,Integer theater,String currentTime);

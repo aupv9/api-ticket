@@ -19,15 +19,15 @@ import com.apps.service.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -81,8 +81,14 @@ public class OrdersServiceImpl implements OrdersService {
             var listOrderNew = this.findAllOrderRoom(0,25,
                     "updatedAt","DESC",null,null,null,null,
                     null,Utilities.subDate(30));
+            var listOrders =this.findAllOrderRoom(0,1000,
+                    "updatedAt","DESC",null,null,null,
+                    null,null,null);
+            List<Object> objectList = new ArrayList<>();
+            objectList.add(listOrderNew);
+            objectList.add(listOrders);
             kafkaTemplate.send("test-websocket","order-chart",
-                    new com.apps.config.kafka.Message("order",listOrderNew)).get();
+                    new com.apps.config.kafka.Message("order",objectList)).get();
         }
     }
 
@@ -103,15 +109,24 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-//    @Cacheable(value = "OrdersService" ,key = "'ListOrders'+#page +'-'+#size +'-'+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#showTimes", unless = "#result == null")
     public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
         var idUserContext = this.userService.getUserFromContext();
-        return this.addTotalToOrder(this.ordersRepository.findAll(size, page * size,sort,
-                order,showTimes,type,userId,status,this.userService.isSeniorManager(idUserContext)
-                        || this.userService.isManager(idUserContext) ? null : idUserContext,
+        return this.addTotalToOrder(this.findAllOrders(size, page * size,sort,
+                order,showTimes,type,userId,status,
+                this.userService.isSeniorManager(idUserContext) || this.userService.isManager(idUserContext) ? null : idUserContext,
                 this.convertLocalDate(dateGte),null));
     }
+
+    @Cacheable(value = "OrdersService" ,key = "'findAllOrders_'+#limit +'-'+#offset +'-'" +
+            "+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#type+'-'+#userId +'-'+#status" +
+            "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")
+    public List<Orders> findAllOrders(int limit, int offset, String sort, String order, Integer showTimes,
+                                      String type, Integer userId,String status,Integer creation,String dateGte,Boolean isYear){
+        return this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,creation,dateGte,isYear);
+    }
+
+
 
     @Override
     public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order,
@@ -162,10 +177,23 @@ public class OrdersServiceImpl implements OrdersService {
                                         Integer showTimes, String type, String status, Integer creation,
                                         String dateGte,
             Boolean isYear) {
-        return this.addTotalToOrder(this.ordersRepository.findMyOrders(size, page * size,
-                sort,order,showTimes > 0 ? showTimes :null ,type,status, userService.getUserFromContext(),
-                this.convertLocalDate(dateGte), isYear ? true : null));
+        return this.addTotalToOrder(this.findAllMyOrder(size, page * size,
+                sort,order,showTimes ,type,status, userService.getUserFromContext(),
+                this.convertLocalDate(dateGte), isYear));
     }
+
+    @Cacheable(value = "OrdersService" ,key = "'findAllMyOrder_'+#limit +'-'+#offset +'-'" +
+            "+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#type+'-'+#status" +
+            "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")
+    public List<Orders> findAllMyOrder(int limit, int offset, String sort, String order,
+                                       Integer showTimes, String type, String status, Integer creation,
+                                       String dateGte,
+                                       Boolean isYear){
+        return this.ordersRepository.findMyOrders(limit, offset,
+                sort,order,showTimes > 0 ? showTimes :null ,type,status,creation,
+                this.convertLocalDate(dateGte), isYear ? true : null);
+    }
+
 
     private String convertLocalDate(String date){
         if(date != null && !date.isEmpty()){
@@ -175,8 +203,9 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public int findCountAllMyOrder(Integer showTimes, String type,
-                                   String status, Integer creation,String dateGte,Boolean isYear) {
+    @Cacheable(value = "OrdersService" ,key = "'findAllMyOrder_'+#showTimes+'-'+#type+'-'+#status" +
+            "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")
+    public int findCountAllMyOrder(Integer showTimes, String type, String status, Integer creation,String dateGte,Boolean isYear) {
         return this.ordersRepository.findCountAllMyOrder(showTimes > 0 ? showTimes :null,
                 type,status,creation > 0 ? creation : null,this.convertLocalDate(dateGte),isYear ? true : null);
     }
@@ -218,6 +247,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    @Cacheable(value = "OrdersService" ,key = "'findMyOrderById_'+#id", unless = "#result == null")
     public MyOrderResponse findById(int id) {
 
         Orders orders = this.ordersRepository.findById(id);
@@ -257,18 +287,21 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "OrdersService",allEntries = true)
     public void delete(int id) {
         var orders = this.findById(id);
         this.ordersRepository.delete(orders.getId());
     }
 
     @Override
+    @CacheEvict(cacheNames = "OrdersService",allEntries = true)
     public int insert(Orders orders) throws SQLException {
         String sql = "Insert into orders(user_id,showtimes_detail_id,created_date,note,creation,profile,status,expire_payment,total) values (?,?,?,?,?,?,?,?,?)";
         return this.ordersCustomRepository.insert(orders,sql);
     }
 
     @Override
+    @CacheEvict(cacheNames = "OrdersService",allEntries = true)
     public int update(Orders orders) {
         return this.ordersRepository.update(orders);
     }
@@ -281,6 +314,10 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    @Caching(evict =
+            { @CacheEvict(value = "OrdersService",allEntries = true),
+                    @CacheEvict(value = "SeatService",allEntries = true)
+            })
     public int orderNonPayment(OrderDto orderDto) throws SQLException, ExecutionException, InterruptedException {
         var idSeats = this.seatService.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
         for (var seat : orderDto.getSeats()){
@@ -317,7 +354,6 @@ public class OrdersServiceImpl implements OrdersService {
             for (Map.Entry<Integer,Integer> concession : map.entrySet() ){
                 this.ordersRepository.insertOrderConcession(concession.getKey(),idOrderCreated,concession.getValue());
             }
-            cacheManager.clearCache("");
             this.sendDataToClient();
             this.seatService.sendDataToClient(orders.getShowTimesDetailId());
         }else{
@@ -330,7 +366,8 @@ public class OrdersServiceImpl implements OrdersService {
 
 
     @Override
-    public int updateMyOrder(MyOrderUpdateDto orders) throws ExecutionException, InterruptedException {
+    @CacheEvict(value = "OrdersService",allEntries = true)
+    public int updateMyOrder(MyOrderUpdateDto orders) {
         if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
             var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
             var seats = this.ordersRepository.findSeatInOrders(orders.getId());
@@ -351,11 +388,17 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public void sendDataToClient() throws ExecutionException, InterruptedException {
-        var listOrderNew = this.findAllOrderRoom(0,25,
+        var listOrderNew = this.findAllOrderRoom(0,10000,
                 "updatedAt","DESC",null,null,null,null,
                 null,Utilities.subDate(30));
+        var listOrders =this.findAllOrderRoom(0,1000,
+                "updatedAt","DESC",null,null,null,
+                null,null,null);
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(listOrderNew);
+        objectList.add(listOrders);
         kafkaTemplate.send("test-websocket","order-chart",
-                new com.apps.config.kafka.Message("order",listOrderNew)).get();
+                new com.apps.config.kafka.Message("order",objectList )).get();
 
     }
 

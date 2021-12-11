@@ -58,6 +58,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "SeatService",allEntries = true)
     public int insert(SeatDto seatDto) throws SQLException {
         String sql = "insert into seat(seat_type, tier, numbers,room_id) VALUES (?,?,?,?)";
         var seat = Seat.builder()
@@ -71,6 +72,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "SeatService",allEntries = true)
     public int update(Seat seat) {
         Seat seat1 = findById(seat.getId());
         seat1.setSeatType(seat.getSeatType());
@@ -120,7 +122,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-//    @CacheEvict(value = "SeatService",key = "'findById_'+#id")
+    @CacheEvict(value = "SeatService",key = "'deleteSeat_'+#id")
     public void delete(Integer id) {
         Seat seat = this.seatRepository.findById(id);
         this.seatRepository.delete(seat.getId());
@@ -128,9 +130,10 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
-//    @Cacheable(cacheNames = "SeatService",key = "'findByRoom_'+#page +'-'+#size+'-'+#sort+'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
-    public List<SeatDto> findByRoom(Integer page, Integer size,String sort ,String order,Integer room,Integer showTimes) {
-        var arrSeat = this.seatRepository.findAll(size,(page - 1 ) * size,sort,order,null,room);
+    @Cacheable(cacheNames = "SeatService",
+            key = "'findByRoom_'+#limit +'-'+#offset+'-'+#sort+'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
+    public List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,Integer room,Integer showTimes) {
+        var arrSeat = this.seatRepository.findAll(limit,offset,sort,order,null,room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
         for (Seat seat : arrSeatAvailable){
@@ -170,6 +173,8 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
+    @Cacheable(cacheNames = "SeatService",
+            key = "'findAllSeatInShowTimeUnavailable_'+#showTimesId",unless = "#result == null")
     public List<Seat> findAllSeatInShowTimeUnavailable(Integer showTimesId) {
         return this.seatRepository.findAllSeatInShowTimeUnavailable(showTimesId);
     }
@@ -182,9 +187,9 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public void sendDataToClient(Integer showTimesId) throws ExecutionException, InterruptedException {
         var showTimes = this.findShowTimesById(showTimesId);
-        var seatMap = this.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),showTimesId);
+        var seatMap = this.findByRoom(1000,0,"id","ASC",showTimes.getRoomId(),showTimesId);
         kafkaTemplate.send("test-websocket","seat-map",
-                new com.apps.config.kafka.Message("seat",showTimes.getId(),seatMap)).get();
+                new com.apps.config.kafka.Message("seat",showTimes.getId(), Collections.singletonList(seatMap))).get();
     }
 
 //    @Override
