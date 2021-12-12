@@ -25,16 +25,15 @@ public class MemberCustomRepository implements Repository<Member> {
             if(!(object instanceof Member) ) return 0;
             Member member = (Member) object;
             stmt.setString(1, member.getNumber());
-            stmt.setString(2,member.getPin());
-            stmt.setInt(3,member.getUserId());
-            stmt.setString(4,member.getCreationDate());
-            stmt.setString(5,member.getStartDate());
-            stmt.setString(6,member.getEndDate());
-            stmt.setString(7,member.getLevel());
-            stmt.setDouble(8,member.getPoint());
-            stmt.setBoolean(9,member.getProfile());
-            stmt.setString(10,member.getCmnd());
-            stmt.setString(11,member.getBirthday());
+            stmt.setInt(2,member.getUserId() );
+            stmt.setString(3,member.getCreationDate());
+            stmt.setString(4,member.getStartDate());
+            stmt.setString(5,member.getEndDate());
+            stmt.setString(6,member.getLevel());
+            stmt.setDouble(7,member.getPoint());
+            stmt.setBoolean(8,member.getProfile());
+            stmt.setString(9,member.getCmnd());
+            stmt.setString(10,member.getBirthday());
 
             stmt.execute();
             rs = stmt.getGeneratedKeys();

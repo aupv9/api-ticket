@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.contants.MemberEnum;
 import com.apps.domain.entity.Member;
 import com.apps.domain.repository.MemberCustomRepository;
 import com.apps.exception.NotFoundException;
@@ -9,6 +10,7 @@ import com.apps.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.stereotype.Service;
+import xyz.downgoon.snowflake.Snowflake;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -60,12 +62,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public int insert(MemberDto memberDto) throws SQLException {
-        String sql = "insert into membership(number,pin,user_id,creation_date,start_date," +
-                "end_date,level,point,profile,cmnd,birthday) values(?,?,?,?,?,?,?,?,?,?,?)";
+
+        String sql = "insert into membership(number,user_id,creation_date,start_date," +
+                "end_date,level,point,profile,cmnd,birthday) values(?,?,?,?,?,?,?,?,?,?)";
+        Snowflake snowflake = new Snowflake(1, 1);
         var member = Member.builder()
-                .number(memberDto.getNumber()).pin(memberDto.getPin()).userId(memberDto.getUserId())
+                .number(String.valueOf(snowflake.nextId()))
+                .userId(memberDto.getProfile() ? memberDto.getUserId() : 0)
                 .creationDate(memberDto.getCreationDate()).startDate(memberDto.getStartDate())
-                .endDate(memberDto.getEndDate()).level(memberDto.getLevel()).point(memberDto.getPoint())
+                .endDate(memberDto.getEndDate()).level(MemberEnum.MEMBER.name()).point(0.d)
                 .profile(memberDto.getProfile()).cmnd(memberDto.getCmnd()).birthday(memberDto.getBirthday())
                 .build();
         return this.memberCustomRepository.insert(member,sql);
