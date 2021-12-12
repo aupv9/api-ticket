@@ -19,7 +19,6 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin(value = "*")
 public class LocationController {
 
     @Autowired

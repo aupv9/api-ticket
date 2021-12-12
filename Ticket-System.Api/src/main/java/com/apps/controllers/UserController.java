@@ -29,7 +29,7 @@ public class UserController {
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search",  required = false) String name,
-                                          @RequestParam(value = "role", required = false) Integer role,
+                                          @RequestParam(value = "role", required = false,defaultValue = "0") Integer role,
                                           @RequestParam(value = "status", required = false,defaultValue = "userRegister") String status
     ){
         if(status.equals("userRegister")){

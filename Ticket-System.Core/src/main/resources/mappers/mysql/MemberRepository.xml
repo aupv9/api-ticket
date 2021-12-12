@@ -1,0 +1,135 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.MemberRepository">
+
+    <select id="findAll" resultType="com.apps.mapper.MemberDto">
+        select * from membership
+        <where>
+            <if test="user != null">
+                user_id = #{user}
+            </if>
+            <if test="startDate != null">
+                and start_date = #{startDate}
+            </if>
+            <if test="endDate != null">
+                and end_date = #{endDate}
+            </if>
+            <if test="birthDay != null">
+                and birthday = #{birthDay}
+            </if>
+            <if test="level != null">
+                and level = #{level}
+            </if>
+            <if test="profile != null">
+                and profile = #{profile}
+            </if>
+            <if test="creationDate != null">
+                and creation_date = #{creationDate}
+            </if>
+            <if test="cmnd != null">
+                and creation_date like %#{cmnd}%
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'level'">
+                    level
+                </when>
+                <when test="sort == 'creationDate'">
+                    creation_date
+                </when>
+                <when test="sort == 'startDate'">
+                    start_date
+                </when>
+                <otherwise>
+                    birthday
+                </otherwise>
+            </choose>
+        </if>
+
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+
+    <select id="findAllCount" resultType="INT">
+        select count(*) from membership
+        <where>
+            <if test="user != null">
+                user_id = #{user}
+            </if>
+            <if test="startDate != null">
+                and start_date = #{startDate}
+            </if>
+            <if test="endDate != null">
+                and end_date = #{endDate}
+            </if>
+            <if test="birthDay != null">
+                and birthday = #{birthDay}
+            </if>
+            <if test="level != null">
+                and level = #{level}
+            </if>
+            <if test="profile != null">
+                and profile = #{profile}
+            </if>
+            <if test="creationDate != null">
+                and creation_date = #{creationDate}
+            </if>
+            <if test="cmnd != null">
+                and creation_date like %#{cmnd}%
+            </if>
+        </where>
+    </select>
+
+    <update id="update" >
+        update membership
+        <set>
+            <if test="entity.pin != null">
+                pin = #{entity.pin},
+            </if>
+            <if test="entity.level != null">
+                level = #{entity.level},
+            </if>
+            <if test="entity.point != null">
+                point = #{entity.point},
+            </if>
+            <if test="entity.startDate != null">
+                start_date = #{entity.startDate},
+            </if>
+            <if test="entity.endDate != null">
+                end_date = #{entity.endDate},
+            </if>
+            <if test="entity.profile != null">
+                profile = #{entity.profile},
+            </if>
+            <if test="entity.birthday != null">
+                birthday = #{entity.birthday}
+            </if>
+        </set>
+        <where>
+            id = #{entity.id}
+        </where>
+    </update>
+
+    <delete id="delete">
+        delete from membership
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+    <select id="findById" resultType="com.apps.mapper.MemberDto">
+        select * from membership where id = #{id}
+    </select>
+
+</mapper>

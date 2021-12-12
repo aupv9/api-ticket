@@ -24,7 +24,6 @@
         <spring-boot-starter-security.version>2.5.5</spring-boot-starter-security.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <spring-kafka.version>2.8.0</spring-kafka.version>
-        <twitter4j-stream.version>4.0.6</twitter4j-stream.version>
         <lombok.version>1.18.20</lombok.version>
         <mybatis-spring-boot.version>2.2.0</mybatis-spring-boot.version>
         <spring-boot-starter-data-redis.version>2.1.4.RELEASE</spring-boot-starter-data-redis.version>
@@ -97,12 +96,6 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
             <version>${spring-kafka.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j-stream</artifactId>
-            <version>${twitter4j-stream.version}</version>
         </dependency>
 
         <dependency>
