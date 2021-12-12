@@ -39,7 +39,7 @@ public class OrdersController {
                                               @RequestParam(value = "creation", required = false) Integer creation,
                                               @RequestParam(value = "date_gte", required = false) String dateGte
     ){
-        var resultList = this.ordersService.findAllOrderRoom(page - 1 ,size,sort,order,
+        var resultList = this.ordersService.findAllOrderRoom(size ,(page - 1) * size,sort,order,
                 showTimesId,type,userId,status,creation,dateGte);
 
         var totalElements = resultList.size();
@@ -64,9 +64,9 @@ public class OrdersController {
                                           @RequestParam(value = "date_gte", required = false) String dateGte,
                                           @RequestHeader("Authorization") String token
                                           ){
-        var resultList = this.ordersService.findAll(page - 1 ,size,sort,order,
+        var resultList = this.ordersService.findAll(size,(page - 1) * size,sort,order,
                 showTimesId,type,userId,status,creation,dateGte);
-        var totalElements = this.ordersService.findAllCount(showTimesId,type,userId,status,creation,dateGte);
+        var totalElements = this.ordersService.findAllOrderManagerCount(showTimesId,type,userId,status,creation,dateGte);
         var response = ResponseRA.builder()
                                     .content(resultList)
                                     .totalElements(totalElements)

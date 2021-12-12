@@ -14,13 +14,14 @@ import java.util.List;
 @Mapper
 public interface OrdersRepository {
 
-    List<Orders> findAll(@Param("limit") int limit, @Param("offset") int offset,
+    List<Orders> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                          @Param("sort")String sort, @Param("order") String order,
                          @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                          @Param("userId")Integer userId,@Param("status")String status
-                        ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,@Param("isYear")Boolean isYear);
+                        ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,
+                         @Param("isYear")Boolean isYear);
 
-    List<Orders> findMyOrders(@Param("limit") int limit, @Param("offset") int offset,
+    List<Orders> findMyOrders(@Param("limit") Integer limit, @Param("offset") Integer offset,
                                  @Param("sort")String sort, @Param("order") String order,
                                  @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                                  @Param("status")String status,

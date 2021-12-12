@@ -1,9 +1,7 @@
 package com.apps.service.impl;
 
-import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.OrderStatus;
 import com.apps.contants.Utilities;
-import com.apps.domain.entity.Concession;
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.entity.Seat;
@@ -38,10 +36,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final OrdersRepository ordersRepository;
     private final OrdersCustomRepository ordersCustomRepository;
-    private final ApplicationCacheManager cacheManager;
     private final UserService userService;
     private final ConcessionRepository concessionRepository;
-    private final PaymentRepository paymentRepository;
     private final OfferHistoryService offerHistoryService;
     private final PromotionService promotionService;
     private final ShowTimesDetailService showTimesDetailService;
@@ -52,11 +48,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
-//
-//    @Scheduled(fixedDelay = 1000)
-//    public void sendMessage() throws ExecutionException, InterruptedException {
-//        kafkaTemplate.send("test-websocket", new com.apps.config.kafka.Message("Notification","1","")).get();
-//    }
+
 
     @Scheduled(fixedDelay = 100000)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
@@ -109,35 +101,53 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public List<Orders> findAll(int page, int size, String sort, String order, Integer showTimes,
+    public List<Orders> findAll(Integer limit, Integer offset, String sort, String order, Integer showTimes,
                                 String type, Integer userId,String status,Integer creation,String dateGte) {
         var idUserContext = this.userService.getUserFromContext();
-        return this.addTotalToOrder(this.findAllOrders(size, page * size,sort,
-                order,showTimes,type,userId,status,
-                this.userService.isSeniorManager(idUserContext) || this.userService.isManager(idUserContext) ? null : idUserContext,
-                this.convertLocalDate(dateGte),null));
+        var isSenior  = this.userService.isSeniorManager(idUserContext);
+
+        return isSenior ? this.addTotalToOrder(this.findAllOrders(limit, offset,sort, order,showTimes,type,userId,status,
+                                    creation, this.convertLocalDate(dateGte),null)) :
+                this.addTotalToOrder(this.findAllOrderManager(limit,offset,sort,order,showTimes,type,
+                        userId,status, creation,
+                        this.convertLocalDate(dateGte)));
     }
+
+    @Override
+    public List<Orders> findAllOrderManager(Integer limit, Integer offset, String sort, String order,
+                                            Integer showTimes, String type, Integer userId, String status,
+                                            Integer creation, String dateGte) {
+
+        return this.addTotalToOrder(this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,
+                null,this.convertLocalDate(dateGte),null)).stream().filter(item -> {
+            return this.showTimesDetailService.findById(item.getShowTimesDetailId()).getTheaterId()
+                    == this.userService.getTheaterByUser();
+        }).collect(Collectors.toList());
+    }
+
 
     @Cacheable(value = "OrdersService" ,key = "'findAllOrders_'+#limit +'-'+#offset +'-'" +
             "+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#type+'-'+#userId +'-'+#status" +
             "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")
-    public List<Orders> findAllOrders(int limit, int offset, String sort, String order, Integer showTimes,
-                                      String type, Integer userId,String status,Integer creation,String dateGte,Boolean isYear){
+    public List<Orders> findAllOrders(Integer limit, Integer offset, String sort, String order, Integer showTimes,
+                                      String type, Integer userId,String status,
+                                      Integer creation,String dateGte,Boolean isYear){
         return this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,creation,dateGte,isYear);
     }
 
 
 
     @Override
-    public List<OrderRoomDto> findAllOrderRoom(int page, int size, String sort, String order,
+    public List<OrderRoomDto> findAllOrderRoom(Integer limit, Integer offset, String sort, String order,
                                                Integer showTimes, String type, Integer userId,
                                                String status, Integer creation, String dateGte) {
         var idUserContext = this.userService.getUserFromContext();
         var isSenior =  this.userService.isSeniorManager(idUserContext);
         var isManager= this.userService.isManager(idUserContext);
-        return this.addInfoToOrders(this.findAll(page,size,sort,
-                        order,showTimes,type,userId,status, isManager || isSenior ? null :
-                        this.userService.getUserFromContext(), this.convertLocalDate(dateGte)),isManager,isSenior);
+        var listOrders = this.ordersRepository.findAll(limit,offset,sort,
+                order,showTimes,type,userId,status, isManager || isSenior ? null :
+                        idUserContext, this.convertLocalDate(dateGte),true);
+        return this.addInfoToOrders(this.addTotalToOrder(listOrders),isManager,isSenior);
     }
 
     private List<OrderRoomDto> addInfoToOrders(List<Orders> orders,boolean isManager,boolean isSeniorManager){
@@ -151,7 +161,6 @@ public class OrdersServiceImpl implements OrdersService {
                     .updatedBy(order.getUpdatedBy()).updatedAt(order.getUpdatedAt())
                     .showTimesDetailId(order.getShowTimesDetailId())
                     .build();
-
             var showTimes = this.showTimesDetailService.findById(order.getShowTimesDetailId());
             orderRoom.setRoomName(showTimes.getRoomName());
             orderRoom.setTimeEnd(showTimes.getTimeEnd());
@@ -167,13 +176,13 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public List<Orders> findCountAllOrderRoom(int page, int size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+    public List<Orders> findCountAllOrderRoom(Integer page, Integer size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
         return null;
     }
 
 
     @Override
-    public List<Orders> findAllMyOrders(int page, int size, String sort, String order,
+    public List<Orders> findAllMyOrders(Integer page, Integer size, String sort, String order,
                                         Integer showTimes, String type, String status, Integer creation,
                                         String dateGte,
             Boolean isYear) {
@@ -211,9 +220,32 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    public int findAllOrderManagerCount(Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+        var idUserContext = this.userService.getUserFromContext();
+        var isSenior  = this.userService.isSeniorManager(idUserContext);
+        var manager =  this.userService.isManager(idUserContext);
+
+        return isSenior ? this.findAllOrders(null, null,"createdDate", "DESC",showTimes,type,userId,status,
+                isSenior || manager ? null : idUserContext,
+                this.convertLocalDate(dateGte),null).size() :
+                this.findAllOrderManager(null, null,"createdDate", "DESC",showTimes,type,userId,status, null,
+                        this.convertLocalDate(dateGte)).size();
+    }
+
+    @Override
     public int findAllCount(Integer showTimes, String type, Integer userId,
                             String status,Integer creation,String dateGte) {
-        return this.ordersRepository.findCountAll(showTimes,type,userId,status,creation,this.convertLocalDate(dateGte),null);
+        var idUserContext = this.userService.getUserFromContext();
+        var isSenior  = this.userService.isSeniorManager(idUserContext);
+
+        return isSenior ? this.findAll(null, null,"createdDate", "DESC",showTimes,type,userId,status,
+                null , this.convertLocalDate(dateGte)).size() :
+                (int) this.findAll(null, null, "createdDate", "DESC", showTimes, type, userId, status,
+                        null, this.convertLocalDate(dateGte)).stream().filter(orders -> {
+                    return this.showTimesDetailService.findById(orders.getShowTimesDetailId()).getTheaterId()
+                            == this.userService.getTheaterByUser();
+                }).count();
+
     }
 
     private double getTotalOrder(Orders orders){
@@ -254,9 +286,7 @@ public class OrdersServiceImpl implements OrdersService {
         if(orders == null){
             throw new NotFoundException("Not Find Object Have Id :" + id);
         }
-        if(orders.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
 
-        }
         var concessions = this.concessionRepository.findAllConcessionInOrder(id);
         var seats = this.ordersRepository.findSeatInOrders(id);
         double totalAmount = this.getTotalOrder(concessions,seats,orders);
@@ -306,14 +336,13 @@ public class OrdersServiceImpl implements OrdersService {
         return this.ordersRepository.update(orders);
     }
 
+
     private boolean isSeatsAvailable(Integer seat,List<Seat> idSeats){
         for(var item : idSeats){
             if(item.getId() == seat) return true;
         }
         return false;
     }
-
-
 
     public void checkSeatIsAvailable(OrderDto orderDto){
         var idSeats = this.seatService.findAllSeatInShowTimeUnavailable(orderDto.getShowTimesDetailId());
@@ -366,7 +395,6 @@ public class OrdersServiceImpl implements OrdersService {
             }
             this.sendDataToClient();
             this.seatService.sendDataToClient(orderDto.getShowTimesDetailId());
-
         }else{
             return 0;
         }

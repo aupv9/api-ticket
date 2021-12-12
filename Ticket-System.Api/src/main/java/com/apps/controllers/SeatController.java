@@ -108,7 +108,7 @@ public class SeatController {
 
 
     @GetMapping("seats/{id}")
-    public ResponseEntity<?> getLocations(@PathVariable("id") Integer id){
+    public ResponseEntity<?> getSeat(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.seatService.findById(id));
     }
 

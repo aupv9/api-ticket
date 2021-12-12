@@ -12,28 +12,36 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface OrdersService {
-    List<Orders> findAll( int page, int size,
+    List<Orders> findAll( Integer limit, Integer offset,
                          String sort,  String order,
                          Integer showTimes, String type,
                          Integer userId,String status,Integer creation,String dateGte);
 
-    List<OrderRoomDto> findAllOrderRoom(int page, int size,
+    List<Orders> findAllOrderManager(Integer limit, Integer offset,
+                          String sort,  String order,
+                          Integer showTimes, String type,
+                          Integer userId,String status,Integer creation,String dateGte);
+
+    List<OrderRoomDto> findAllOrderRoom(Integer limit, Integer offset,
                                         String sort, String order,
                                         Integer showTimes, String type,
                                         Integer userId, String status, Integer creation, String dateGte);
 
-    List<Orders> findCountAllOrderRoom( int page, int size,
+    List<Orders> findCountAllOrderRoom( Integer page, Integer size,
                                        String sort,  String order,
                                        Integer showTimes, String type,
                                        Integer userId,String status,Integer creation,String dateGte);
 
-    List<Orders> findAllMyOrders( int page, int size,
+    List<Orders> findAllMyOrders( Integer page, Integer size,
                           String sort,  String order,
                           Integer showTimes, String type,String status,
                                   Integer creation,String dateGte,Boolean isYear);
 
     int findCountAllMyOrder(Integer showTimes, String type, String status,
                             Integer creation,String dateGte,Boolean isYear);
+
+    int findAllOrderManagerCount(Integer showTimes,String type,
+                     Integer userId,String status,Integer creation,String dateGte);
 
     int findAllCount(Integer showTimes,String type,
                      Integer userId,String status,Integer creation,String dateGte);

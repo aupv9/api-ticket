@@ -108,24 +108,9 @@ public class PaymentServiceImpl implements PaymentService {
                 this.promotionRepository.insertOfferHistory(offerHistory);
             }
             this.ordersService.update(orders);
-            var listOrderNew = this.ordersService.findAllOrderRoom(0,25,
-                    "updatedAt","DESC",null,null,null,null,
-                    null,Utilities.subDate(30));
-            var listOrders =this.ordersService.findAllOrderRoom(0,1000,
-                    "updatedAt","DESC",null,null,null,
-                    null,null,null);
-            List<Object> objectList = new ArrayList<>();
-            objectList.add(listOrderNew);
-            objectList.add(listOrders);
 
-            kafkaTemplate.send("test-websocket","order-chart",
-                    new com.apps.config.kafka.Message("order",objectList)).get();
-
-            var showTimes = this.seatService.findShowTimesById(order.getShowTimesDetailId());
-            var seatMap = this.seatService.findByRoom(1,1000,"id","ASC",showTimes.getRoomId(),order.getShowTimesDetailId());
-
-            kafkaTemplate.send("test-websocket","seat-map",
-                    new com.apps.config.kafka.Message("seat", Collections.singletonList(seatMap))).get();
+            this.ordersService.sendDataToClient();
+            this.seatService.sendDataToClient(order.getShowTimesDetailId());
         }
         return result;
     }
