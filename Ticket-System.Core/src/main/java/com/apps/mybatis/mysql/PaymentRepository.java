@@ -28,6 +28,9 @@ public interface PaymentRepository {
     @Select("SELECT * FROM payment_method")
     List<PaymentMethod> findAllPaymentMethod();
 
+    @Select("select * from payment_method where code = #{code}")
+    PaymentMethod findByCode(@Param("code")String code);
+
     @Select("SELECT count(*) FROM payment_method")
     int findAllCountPaymentMethod();
 
@@ -37,6 +40,12 @@ public interface PaymentRepository {
     @Select("select * from payment where part_id =#{id}")
     Payment findByIdOrder(@Param("id")Integer id);
 
+    @Select("select * from payment where id =#{id}")
+    Payment findById(@Param("id")Integer id);
+
     @Delete("delete from payment where part_id = #{id}")
     int deleteByOrder(@Param("id")Integer id);
+
+    int update(@Param("payment")Payment payment);
+
 }

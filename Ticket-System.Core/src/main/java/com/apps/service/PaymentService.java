@@ -3,6 +3,7 @@ package com.apps.service;
 import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.Payment;
 import com.apps.domain.entity.PaymentMethod;
+import com.apps.mapper.PaymentDto;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,9 +16,10 @@ public interface PaymentService {
     int findAllCount(String createdDate,String useFor,String status,Integer creation,Integer method);
     List<PaymentMethod> findAllPaymentMethod();
     int findCountPaymentMethod();
-    int insertReturnedId(Payment payment) throws SQLException, ExecutionException, InterruptedException;
+    int insertReturnedId(PaymentDto paymentDto) throws SQLException, ExecutionException, InterruptedException;
     PaymentMethod findPaymentMethodById(int id);
     int deleteByOrder(int id);
     Payment findByOrder(int idOrder);
-
+    Payment findById(int id);
+    int update(PaymentDto paymentDto);
 }

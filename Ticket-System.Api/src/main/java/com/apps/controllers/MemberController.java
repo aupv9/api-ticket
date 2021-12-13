@@ -37,7 +37,7 @@ public class MemberController {
                                           @RequestParam(value = "level", required = false)String level,
                                           @RequestParam(value = "birthDay", required = false)String birthDay,
                                           @RequestParam(value = "cmnd", required = false)String cmnd,
-                                          @RequestParam(value = "cmnd", required = false,defaultValue = "false")Boolean profile,
+                                          @RequestParam(value = "profile", required = false)Boolean profile,
                                           @RequestParam(value = "creationDate", required = false)String creationDate
                                           ){
         var resultList = this.memberService.findAll(size ,(page - 1) * size,sort,order,

@@ -4,6 +4,7 @@ import com.apps.domain.entity.Member;
 import com.apps.mapper.MemberDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -27,5 +28,8 @@ public interface MemberRepository {
     int delete(@Param("id")Integer id);
 
     MemberDto findById(@Param("id")Integer id);
+
+    @Select("select * from membership where number = #{number}")
+    MemberDto findByNumber(@Param("number")String number);
 
 }

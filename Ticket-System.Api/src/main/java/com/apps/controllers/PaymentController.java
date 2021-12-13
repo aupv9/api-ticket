@@ -1,12 +1,14 @@
 package com.apps.controllers;
 
 import com.apps.domain.entity.Payment;
+import com.apps.mapper.PaymentDto;
 import com.apps.response.ResponseRA;
 import com.apps.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -44,10 +46,10 @@ public class PaymentController {
     }
 
     @PostMapping("payments")
-    public ResponseEntity<?> createCategory(@RequestBody Payment payment) throws SQLException, ExecutionException, InterruptedException {
-        int idReturned = this.paymentService.insertReturnedId(payment);
-        payment.setId(idReturned);
-        return ResponseEntity.ok(payment);
+    public ResponseEntity<?> createPayment(@RequestBody PaymentDto paymentDto) throws SQLException, ExecutionException, InterruptedException {
+        int idReturned = this.paymentService.insertReturnedId(paymentDto);
+        paymentDto.setId(idReturned);
+        return ResponseEntity.ok(paymentDto);
     }
 
     @GetMapping("payments-method")
@@ -66,11 +68,21 @@ public class PaymentController {
         return ResponseEntity.ok(this.paymentService.findByOrder(id));
     }
 
+    @GetMapping("payments/{id}")
+    public ResponseEntity<?> getPaymentById(@PathVariable("id")Integer id){
+        return ResponseEntity.ok(this.paymentService.findById(id));
+    }
+
     @GetMapping("payments-method/{id}")
     public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id){
         return ResponseEntity.ok(this.paymentService.findPaymentMethodById(id));
     }
 
+    @PutMapping("payments/{id}")
+    public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id, @Payload PaymentDto payment){
+        payment.setId(id);
+        return ResponseEntity.ok(this.paymentService.update(payment));
+    }
 
 
 

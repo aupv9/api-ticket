@@ -27,5 +27,10 @@ public interface MemberService {
 
     MemberDto findById(Integer id);
 
+    MemberDto findByNumber(String number);
+
+
     int insert(MemberDto memberDto) throws SQLException;
+
+    String checkLevelMember(double point);
 }

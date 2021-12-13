@@ -61,6 +61,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public MemberDto findByNumber(String number) {
+        return this.memberRepository.findByNumber(number);
+    }
+
+    @Override
     public int insert(MemberDto memberDto) throws SQLException {
 
         String sql = "insert into membership(number,user_id,creation_date,start_date," +
@@ -74,5 +79,18 @@ public class MemberServiceImpl implements MemberService {
                 .profile(memberDto.getProfile()).cmnd(memberDto.getCmnd()).birthday(memberDto.getBirthday())
                 .build();
         return this.memberCustomRepository.insert(member,sql);
+    }
+
+    @Override
+    public String checkLevelMember(double point) {
+        String level = MemberEnum.NORMAL.name();
+        if(point > 500){
+            level = MemberEnum.MEMBER.name();
+        }else if(point > 2500 && point <= 4999){
+            level = MemberEnum.VIP.name();
+        }else if(point > 4999){
+            level = MemberEnum.SVIP.name();
+        }
+        return level;
     }
 }

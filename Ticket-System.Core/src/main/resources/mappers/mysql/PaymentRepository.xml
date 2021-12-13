@@ -80,12 +80,23 @@
 
     </select>
         <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-            insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
-            values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},
+            insert into booksystem.payment(payment_method_id, amount, status, transaction_id, created_date, start_date, end_date, note, use_for, part_id)
+            values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createdDate},
                     #{payment.startDate},#{payment.endDate},#{payment.note},#{payment.useFor},#{payment.partId})
             <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
                 SELECT LAST_INSERT_ID();
             </selectKey>
         </insert>
-
+    <update id="update" >
+        update payment
+        <set>
+            <if test="payment.status">
+                status = #{payment.status},
+            </if>
+            <if test="payment.amount">
+                amount = #{payment.amount},
+            </if>
+        </set>
+        where id = #{payment.id}
+    </update>
 </mapper>
