@@ -90,10 +90,10 @@
     <update id="update" >
         update payment
         <set>
-            <if test="payment.status">
+            <if test="payment.status != null">
                 status = #{payment.status},
             </if>
-            <if test="payment.amount">
+            <if test="payment.amount  != null">
                 amount = #{payment.amount},
             </if>
         </set>

@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 import com.apps.domain.entity.Payment;
 import com.apps.mapper.PaymentDto;
+import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +82,12 @@ public class PaymentController {
     @PutMapping("payments/{id}")
     public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id, @Payload PaymentDto payment){
         payment.setId(id);
-        return ResponseEntity.ok(this.paymentService.update(payment));
+        var resultUpdate = this.paymentService.update(payment);
+        var response = RAResponseUpdate.builder()
+                .id(resultUpdate)
+                .previousData(payment)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 

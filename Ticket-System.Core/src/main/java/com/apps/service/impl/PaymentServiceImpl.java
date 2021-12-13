@@ -92,6 +92,7 @@ public class PaymentServiceImpl implements PaymentService {
                 "creation,status,transaction_id,created_date,amount,use_for," +
                 "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
         payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
+        payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
         payment.setCreation(userService.getUserFromContext());
         payment.setCreatedDate(userService.getNowDateTime());
         payment.setPartId(paymentDto.getPartId());
@@ -130,14 +131,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         int result = this.paymentCustomRepository.insert(payment,sql);
         if(result > 0){
-
-
             var order = this.ordersService.findById(payment.getPartId());
             var orders = Orders.builder()
                     .id(order.getId())
                     .updatedBy(userService.getUserFromContext())
                     .updatedAt(Utilities.getCurrentTime())
-                    .status(OrderStatus.PAYMENT.getStatus())
+                    .status(OrderStatus.ORDERED.getStatus())
                     .build();
             if(!payment.getCode().isEmpty()){
                 var offerCode =
