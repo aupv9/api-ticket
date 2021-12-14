@@ -89,8 +89,8 @@ public class PaymentServiceImpl implements PaymentService {
         var payment = new Payment();
         payment.setStatus(PaymentStatus.Verified.getValue());
         String sql = "Insert into payment(part_id,payment_method_id," +
-                "creation,status,transaction_id,created_date,amount,use_for," +
-                "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
+                    "creation,status,transaction_id,created_date,amount,use_for," +
+                    "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
         payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
         payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
         payment.setCreation(userService.getUserFromContext());
@@ -162,8 +162,6 @@ public class PaymentServiceImpl implements PaymentService {
         return result;
     }
 
-
-
     @Override
     public com.apps.domain.entity.PaymentMethod findPaymentMethodById(int id) {
         return this.paymentRepository.findPaymentMethodById(id);
@@ -181,13 +179,21 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment findById(int id) {
+    public PaymentDto findById(int id) {
         return this.paymentRepository.findById(id);
     }
 
     @Override
-    public int update(PaymentDto paymentDto) {
+    public int update(PaymentDto paymentDto) throws ExecutionException, InterruptedException {
         var payment = this.findById(paymentDto.getId());
+        if(paymentDto.getUseFor().equals(PaymentFor.TICKET.getValue())){
+            var order = this.ordersService.findOrdersById(paymentDto.getPartId());
+            order.setStatus(OrderStatus.PAYMENT.getStatus());
+            order.setUpdatedAt(Utilities.getCurrentTime());
+            order.setUpdatedBy(this.userService.getUserFromContext());
+            this.ordersService.update(order);
+            this.ordersService.sendDataToClient();
+        }
         payment.setStatus(paymentDto.getStatus());
         payment.setAmount(paymentDto.getAmount());
         return this.paymentRepository.update(payment);

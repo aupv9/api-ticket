@@ -80,7 +80,8 @@ public class PaymentController {
     }
 
     @PutMapping("payments/{id}")
-    public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id, @Payload PaymentDto payment){
+    public ResponseEntity<?> getPaymentMethod(@PathVariable("id")Integer id,
+                                              @RequestBody PaymentDto payment) throws ExecutionException, InterruptedException {
         payment.setId(id);
         var resultUpdate = this.paymentService.update(payment);
         var response = RAResponseUpdate.builder()

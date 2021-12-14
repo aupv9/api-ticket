@@ -20,6 +20,6 @@ public interface PaymentService {
     PaymentMethod findPaymentMethodById(int id);
     int deleteByOrder(int id);
     Payment findByOrder(int idOrder);
-    Payment findById(int id);
-    int update(PaymentDto paymentDto);
+    PaymentDto findById(int id);
+    int update(PaymentDto paymentDto) throws ExecutionException, InterruptedException;
 }

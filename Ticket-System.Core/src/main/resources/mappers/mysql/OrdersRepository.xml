@@ -68,6 +68,23 @@
 
     </select >
 
+    <select id="findAll" resultType="com.apps.domain.entity.Orders">
+        select id,created_date,status from orders
+        <where>
+            <if test="creation != null">
+                 creation = #{creation}
+            </if>
+            <if test="dateGte != null">
+                and date(created_date)
+                between date(#{dateGte}) and date(current_time)
+            </if>
+            <if test="isYear != null">
+                and year(created_date) = year(current_time)
+            </if>
+        </where>
+    </select >
+
+
     <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">
         select *
             from orders
@@ -202,6 +219,7 @@
 
     </select>
 
+
     <select id="findSeatInOrders" resultType="com.apps.response.entity.OrderSeats">
         select orders_id,seat_id, seat_type, tier, numbers
         from
@@ -244,7 +262,13 @@
         update orders
         <set>
             <if test="order.status != null">
-                status = #{order.status}
+                status = #{order.status},
+            </if>
+            <if test="order.updatedBy != null">
+                updatedBy = #{order.updatedBy},
+            </if>
+            <if test="order.updatedAt != null">
+                updatedAt = #{order.updatedAt}
             </if>
         </set>
         <where>

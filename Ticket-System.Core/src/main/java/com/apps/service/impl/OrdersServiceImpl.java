@@ -317,6 +317,11 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    public Orders findOrdersById(int id) {
+        return this.ordersRepository.findOrderById(id);
+    }
+
+    @Override
     @CacheEvict(cacheNames = "OrdersService",allEntries = true)
     public void delete(int id) {
         var orders = this.findById(id);
@@ -438,7 +443,7 @@ public class OrdersServiceImpl implements OrdersService {
         var listOrderNew = this.findAllOrderRoom(0,10000,
                 "updatedAt","DESC",null,null,null,null,
                 null,Utilities.subDate(30));
-        var listOrders =this.findAllOrderRoom(0,1000,
+        var listOrders = this.findAllOrderRoom(0,1000,
                 "updatedAt","DESC",null,null,null,
                 null,null,null);
         List<Object> objectList = new ArrayList<>();

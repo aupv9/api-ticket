@@ -46,6 +46,8 @@ public interface OrdersService {
     int findAllCount(Integer showTimes,String type,
                      Integer userId,String status,Integer creation,String dateGte);
     MyOrderResponse findById(int id);
+
+    Orders findOrdersById(int id);
     void delete(int id);
     int insert(Orders orders) throws SQLException;
     int update(Orders orders);

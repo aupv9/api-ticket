@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Payment;
 import com.apps.domain.entity.PaymentMethod;
+import com.apps.mapper.PaymentDto;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -41,11 +42,11 @@ public interface PaymentRepository {
     Payment findByIdOrder(@Param("id")Integer id);
 
     @Select("select * from payment where id =#{id}")
-    Payment findById(@Param("id")Integer id);
+    PaymentDto findById(@Param("id")Integer id);
 
     @Delete("delete from payment where part_id = #{id}")
     int deleteByOrder(@Param("id")Integer id);
 
-    int update(@Param("payment")Payment payment);
+    int update(@Param("payment")PaymentDto payment);
 
 }

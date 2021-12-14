@@ -40,6 +40,9 @@ public interface OrdersRepository {
 
     Orders findById(@Param("id")Integer id);
 
+    @Select("select * from orders where id = #{id}")
+    Orders findOrderById(@Param("id")Integer id);
+
     @Delete("delete from orders where id = #{id}")
     int delete(@Param("id")Integer id);
 
