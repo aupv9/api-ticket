@@ -1,14 +1,11 @@
 package com.apps.service.impl;
 
-import com.apps.config.cache.ApplicationCacheManager;
-import com.apps.contants.Role;
-import com.apps.contants.Utilities;
+
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
-import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.TimePick;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +33,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     private final RoomService roomService;
 
-
     private final UserServiceImpl userService;
-
 
 
     @Override

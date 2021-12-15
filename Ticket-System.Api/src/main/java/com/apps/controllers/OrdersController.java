@@ -6,6 +6,8 @@ import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.OrdersService;
+import com.apps.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +20,18 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin(value = "*")
+@RequiredArgsConstructor
 public class OrdersController {
 
     private final OrdersService ordersService;
 
-    public OrdersController(OrdersService ordersService) {
-        this.ordersService = ordersService;
-    }
+    private final UserService userService;
+
 
     @GetMapping("orders-room")
-    public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "pageSize", required = false) Integer size,
-                                              @RequestParam(value = "page", required = false)Integer page,
-                                              @RequestParam(value = "sort", required = false) String sort,
-                                              @RequestParam(value = "order", required = false) String order,
-                                              @RequestParam(value = "user_id",  required = false) Integer userId,
-                                              @RequestParam(value = "type",  required = false) String type,
-                                              @RequestParam(value = "showTimes_id", required = false) Integer showTimesId,
-                                              @RequestParam(value = "status", required = false) String status,
-                                              @RequestParam(value = "creation", required = false) Integer creation,
-                                              @RequestParam(value = "date_gte", required = false) String dateGte
-    ){
-        var resultList = this.ordersService.findAllOrderRoom(size ,(page - 1) * size,sort,order,
-                showTimesId,type,userId,status,creation,dateGte);
+    public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "date_gte", required = false) String dateGte){
+        var creation = this.userService.getUserFromContext();
+        var resultList = this.ordersService.findOrderStatistics(creation,dateGte);
 
         var totalElements = resultList.size();
         var response = ResponseRA.builder()

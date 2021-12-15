@@ -68,8 +68,8 @@
 
     </select >
 
-    <select id="findAll" resultType="com.apps.domain.entity.Orders">
-        select id,created_date,status from orders
+    <select id="findOrderStatistics" resultType="com.apps.mapper.OrderStatistics">
+        select *  from orders
         <where>
             <if test="creation != null">
                  creation = #{creation}
@@ -78,9 +78,7 @@
                 and date(created_date)
                 between date(#{dateGte}) and date(current_time)
             </if>
-            <if test="isYear != null">
-                and year(created_date) = year(current_time)
-            </if>
+            and year(created_date) = year(current_time)
         </where>
     </select >
 

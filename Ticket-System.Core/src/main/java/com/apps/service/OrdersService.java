@@ -3,6 +3,7 @@ package com.apps.service;
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
 import com.apps.mapper.OrderDto;
+import com.apps.mapper.OrderStatistics;
 import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.MyOrderResponse;
 import org.apache.ibatis.annotations.Param;
@@ -36,6 +37,8 @@ public interface OrdersService {
                           String sort,  String order,
                           Integer showTimes, String type,String status,
                                   Integer creation,String dateGte,Boolean isYear);
+
+    List<OrderStatistics> findOrderStatistics(Integer creation, String dateGte);
 
     int findCountAllMyOrder(Integer showTimes, String type, String status,
                             Integer creation,String dateGte,Boolean isYear);

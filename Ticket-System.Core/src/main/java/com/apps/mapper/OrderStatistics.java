@@ -13,9 +13,8 @@ import java.io.Serializable;
 @Builder
 public class OrderStatistics implements Serializable {
     private static final long serialVersionUID = 7847853057205809339L;
-    private int id;
-    private String movieName,status,createdDate,expirePayment,
-            roomName,theaterName,locationName;
+    private Integer showTimesDetailId,userId,updatedBy = 0,creation,id;
+    private String movieName,status,createdDate,roomName,theaterName,locationName,timeStart;
     private boolean profile = false;
-    private double total;
+    private double total,tax,totalSeats,totalConcessions;
 }

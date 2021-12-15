@@ -5,9 +5,11 @@ import com.apps.contants.Utilities;
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
 import com.apps.domain.entity.Seat;
+import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
+import com.apps.mapper.OrderStatistics;
 import com.apps.mybatis.mysql.*;
 import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.ConcessionMyOrder;
@@ -44,7 +46,7 @@ public class OrdersServiceImpl implements OrdersService {
     private final TheaterService theaterService;
     private final LocationService locationService;
     private final SeatService seatService;
-
+    private final MovieService movieService;
 
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
@@ -88,6 +90,18 @@ public class OrdersServiceImpl implements OrdersService {
         for (var order:orders){
             if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
                 order.setTotal(this.getTotalOrder(order));
+            }
+        }
+        return orders;
+    }
+
+    private List<OrderStatistics> addTotalToOrderStatistics(List<OrderStatistics> orders){
+        for (var order:orders){
+            if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+                var orderTotal = this.getTotalOrder(order);
+                order.setTotal(orderTotal.getTotal());
+                order.setTotalSeats(orderTotal.getTotalSeats());
+                order.setTotalConcessions(orderTotal.getTotalConcessions());
             }
         }
         return orders;
@@ -147,10 +161,10 @@ public class OrdersServiceImpl implements OrdersService {
         var listOrders = this.ordersRepository.findAll(limit,offset,sort,
                 order,showTimes,type,userId,status, isManager || isSenior ? null :
                         idUserContext, this.convertLocalDate(dateGte),true);
-        return this.addInfoToOrders(this.addTotalToOrder(listOrders),isManager,isSenior);
+        return this.addInfoOrders(this.addTotalToOrder(listOrders),isManager,isSenior);
     }
 
-    private List<OrderRoomDto> addInfoToOrders(List<Orders> orders,boolean isManager,boolean isSeniorManager){
+    private List<OrderRoomDto> addInfoOrders(List<Orders> orders,boolean isManager,boolean isSeniorManager){
         var ordersRoom = new ArrayList<OrderRoomDto>();
         for (var order: orders){
             var orderRoom = OrderRoomDto.builder()
@@ -175,6 +189,39 @@ public class OrdersServiceImpl implements OrdersService {
                 : isManager ? this.filterOrderByTheater(ordersRoom) : ordersRoom;
     }
 
+    private List<OrderStatistics> addInfoOrderStatistics(List<OrderStatistics> orders,
+                                                  boolean isManager,boolean isSeniorManager){
+        var orderStatistics = new ArrayList<OrderStatistics>();
+        for (var order: orders){
+            var orderStatistic = OrderStatistics.builder()
+                    .userId(order.getUserId()).createdDate(order.getCreatedDate())
+                    .creation(order.getCreation()).id(order.getId()).tax(order.getTax()).profile(order.isProfile())
+                    .status(order.getStatus()).total(order.getTotal())
+                    .updatedBy(order.getUpdatedBy())
+                    .showTimesDetailId(order.getShowTimesDetailId())
+                    .totalSeats(order.getTotalSeats()).totalConcessions(order.getTotalConcessions())
+                    .build();
+            var showTimes = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+            orderStatistic.setRoomName(showTimes.getRoomName());
+            orderStatistic.setTimeStart(showTimes.getTimeStart());
+            var theater = this.theaterService.findById(showTimes.getTheaterId());
+            orderStatistic.setTheaterName(theater.getName());
+            var location  = this.locationService.findById(theater.getLocationId());
+            var movie  = this.movieService.findById(showTimes.getMovieId());
+            orderStatistic.setMovieName(movie.getName());
+            orderStatistic.setLocationName(location.getName());
+            orderStatistics.add(orderStatistic);
+        }
+        return isSeniorManager ? orderStatistics : isManager ? orderStatistics.stream().filter(
+                order ->{
+                    var item = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+                    return item.getTheaterId() == this.userService.getTheaterByUser();
+                }
+        ).collect(Collectors.toList()): orderStatistics;
+    }
+
+
+
     @Override
     public List<Orders> findCountAllOrderRoom(Integer page, Integer size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
         return null;
@@ -189,6 +236,17 @@ public class OrdersServiceImpl implements OrdersService {
         return this.addTotalToOrder(this.findAllMyOrder(size, page * size,
                 sort,order,showTimes ,type,status, userService.getUserFromContext(),
                 this.convertLocalDate(dateGte), isYear));
+    }
+
+    @Override
+    @Cacheable(value = "OrdersService" ,key = "'findOrderStatistics_'+#creation +'-'+#dateGte", unless = "#result == null")
+    public List<OrderStatistics> findOrderStatistics(Integer creation, String dateGte) {
+        var isSenior =  this.userService.isSeniorManager(creation);
+        var isManager= this.userService.isManager(creation);
+        var listOrders = this.ordersRepository.findOrderStatistics( isManager || isSenior ? null :
+                creation, this.convertLocalDate(dateGte));
+        var addPriceOrders = this.addTotalToOrderStatistics(listOrders);
+        return this.addInfoOrderStatistics(addPriceOrders,isManager,isSenior);
     }
 
     @Cacheable(value = "OrdersService" ,key = "'findAllMyOrder_'+#limit +'-'+#offset +'-'" +
@@ -248,18 +306,44 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
-    private double getTotalOrder(Orders orders){
-        var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
-        var seats = this.ordersRepository.findSeatInOrders(orders.getId());
+    private double totalConcession(List<ConcessionMyOrder> concessionMyOrders){
         double totalAmount = 0.d;
-        for (var concession: concessions){
+        for (var concession: concessionMyOrders){
             totalAmount += concession.getPrice() * concession.getQuantity();
         }
-        var showTime = this.showTimesDetailService.findById(orders.getShowTimesDetailId());
+        return totalAmount;
+    }
+
+    private double totalSeats(List<OrderSeats> seats, ShowTimesDetail showTime){
+        double totalAmount = 0.d;
         for (var seat : seats){
             totalAmount += showTime.getPrice();
         }
+        return totalAmount;
+    }
 
+    private OrderStatistics getTotalOrder(OrderStatistics orders){
+        var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
+        var seats = this.ordersRepository.findSeatInOrders(orders.getId());
+        var totalConcession = this.totalConcession(concessions);
+        var showTime = this.showTimesDetailService.findById(orders.getShowTimesDetailId());
+        var totalSeat = this.totalSeats(seats,showTime);
+        double totalAmount = totalConcession + totalSeat;
+        var taxAmount = (totalAmount / 100) * orders.getTax();
+        orders.setTotal(totalAmount + taxAmount);
+        orders.setTotalSeats(totalSeat);
+        orders.setTotalConcessions(totalConcession);
+        return orders;
+    }
+
+
+    private double getTotalOrder(Orders orders){
+        var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
+        var seats = this.ordersRepository.findSeatInOrders(orders.getId());
+        var totalConcession = this.totalConcession(concessions);
+        var showTime = this.showTimesDetailService.findById(orders.getShowTimesDetailId());
+        var totalSeat = this.totalSeats(seats,showTime);
+        double totalAmount = totalConcession + totalSeat;
         var taxAmount = (totalAmount / 100) * orders.getTax();
         return totalAmount + taxAmount;
     }
@@ -440,12 +524,9 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public void sendDataToClient() throws ExecutionException, InterruptedException {
-        var listOrderNew = this.findAllOrderRoom(0,10000,
-                "updatedAt","DESC",null,null,null,null,
-                null,Utilities.subDate(30));
-        var listOrders = this.findAllOrderRoom(0,1000,
-                "updatedAt","DESC",null,null,null,
-                null,null,null);
+        var userId = this.userService.getUserFromContext();
+        var listOrderNew = this.findOrderStatistics(userId,Utilities.subDate(30));
+        var listOrders = this.findOrderStatistics(userId,null);
         List<Object> objectList = new ArrayList<>();
         objectList.add(listOrderNew);
         objectList.add(listOrders);

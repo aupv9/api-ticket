@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Orders;
+import com.apps.mapper.OrderStatistics;
 import com.apps.payment.Order;
 import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.OrderSeats;
@@ -37,6 +38,8 @@ public interface OrdersRepository {
                             ,@Param("status")String status,@Param("creation") Integer creation,@Param("dateGte") String dateGte,
                             @Param("isYear")Boolean isYear);
 
+    List<OrderStatistics> findOrderStatistics(@Param("creation")Integer creation,
+                                              @Param("dateGte")String dateGte);
 
     Orders findById(@Param("id")Integer id);
 

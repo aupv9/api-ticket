@@ -41,9 +41,9 @@ public class MovieController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> findMovieHaveOfWeek() {
         var resultList = this.movieService.findAllCurrentWeek();
-        var response = ResponseList.builder()
-                .data(resultList)
-                .total(resultList.size())
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -52,9 +52,9 @@ public class MovieController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> findMovieComingSoon() {
         var resultList = this.movieService.findAllComingSoon();
-        var response = ResponseList.builder()
-                .data(resultList)
-                .total(resultList.size())
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
                 .build();
         return ResponseEntity.ok(response);
     }
