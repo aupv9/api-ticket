@@ -1,4 +1,5 @@
 package com.apps.domain.entity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Movie implements Serializable {
-
-    private static final long serialVersionUID = 8878313134139905533L;
-    private int id,durationMin;
-    private String name,image,thumbnail,releasedDate,trailerUrl,genre;
-
+public class Tag implements Serializable {
+    private static final long serialVersionUID = 1496851653457513196L;
+    private String name;
 }

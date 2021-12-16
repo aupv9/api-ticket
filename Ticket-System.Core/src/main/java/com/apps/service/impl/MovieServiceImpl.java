@@ -1,29 +1,41 @@
 package com.apps.service.impl;
 
-import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.contants.Utilities;
+import com.apps.domain.entity.Cast;
+import com.apps.domain.entity.Media;
 import com.apps.domain.entity.Movie;
+import com.apps.domain.entity.Tag;
 import com.apps.domain.repository.MovieCustomRepository;
 import com.apps.mybatis.mysql.MovieRepository;
+import com.apps.request.MovieDto;
+import com.apps.response.MovieResponse;
+import com.apps.service.CastService;
+import com.apps.service.MediaService;
 import com.apps.service.MovieService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.apps.service.TagService;
+import lombok.RequiredArgsConstructor;
+import lombok.var;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 
-    @Autowired
-    private MovieRepository movieRepository;
+    private final MovieRepository movieRepository;
 
-    @Autowired
-    private ApplicationCacheManager cacheManager;
+    private final MovieCustomRepository movieCustomRepository;
 
-    @Autowired
-    private MovieCustomRepository movieCustomRepository;
+    private final CastService castService;
+
+    private final TagService tagService;
+
+    private final MediaService mediaService;
 
     @Override
     public List<Movie> findByLocationAndDate(int location, String date) {
@@ -31,12 +43,37 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    @Cacheable(cacheNames = "MovieService", key = "'findAll_'+#page+'-'+#size+'-'+#search+'-'+#sort+'-'+#order",
+    @Cacheable(cacheNames = "MovieService", key = "'findAllMovie_'+#page+'-'+#size+'-'+#search+'-'+#sort+'-'+#order",
             unless = "#result == null ")
-    public List<Movie> findAll(int page, int size,String search, String sort, String order) {
-        return movieRepository.findAll(page * size, size,search,sort,order);
+    public List<MovieResponse> findAll(int page, int size,String search, String sort, String order) {
+        var movies = movieRepository.findAll(page * size, size,search,sort,order);
+        return this.addInfoForMovie(movies);
     }
 
+    private List<Cast> findCast(Integer movie){
+        var listCast = this.movieRepository.findAllCastInMovie(movie);
+        var newListMovie = new ArrayList<Cast>();
+        for (var castId : listCast){
+            var cast = this.castService.findById(castId);
+            newListMovie.add(cast);
+        }
+        return newListMovie;
+    }
+    private List<MovieResponse> addInfoForMovie(List<Movie> movieList){
+        var newListMovie = new ArrayList<MovieResponse>();
+
+        movieList.forEach(movie -> {
+            var movieDto = MovieResponse.builder()
+                    .id(movie.getId()).casts(this.findCast(movie.getId()))
+                    .genre(movie.getGenre()).name(movie.getName()).durationMin(movie.getDurationMin())
+                    .releasedDate(movie.getReleasedDate()).thumbnail(movie.getThumbnail())
+                    .trailerUrl(movie.getTrailerUrl())
+                    .build();
+            newListMovie.add(movieDto);
+        });
+        return newListMovie;
+
+    }
     @Override
     @Cacheable(cacheNames = "MovieService", key = "'findAllCountMovie_'+#search",
             unless = "#result == null ")
@@ -52,27 +89,29 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @CacheEvict(value = "MovieService",allEntries = true,key = "'findByIdMovie_'+#movie.id")
     public int update(Movie movie) {
         Movie movie1 = findById(movie.getId());
         movie1.setName(movie.getName());
         movie1.setThumbnail(movie.getThumbnail());
         movie1.setImage(movie.getImage());
         int result = this.movieRepository.update(movie1);
-        cacheManager.clearCache("MovieService");
         return result;
     }
 
     @Override
     public int insert(Movie movie) throws SQLException {
-        String sql = "INSERT INTO MOVIE('name','thumbnail','image','active') VALUES(?,?,?,?)";
+        String sql = "INSERT INTO MOVIE(name,thumbnail,image,genre," +
+                "released_date,trailer_url,duration_min)" +
+                " VALUES(?,?,?,?,?,?,?)";
         return this.movieCustomRepository.insert(movie,sql);
     }
 
     @Override
+    @CacheEvict(value = "MovieService",allEntries = true,key = "'findByIdMovie_'+#id")
     public void delete(Integer id) {
         Movie movie1 = findById(id);
         this.movieRepository.delete(id);
-        cacheManager.clearCache("MovieService");
     }
 
     @Override
@@ -84,5 +123,62 @@ public class MovieServiceImpl implements MovieService {
     public List<Movie> findAllComingSoon() {
         String date = Utilities.currentWeekEndDate();
         return this.movieRepository.findAllComingSoon(date);
+    }
+
+    @Override
+    @CacheEvict(value = "MovieService",allEntries = true)
+    public int insertMulti(MovieDto movieDto) throws SQLException {
+        var movie = Movie.builder().name(movieDto.getName())
+                .thumbnail(movieDto.getThumbnail()).genre(movieDto.getGenre())
+                .releasedDate(movieDto.getReleasedDate()).trailerUrl(movieDto.getTrailerUrl())
+                .durationMin(movieDto.getDurationMin())
+                .build();
+        int idMovie = this.insert(movie);
+
+        if(movieDto.getCasts() != null){
+            var listCast = movieDto.getCasts().split(",");
+            for (var cast : listCast){
+                var castI = this.castService.findByName(cast);
+                if (castI != null) {
+                    this.movieRepository.insertMovieCast(idMovie,castI.getName());
+                }else{
+                    var newCast = Cast.builder()
+                            .name(cast).profile("").role("")
+                            .build();
+                    this.castService.insert(newCast);
+                }
+            }
+        }
+        if(movieDto.getPhoto() != null){
+            var photos = movieDto.getPhoto().split(",");
+            for (var photo : photos){
+                var oldPhoto = this.mediaService.findByPath(photo);
+                if (oldPhoto != null) {
+                    this.movieRepository.insertMovieMedia(idMovie,oldPhoto.getId());
+                }else{
+                    var media = Media.builder()
+                            .name("").creationDate(Utilities.getCurrentTime())
+                            .path(photo)
+                            .build();
+                    this.mediaService.insert(media);
+                }
+            }
+        }
+        if(movieDto.getTags() != null){
+            var listTag = movieDto.getTags().split(",");
+            for (var tag : listTag){
+                var oldPhoto = this.tagService.findByName(tag);
+                if (oldPhoto != null) {
+                    this.movieRepository.insertMovieTag(idMovie,tag);
+                }else{
+                    var tagNew = Tag.builder()
+                            .name(tag)
+                            .build();
+                    this.tagService.insert(tagNew);
+                }
+            }
+        }
+
+        return idMovie;
     }
 }

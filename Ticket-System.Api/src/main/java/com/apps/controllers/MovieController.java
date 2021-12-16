@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 
 import com.apps.domain.entity.Movie;
+import com.apps.request.MovieDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import java.sql.SQLException;
 
 @RestController
@@ -62,6 +64,7 @@ public class MovieController {
 
 
     @GetMapping("movies")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getMovies(@RequestParam(value = "pageSize", required = false) Integer size,
                                        @RequestParam(value = "page", required = false) Integer page,
                                        @RequestParam(value = "sort", required = false) String sort,
@@ -96,8 +99,8 @@ public class MovieController {
     }
 
     @PostMapping("movies")
-    public ResponseEntity<?> getMovieById(@RequestBody Movie movie) throws SQLException {
-        var result = this.movieService.insert(movie);
+    public ResponseEntity<?> getMovieById(@RequestBody MovieDto movie) throws SQLException {
+        var result = this.movieService.insertMulti(movie);
         return ResponseEntity.ok(result);
     }
 

@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Movie;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -34,4 +35,16 @@ public interface MovieRepository {
     int update(@Param("movie") Movie movie);
 
     void delete(@Param("id") Integer id);
+
+    @Insert("insert into movie_cast(movie_id,name_cast) values(#{movie},#{name})")
+    int insertMovieCast(@Param("movie")Integer movie,@Param("name")String cast);
+
+    @Insert("insert into movie_tags(movie_id,tag_name) values(#{movie},#{tag})")
+    int insertMovieTag(@Param("movie")Integer movie,@Param("tag")String tag);
+
+    @Insert("insert into movie_media(movie_id,media_id) values(#{movie},#{media})")
+    int insertMovieMedia(@Param("movie")Integer movie,@Param("media")Integer media);
+
+    @Select("select cast_id from movie_cast where movie_id = #{movie}")
+    List<Integer> findAllCastInMovie(@Param("movie")Integer movie);
 }

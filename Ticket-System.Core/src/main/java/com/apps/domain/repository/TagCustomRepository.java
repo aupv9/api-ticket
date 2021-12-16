@@ -1,7 +1,6 @@
 package com.apps.domain.repository;
 
-import com.apps.domain.entity.Location;
-import com.apps.domain.entity.Movie;
+import com.apps.domain.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +8,8 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 @Component
-public class MovieCustomRepository implements Repository<Movie>{
+public class TagCustomRepository implements Repository<Tag>{
+
     @Autowired
     private DataSource dataSource;
 
@@ -23,16 +23,9 @@ public class MovieCustomRepository implements Repository<Movie>{
         try{
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            if(!(object instanceof Movie) ) return 0;
-            Movie room = (Movie) object;
-            stmt.setString(1, room.getName());
-            stmt.setString(2, room.getThumbnail());
-            stmt.setString(3, room.getImage());
-            stmt.setString(4, room.getGenre());
-            stmt.setString(5, room.getReleasedDate());
-            stmt.setString(6,room.getTrailerUrl());
-            stmt.setInt(7,room.getDurationMin());
-
+            if(!(object instanceof Tag) ) return 0;
+            Tag tag = (Tag) object;
+            stmt.setString(1,tag.getName());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){
