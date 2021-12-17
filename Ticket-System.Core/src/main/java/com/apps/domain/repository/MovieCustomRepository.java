@@ -1,5 +1,6 @@
 package com.apps.domain.repository;
 
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Location;
 import com.apps.domain.entity.Movie;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class MovieCustomRepository implements Repository<Movie>{
             stmt.setString(2, room.getThumbnail());
             stmt.setString(3, room.getImage());
             stmt.setString(4, room.getGenre());
-            stmt.setString(5, room.getReleasedDate());
+            stmt.setString(5, Utilities.getCurrentTime());
             stmt.setString(6,room.getTrailerUrl());
             stmt.setInt(7,room.getDurationMin());
 

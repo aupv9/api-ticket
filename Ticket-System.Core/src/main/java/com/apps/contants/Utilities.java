@@ -57,8 +57,11 @@ public class Utilities {
         return  (UserDetails)authentication.getPrincipal();
     }
 
-    public static String subDate(int countDate){
+    public static String subDate(long countDate){
         return LocalDate.now().minusDays(countDate).format(dateFormatter);
+    }
+    public static String addDate(long countDate){
+        return LocalDate.now().plusDays(countDate).format(dateFormatter);
     }
 
     public static Date startOfWeek() {

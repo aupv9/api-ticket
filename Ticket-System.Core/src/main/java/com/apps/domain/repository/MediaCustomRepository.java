@@ -28,11 +28,11 @@ public class MediaCustomRepository implements Repository<Media>{
             if(!(object instanceof Media) ) return 0;
             Media media = (Media) object;
             stmt.setString(1,media.getCreationDate());
-            stmt.setString(2,"");
-            stmt.setString(3,"");
+            stmt.setString(2,null);
+            stmt.setString(3,null);
             stmt.setString(4,"");
             stmt.setString(5,"");
-            stmt.setString(6,"");
+            stmt.setInt(6,1);
             stmt.setString(7,media.getPath());
 
             stmt.execute();

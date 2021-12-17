@@ -116,7 +116,8 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<Movie> findAllCurrentWeek() {
-        return this.movieRepository.findAllCurrentWeek(Utilities.startOfWeek("yyyy-MM-dd"),Utilities.currentWeekEndDate());
+        return this.movieRepository.findAllCurrentWeek(Utilities.startOfWeek("yyyy-MM-dd")
+                ,Utilities.addDate(30));
     }
 
     @Override
@@ -129,10 +130,11 @@ public class MovieServiceImpl implements MovieService {
     @CacheEvict(value = "MovieService",allEntries = true)
     public int insertMulti(MovieDto movieDto) throws SQLException {
         var movie = Movie.builder().name(movieDto.getName())
-                .thumbnail(movieDto.getThumbnail()).genre(movieDto.getGenre())
-                .releasedDate(movieDto.getReleasedDate()).trailerUrl(movieDto.getTrailerUrl())
-                .durationMin(movieDto.getDurationMin())
-                .build();
+                        .thumbnail(movieDto.getThumbnail()).genre(movieDto.getGenre())
+                        .releasedDate(movieDto.getReleasedDate()).genre(movieDto.getGenre())
+                        .trailerUrl(movieDto.getTrailerUrl())
+                        .durationMin(movieDto.getDurationMin())
+                        .build();
         int idMovie = this.insert(movie);
 
         if(movieDto.getCasts() != null){
@@ -140,7 +142,7 @@ public class MovieServiceImpl implements MovieService {
             for (var cast : listCast){
                 var castI = this.castService.findByName(cast);
                 if (castI != null) {
-                    this.movieRepository.insertMovieCast(idMovie,castI.getName());
+                    this.movieRepository.insertMovieCast(idMovie,castI.getId());
                 }else{
                     var newCast = Cast.builder()
                             .name(cast).profile("").role("")
@@ -149,26 +151,23 @@ public class MovieServiceImpl implements MovieService {
                 }
             }
         }
-        if(movieDto.getPhoto() != null){
-            var photos = movieDto.getPhoto().split(",");
-            for (var photo : photos){
-                var oldPhoto = this.mediaService.findByPath(photo);
-                if (oldPhoto != null) {
-                    this.movieRepository.insertMovieMedia(idMovie,oldPhoto.getId());
-                }else{
-                    var media = Media.builder()
-                            .name("").creationDate(Utilities.getCurrentTime())
-                            .path(photo)
-                            .build();
-                    this.mediaService.insert(media);
-                }
-            }
-        }
+
+//        var oldPhoto = this.mediaService.findByPath(movieDto.getPhoto());
+//        if (oldPhoto != null) {
+//            this.movieRepository.insertMovieMedia(idMovie,oldPhoto.getId());
+//        }else{
+//            var media = Media.builder()
+//                    .name("").creationDate(Utilities.getCurrentTime())
+//                    .path(movieDto.getPhoto())
+//                    .build();
+//            this.mediaService.insert(media);
+//        }
+
         if(movieDto.getTags() != null){
             var listTag = movieDto.getTags().split(",");
             for (var tag : listTag){
-                var oldPhoto = this.tagService.findByName(tag);
-                if (oldPhoto != null) {
+                var  tagOld= this.tagService.findByName(tag);
+                if (tagOld != null) {
                     this.movieRepository.insertMovieTag(idMovie,tag);
                 }else{
                     var tagNew = Tag.builder()

@@ -36,8 +36,8 @@ public interface MovieRepository {
 
     void delete(@Param("id") Integer id);
 
-    @Insert("insert into movie_cast(movie_id,name_cast) values(#{movie},#{name})")
-    int insertMovieCast(@Param("movie")Integer movie,@Param("name")String cast);
+    @Insert("insert into movie_cast(movie_id,cast_id) values(#{movie},#{cast})")
+    int insertMovieCast(@Param("movie")Integer movie,@Param("cast")Integer cast);
 
     @Insert("insert into movie_tags(movie_id,tag_name) values(#{movie},#{tag})")
     int insertMovieTag(@Param("movie")Integer movie,@Param("tag")String tag);
