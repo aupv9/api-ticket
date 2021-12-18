@@ -1,6 +1,7 @@
 package com.apps.service.impl;
 
 import com.apps.contants.OrderStatus;
+import com.apps.contants.ShowStatusEnum;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
@@ -23,10 +24,15 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -42,7 +48,7 @@ public class OrdersServiceImpl implements OrdersService {
     private final ConcessionRepository concessionRepository;
     private final OfferHistoryService offerHistoryService;
     private final PromotionService promotionService;
-    private final ShowTimesDetailService showTimesDetailService;
+    private final ShowTimesDetailServiceImpl showTimesDetailService;
     private final TheaterService theaterService;
     private final LocationService locationService;
     private final SeatService seatService;
@@ -52,24 +58,24 @@ public class OrdersServiceImpl implements OrdersService {
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
 
 
-    @Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedRate = 500000)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
         String currentTime = Utilities.getCurrentTime();
-        var listOrderExpire = this.ordersRepository.findAllOrderExpiredReserved(currentTime);
+        var listOrderExpire = this.findAllOrderExpiredReserved(currentTime);
         for (Integer order : listOrderExpire){
-            var listOrdersDetail = this.ordersRepository.findOrderDetailById(order);
+            var listOrdersDetail = this.findOrderDetailById(order);
             if(listOrdersDetail.size() > 0){
                 for (Integer orderDetail: listOrdersDetail){
-                    int deleted = this.ordersRepository.deleteOrderDetail(orderDetail);
+                    int deleted = this.deleteOrderDetail(orderDetail);
                 }
             }
-            var listOrdersSeat = this.ordersRepository.findOrderSeatById(order);
+            var listOrdersSeat = this.findOrderSeatById(order);
             if(listOrdersSeat.size() > 0){
                 for (Integer orderSeat: listOrdersSeat){
-                    int deleted = this.ordersRepository.deleteOrderSeat(orderSeat);
+                    int deleted = this.deleteOrderSeat(orderSeat);
                 }
             }
-            int deleted = this.ordersRepository.delete(order);
+            int deleted = this.delete(order);
         }
         if(this.userService.getUserFromContext() != 0){
             var listOrderNew = this.findAllOrderRoom(0,25,
@@ -86,6 +92,40 @@ public class OrdersServiceImpl implements OrdersService {
         }
     }
 
+
+    @Scheduled(fixedRate = 2000)
+    public void updateStatusShowTimes(){
+        var listShowTimesNowPlaying =
+                this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",
+                        0,0,null,null,0,true,false);
+        listShowTimesNowPlaying.parallelStream().forEach(item ->{
+                item.setStatus(ShowStatusEnum.Now.getName());
+                this.showTimesDetailService.update(item);
+        });
+
+        var listShowTimesSoon =
+                this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",
+                        0,0,null,null,0,false,true);
+        listShowTimesSoon.parallelStream().forEach(item ->{
+            item.setStatus(ShowStatusEnum.Soon.getName());
+            this.showTimesDetailService.update(item);
+        });
+
+        var listShowTimes =
+                this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",
+                        0,0,null,null,0,false,false);
+        listShowTimes.parallelStream().forEach(item ->{
+            var isExpire = Timestamp.valueOf(item.getTimeEnd()).compareTo(Timestamp.from(Instant.now()));
+            if(isExpire == 0){
+                item.setStatus(ShowStatusEnum.Expire.getName());
+                this.showTimesDetailService.update(item);
+            }
+        });
+
+    }
+
+
+
     private List<Orders> addTotalToOrder(List<Orders> orders){
         for (var order:orders){
             if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
@@ -94,6 +134,8 @@ public class OrdersServiceImpl implements OrdersService {
         }
         return orders;
     }
+
+
 
     private List<OrderStatistics> addTotalToOrderStatistics(List<OrderStatistics> orders){
         for (var order:orders){
@@ -112,6 +154,36 @@ public class OrdersServiceImpl implements OrdersService {
             var item = this.showTimesDetailService.findById(order.getShowTimesDetailId());
             return item.getTheaterId() == this.userService.getTheaterByUser();
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Integer> findAllOrderExpiredReserved(String time) {
+        return this.ordersRepository.findAllOrderExpiredReserved(time);
+    }
+
+    @Override
+    public List<Integer> findOrderDetailById(Integer id) {
+        return this.ordersRepository.findOrderDetailById(id);
+    }
+
+    @Override
+    public List<Integer> findOrderSeatById(Integer id) {
+        return this.ordersRepository.findOrderSeatById(id);
+    }
+
+    @Override
+    public int deleteOrderDetail(Integer id) {
+        return this.ordersRepository.deleteOrderDetail(id);
+    }
+
+    @Override
+    public int deleteOrderSeat(Integer id) {
+        return this.ordersRepository.deleteOrderSeat(id);
+    }
+
+    @Override
+    public int delete(Integer id) {
+        return this.ordersRepository.delete(id);
     }
 
     @Override
@@ -534,6 +606,7 @@ public class OrdersServiceImpl implements OrdersService {
                 new com.apps.config.kafka.Message("order",objectList )).get();
 
     }
+
 
     private int updateOrder(MyOrderUpdateDto orders){
         var order = new Orders();

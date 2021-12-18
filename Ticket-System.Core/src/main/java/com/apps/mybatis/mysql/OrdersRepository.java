@@ -2,8 +2,6 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Orders;
 import com.apps.mapper.OrderStatistics;
-import com.apps.payment.Order;
-import com.apps.request.MyOrderUpdateDto;
 import com.apps.response.entity.OrderSeats;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;

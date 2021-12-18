@@ -177,7 +177,6 @@ public class MovieServiceImpl implements MovieService {
                 }
             }
         }
-
         return idMovie;
     }
 }

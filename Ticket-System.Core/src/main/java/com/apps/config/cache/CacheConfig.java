@@ -1,11 +1,14 @@
 package com.apps.config.cache;
 
 
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
@@ -18,18 +21,7 @@ public class CacheConfig {
             @Value("${spring.cache.redis.key-prefix:}") String redisKeyPrefix) {
         return new ApplicationCacheManager(cacheManager, redisTemplate, redisKeyPrefix);
     }
-    
-//    @Bean
-//    @ConditionalOnExpression("'${application.cache.redis.healthcheck}'=='true'")
-//    // @ConditionalOnBean(CacheManager.class)
-//    public CacheHealthIndicator initCacheHealthIndicator(CacheManager cacheManager, JedisConnectionFactory jedisConnectionFactory) {
-//
-//        return new CacheHealthIndicator(cacheManager, jedisConnectionFactory);
-//    }
 
-//    @Bean
-//    public LockProvider lockProvider(JedisConnectionFactory jedisConnectionFactory, @Value("${spring.cache.redis.key-prefix:}") String redisKeyPrefix) {
-//        return new RedisLockProvider(jedisConnectionFactory, redisKeyPrefix);
-//    }
+
 
 }

@@ -3,6 +3,7 @@ package com.apps.mybatis.mysql;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.response.TimePick;
+import com.apps.response.entity.ShowTimesDetailDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -11,26 +12,29 @@ import java.util.List;
 
 @Mapper
 public interface ShowTimesDetailRepository {
-    List<ShowTimesDetail> findAll(@Param("limit") int limit, @Param("offset") int offset,
-                                  @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
-                                  @Param("roomId")Integer roomId,
-                                  @Param("search")String search, @Param("dateStart") String dateStart,
-                                  @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+    List<ShowTimesDetailDto> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
+                                     @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
+                                     @Param("roomId")Integer roomId,
+                                     @Param("search")String search, @Param("dateStart") String dateStart,
+                                     @Param("theaterId")Integer theaterId,@Param("minDate")String minDate,
+                                     @Param("maxDate") String maxDate);
 
     int findCountAll(@Param("movieId")Integer movieId, @Param("roomId")Integer roomId,
                       @Param("search")String search, @Param("dateStart") String dateStart,
-                      @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+                      @Param("theaterId")Integer theaterId,@Param("minDate")String minDate,
+                      @Param("maxDate") String maxDate);
 
 
 
-    List<ShowTimesDetail> findAllByMovie(@Param("limit") int limit, @Param("offset") int offset,
-                                  @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
-                                         @Param("search")String search, @Param("dateStart") String dateStart,
-                                  @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+    List<ShowTimesDetailDto> findAllByMovie(@Param("limit") int limit, @Param("offset") int offset,
+                                            @Param("sort")String sort, @Param("order") String order,
+                                            @Param("movieId")Integer movieId, @Param("search")String search,
+                                            @Param("dateStart") String dateStart, @Param("theaterId")Integer theaterId);
 
     int findCountAllByMovie( @Param("movieId")Integer movieId,
                              @Param("search")String search, @Param("dateStart") String dateStart,
-                             @Param("theaterId")Integer theaterId,@Param("currentTime")String currentTime);
+                             @Param("theaterId")Integer theaterId,@Param("minDate")String minDate,
+                             @Param("maxDate") String maxDate);
 
 
     @Select("Select * from showtimes_detail where id = #{id}")

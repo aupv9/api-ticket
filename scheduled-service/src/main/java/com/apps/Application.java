@@ -19,6 +19,7 @@ public class Application {
     }
 
 
+
 //    @Bean
 //    public JavaMailSender getJavaMailSender() {
 //        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

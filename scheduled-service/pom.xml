@@ -18,6 +18,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.ticket.apps</groupId>
+            <artifactId>Ticket-System.Core</artifactId>
+            <version>${Ticket-System.Core.version}</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.26</version>

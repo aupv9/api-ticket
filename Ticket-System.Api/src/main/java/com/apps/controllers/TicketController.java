@@ -1,8 +1,6 @@
 package com.apps.controllers;
 
-import com.apps.contants.Utilities;
-import com.apps.domain.entity.Reserved;
-import com.apps.response.RAResponseUpdate;
+
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
@@ -40,12 +38,18 @@ public class TicketController {
                                           @RequestParam(value = "room_id", required = false,
                                                   defaultValue = "0") Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
-                                          @RequestParam(value = "date_start", required = false) String dateStart
+                                          @RequestParam(value = "date_start", required = false) String dateStart,
+                                          @RequestParam(value = "now_playing",required = false) boolean nowPlaying,
+                                          @RequestParam(value = "coming_soon",required = false) boolean comingSoon
+
+
     ){
+
         var theaterId = this.userService.getTheaterByUser();
-        var result  = showTimesDetailService.findAllShow(size, (page - 1) * size, sort, order, movieId,roomId,theaterId,
-                search,dateStart, Utilities.getCurrentTime());
-        var totalElement = showTimesDetailService.findCountAllShow(movieId,roomId,search,theaterId,dateStart,Utilities.getCurrentTime());
+        var result  = showTimesDetailService.findAllShow(size, (page - 1) * size,
+                sort, order, movieId,roomId,theaterId, search,dateStart,nowPlaying,comingSoon);
+        var totalElement = showTimesDetailService.findCountAllShow(movieId,roomId,search,theaterId,
+                dateStart,nowPlaying,comingSoon);
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

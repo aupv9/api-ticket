@@ -5,6 +5,7 @@ import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.response.ResponseCount;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
+import com.apps.response.entity.ShowTimesDetailDto;
 import com.apps.service.ShowTimesDetailService;
 import com.apps.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +45,11 @@ public class ShowTimesDetailController {
                                                   @RequestParam(value = "dateStart", required = false) String dateStart,
                                                   @RequestParam(value = "theaterId", required = false,defaultValue = "0") Integer theater
                                                   ) {
-        var resultList = this.showTimesDetailService.findAllByMovie(page - 1, size, sort, order,
-                movieId,roomId,search,dateStart,theater, Utilities.getCurrentTime());
-        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,Utilities.getCurrentTime());
+        var resultList =
+                this.showTimesDetailService
+                .findAllByMovie(page - 1, size, sort, order,
+                movieId,roomId,search,dateStart,theater);
+        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,null,null);
         var response = ResponseRA.builder()
                 .content(resultList)
                 .totalElements(totalElements)
@@ -70,10 +73,13 @@ public class ShowTimesDetailController {
                                           @RequestParam(value = "room_id", required = false,defaultValue = "0") Integer roomId,
                                           @RequestParam(value = "search", required = false) String search,
                                           @RequestParam(value = "date_start", required = false) String dateStart,
-                                          @RequestParam(value = "theaterId", required = false,defaultValue = "0")Integer theater){
+                                          @RequestParam(value = "theaterId", required = false,defaultValue = "0")Integer theater,
+                                          @RequestParam(value = "now_playing", required = false,defaultValue ="false")Boolean isNowPlaying,
+                                          @RequestParam(value = "coming_soon", required = false,defaultValue ="false")Boolean comingSoon
+    ){
         var result  = showTimesDetailService.findAll(size, (page - 1) * size, sort, order,
-                movieId,roomId,search,dateStart,theater,Utilities.getCurrentTime());
-        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,Utilities.getCurrentTime());
+                movieId,roomId,search,dateStart,theater,isNowPlaying,comingSoon);
+        var totalElement = showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,isNowPlaying,comingSoon);
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)
@@ -117,7 +123,7 @@ public class ShowTimesDetailController {
 
     @PutMapping(value = "showTimesDetails/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> updateShowTimes(@PathVariable("id")Integer idShowTimes,
-                                             @RequestBody ShowTimesDetail showTimes) {
+                                             @RequestBody ShowTimesDetailDto showTimes) {
         showTimes.setId(idShowTimes);
         int id = this.showTimesDetailService.update(showTimes);
         showTimes.setId(id);
@@ -126,9 +132,9 @@ public class ShowTimesDetailController {
 
     @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimesDetail showTimes) throws SQLException {
-        Instant instant = Instant.parse(showTimes.getTimeStart());
-        Timestamp timestamp = Timestamp.from(instant);
-        showTimes.setTimeStart(timestamp.toString());
+//        Instant instant = Instant.parse(showTimes.getTimeStart());
+//        Timestamp timestamp = Timestamp.from(instant);
+//        showTimes.setTimeStart(timestamp.toString());
         int id = this.showTimesDetailService.insert(showTimes);
         showTimes.setId(id);
         return ResponseEntity.ok(showTimes);

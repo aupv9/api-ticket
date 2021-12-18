@@ -3,9 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
-    <select id="findAll" resultType="com.apps.domain.entity.ShowTimesDetail">
+    <select id="findAll" resultType="com.apps.response.entity.ShowTimesDetailDto">
         select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
-               price
+               price,status,m.released_date as releasedDate
         <if test="theaterId != null">
             ,r.theater_id  as theaterId
         </if>
@@ -13,10 +13,7 @@
         <if test="theaterId != null">
             join room r on showtimes_detail.room_id = r.id
         </if>
-        <if test="search != null">
             inner join movie m on showtimes_detail.movie_id = m.id
-        </if>
-
         <where>
             <if test="movieId != null">
                 and movie_id = #{movieId}
@@ -33,8 +30,11 @@
             <if test="theaterId != null">
                 and r.theater_id = #{theaterId}
             </if>
-            <if test="currentTime != null">
-                and time_start > #{currentTime}
+            <if test="minDate != null">
+                and m.released_date >= #{minDate}
+            </if>
+            <if test="maxDate != null">
+                and #{maxDate} > m.released_date
             </if>
         </where>
         <if test="sort != null">
@@ -71,7 +71,7 @@
 
     <select id="findAllByMovie" resultType="com.apps.domain.entity.ShowTimesDetail">
         select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
-        price
+        price,status
         <if test="theaterId != null">
             ,r.theater_id  as theaterId
         </if>
@@ -79,10 +79,7 @@
         <if test="theaterId != null">
             join room r on showtimes_detail.room_id = r.id
         </if>
-        <if test="search != null">
-            inner join movie m on showtimes_detail.movie_id = m.id
-        </if>
-
+        inner join movie m on showtimes_detail.movie_id = m.id
         <where>
             <if test="movieId != null">
                 and movie_id = #{movieId}
@@ -139,9 +136,7 @@
         <if test="theaterId != null">
             join room r on showtimes_detail.room_id = r.id
         </if>
-        <if test="search != null">
-            inner join movie m on showtimes_detail.movie_id = m.id
-        </if>
+        inner join movie m on showtimes_detail.movie_id = m.id
 
         <where>
             <if test="movieId != null">
@@ -156,8 +151,11 @@
             <if test="theaterId != null">
                 and r.theater_id = #{theaterId}
             </if>
-            <if test="currentTime != null">
-                and time_start > #{currentTime}
+            <if test="minDate != null">
+                and m.released_date >= #{minDate}
+            </if>
+            <if test="maxDate != null">
+                and #{maxDate} > m.released_date
             </if>
         </where>
     </select>
@@ -171,6 +169,8 @@
         <if test="theaterId != null">
             join room r on showtimes_detail.room_id = r.id
         </if>
+        inner join movie m on showtimes_detail.movie_id = m.id
+
         <where>
             <if test="movieId != null">
                 and movie_id = #{movieId}
@@ -187,10 +187,12 @@
             <if test="search != null">
                 and m.name like concat('%',#{search},'%')
             </if>
-            <if test="currentTime != null">
-                and time_start > #{currentTime}
+            <if test="minDate != null">
+                and m.released_date >= #{minDate}
             </if>
-
+            <if test="maxDate != null">
+                and #{maxDate} > m.released_date
+            </if>
         </where>
     </select>
 
@@ -230,7 +232,10 @@
                 time_start = #{entity.timeStart},
             </if>
             <if test="entity.price != null">
-                price = #{entity.price}
+                price = #{entity.price},
+            </if>
+            <if test="entity.status != null">
+                status = #{entity.status}
             </if>
         </set>
         where id = #{entity.id}

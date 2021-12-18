@@ -43,6 +43,7 @@ public class Utilities {
 
 
 
+
     public static String getTimeExpirePayment5m(){
         return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().plusMinutes(5).format(timeFormatter);
     }
@@ -62,6 +63,9 @@ public class Utilities {
     }
     public static String addDate(long countDate){
         return LocalDate.now().plusDays(countDate).format(dateFormatter);
+    }
+    public static String addDateParam(long countDate,String date ){
+        return LocalDate.parse(date).plusDays(countDate).format(dateFormatter);
     }
 
     public static Date startOfWeek() {

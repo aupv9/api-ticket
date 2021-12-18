@@ -1,10 +1,18 @@
 package com.apps.job;
 
+import com.apps.config.kafka.Message;
 import com.apps.config.properties.SendGridProperties;
 
+
+import com.apps.contants.Utilities;
+import com.apps.service.OrdersService;
+import com.apps.service.SeatService;
+import com.apps.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import lombok.var;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -12,18 +20,57 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
 
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class EmailJob extends QuartzJobBean {
+
+
+    private final OrdersService ordersService;
+
+    @Async
+    @Scheduled(cron = "*/5 * * * *")
+    public void reportCurrentTime() throws ExecutionException, InterruptedException {
+        String currentTime = Utilities.getCurrentTime();
+        var listOrderExpire = this.ordersService.findAllOrderExpiredReserved(currentTime);
+        for (Integer order : listOrderExpire){
+            var listOrdersDetail = this.ordersService.findOrderDetailById(order);
+            if(listOrdersDetail.size() > 0){
+                for (Integer orderDetail: listOrdersDetail){
+                    int deleted = this.ordersService.deleteOrderDetail(orderDetail);
+                }
+            }
+            var listOrdersSeat = this.ordersService.findOrderSeatById(order);
+            if(listOrdersSeat.size() > 0){
+                for (Integer orderSeat: listOrdersSeat){
+                    int deleted = this.ordersService.deleteOrderSeat(orderSeat);
+                }
+            }
+            int deleted = this.ordersService.delete(order);
+        }
+            this.ordersService.sendDataToClient();
+//            this.seatService.sendDataToClient();
+
+    }
+
+
+    @Async
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateStatusShowTimes() {
+
+
+    }
 
     @Autowired
     private JavaMailSender mailSender;
