@@ -41,7 +41,6 @@ public class SeatServiceImpl implements SeatService {
 
     private final TicketService ticketService;
 
-
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
 
@@ -131,7 +130,8 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     @Cacheable(cacheNames = "SeatService",
-            key = "'findByRoom_'+#limit +'-'+#offset+'-'+#sort+'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
+            key = "'findByRoom_'+#limit +'-'+#offset+'-'+#sort+" +
+                    "'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
     public List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,Integer room,Integer showTimes) {
         var arrSeat = this.seatRepository.findAll(limit,offset,sort,order,null,room);
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
@@ -150,6 +150,12 @@ public class SeatServiceImpl implements SeatService {
         }
         return this.convertSeatToSeatHavePrice(arrSeat,showTimes);
     }
+
+    @Override
+    public int countSeatAvailable(Integer show,Integer room) {
+        return this.seatRepository.findSeatInRoomByShowTimesDetail(show,room).size();
+    }
+
 
     private List<SeatDto> convertSeatToSeatHavePrice(List<Seat> seats,int showId){
         var seatList = new ArrayList<SeatDto>();

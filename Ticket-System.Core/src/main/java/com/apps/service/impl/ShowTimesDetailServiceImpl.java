@@ -3,29 +3,37 @@ package com.apps.service.impl;
 
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Movie;
+import com.apps.domain.entity.Room;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.exception.NotFoundException;
+import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
+import com.apps.request.RoomDto;
+import com.apps.request.ShowTimeDto;
 import com.apps.response.TimePick;
 import com.apps.response.entity.ShowTimesDetailDto;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -42,6 +50,8 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     private final MovieService movieService;
 
+    private final SeatRepository seatRepository;
+
     @Override
     public List<ShowTimesDetailDto> findAll(int limit, int offset,String sort, String order,
                                          Integer movieId, Integer room_id,String search
@@ -50,10 +60,10 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         var userId = this.userService.getUserFromContext();
         var theaterId = this.userService.getTheaterManagerByUser(userId);
         var isSeniorManager = this.userService.isSeniorManager(userId);
-        return isSeniorManager ? findAllSeniorManager(limit, offset,sort,order,movieId,room_id
-                                                    ,search,dateStart,theaterId,nowPlaying, comingSoon) :
-                findAllManager(limit, offset,sort,order,movieId,room_id,search,dateStart,
-                        theaterId,nowPlaying, comingSoon);
+        return isSeniorManager ? this.addCountSeat(findAllSeniorManager(limit, offset,sort,order,movieId,room_id
+                ,search,dateStart,theaterId,nowPlaying, comingSoon)) :
+                this.addCountSeat(findAllManager(limit, offset,sort,order,movieId,room_id,search,dateStart,
+                        theaterId,nowPlaying, comingSoon));
     }
 
 
@@ -66,11 +76,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
                                                          Boolean comingSoon){
         String minDate = null,maxDate = null;
         if(nowPlaying){
-             minDate = Utilities.startOfWeek("yyyy-MM-dd");
-             maxDate = Utilities.addDateParam(48,minDate);
+            minDate = Utilities.subDate(42);
+            maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
         return this.showTimesDetailRepository.findAll(limit,offset,sort,order,movieId > 0 ? movieId : null,room_id > 0 ? room_id : null,
@@ -86,15 +96,22 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             ,String dateStart,Integer theater,Boolean nowPlaying, Boolean comingSoon){
         String minDate = null,maxDate = null;
         if(nowPlaying){
-            minDate = Utilities.startOfWeek("yyyy-MM-dd");
+            minDate = Utilities.subDate(42);
             maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
         return this.showTimesDetailRepository.findAll(limit, offset,sort,order,movieId > 0 ? movieId : null,room_id > 0 ? room_id : null
                 ,search,dateStart, theater,minDate,maxDate);
+    }
+
+    private List<ShowTimesDetailDto> addCountSeat(List<ShowTimesDetailDto> showTimes){
+        return showTimes.stream()
+                .peek(item -> item.setCountSeatAvailable(this.seatRepository.
+                        findSeatInRoomByShowTimesDetail(item.getId(),item.getRoomId()).size()))
+                .collect(Collectors.toList());
     }
 
 
@@ -120,11 +137,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
                                          Boolean comingSoon){
         String minDate = null,maxDate = null;
         if(nowPlaying){
-            minDate = Utilities.startOfWeek("yyyy-MM-dd");
+            minDate = Utilities.subDate(42);
             maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
         return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,room_id > 0 ? room_id : null,
@@ -140,11 +157,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
                                    Boolean comingSoon){
         String minDate = null,maxDate = null;
         if(nowPlaying){
-            minDate = Utilities.startOfWeek("yyyy-MM-dd");
+            minDate = Utilities.subDate(42);
             maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
         return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,
@@ -184,15 +201,15 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
                                                 Boolean comingSoon){
         String minDate = null,maxDate = null;
         if(nowPlaying){
-            minDate = Utilities.startOfWeek("yyyy-MM-dd");
+            minDate = Utilities.subDate(42);
             maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
-        return this.showTimesDetailRepository.findAll(limit, offset,sort,order,
-                movieId > 0 ? movieId : null,roomId > 0 ? roomId : null,search,dateStart,theater,minDate,maxDate);
+        return this.addCountSeat(this.showTimesDetailRepository.findAll(limit, offset,sort,order,
+                movieId > 0 ? movieId : null,roomId > 0 ? roomId : null,search,dateStart,theater,minDate,maxDate));
     }
 
 
@@ -205,8 +222,8 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     public List<ShowTimesDetailDto> findAllByMovie(int limit, int offset, String sort, String order, Integer movieId,
                                                 Integer roomId, String search, String dateStart,
                                                    Integer theater) {
-        return this.showTimesDetailRepository.findAllByMovie(limit, offset, sort, order, movieId > 0 ? movieId : null,
-                search, dateStart,theater > 0 ? theater : null);
+        return this.addCountSeat(this.showTimesDetailRepository.findAllByMovie(limit, offset, sort, order, movieId > 0 ? movieId : null,
+                search, dateStart,theater > 0 ? theater : null));
     }
 
 
@@ -219,11 +236,11 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         int theaterId = this.userService.getTheaterByUser();
         String minDate = null,maxDate = null;
         if(nowPlaying){
-            minDate = Utilities.startOfWeek("yyyy-MM-dd");
+            minDate = Utilities.subDate(42);
             maxDate = Utilities.addDateParam(48,minDate);
         }
         if(comingSoon){
-            minDate = Utilities.addDateParam(48,Utilities.startOfWeek("yyyy-MM-dd"));
+            minDate = Utilities.addDateParam(49,Utilities.subDate(42));
             maxDate = Utilities.addDateParam(18,minDate);
         }
         return this.showTimesDetailRepository.findCountAll(movieId > 0 ? movieId : null,
@@ -249,9 +266,23 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Override
     @CacheEvict(value = "ShowTimesDetailService",allEntries = true)
-    public int insert(ShowTimesDetail showTimesDetail) throws SQLException {
-        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end) values(?,?,?,?)";
-        return this.repository.insert(showTimesDetail,sql);
+    public int insert(ShowTimeDto showTimesDetail) throws SQLException {
+        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end,price) values(?,?,?,?,?)";
+
+        var show = ShowTimesDetail.builder()
+                .timeStart(showTimesDetail.getStart())
+                .timeEnd(showTimesDetail.getEnd())
+                .price(showTimesDetail.getPrice())
+                .build();
+        var room = this.roomService.findByCode(showTimesDetail.getRoom());
+        if(room != null){
+            show.setRoomId(room.getId());
+        }
+        var movie = this.movieService.findByName(showTimesDetail.getMovie());
+        if(movie != null){
+            show.setMovieId(movie.getId());
+        }
+        return this.repository.insert(show,sql);
     }
 
     @Override

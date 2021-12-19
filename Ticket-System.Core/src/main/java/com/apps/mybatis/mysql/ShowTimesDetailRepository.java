@@ -13,8 +13,8 @@ import java.util.List;
 @Mapper
 public interface ShowTimesDetailRepository {
     List<ShowTimesDetailDto> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
-                                     @Param("sort")String sort, @Param("order") String order, @Param("movieId")Integer movieId,
-                                     @Param("roomId")Integer roomId,
+                                     @Param("sort")String sort, @Param("order") String order,
+                                     @Param("movieId")Integer movieId, @Param("roomId")Integer roomId,
                                      @Param("search")String search, @Param("dateStart") String dateStart,
                                      @Param("theaterId")Integer theaterId,@Param("minDate")String minDate,
                                      @Param("maxDate") String maxDate);

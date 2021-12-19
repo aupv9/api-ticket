@@ -13,6 +13,9 @@ public interface MovieService {
     List<MovieResponse> findAll(int page, int size, String search, String sort, String order);
     int findAllCount(String search);
     Movie findById(int id);
+    Movie findByName(String name);
+    Movie findByCode(String code);
+
     int update(Movie movie);
     int insert(Movie movie) throws SQLException;
     void delete(Integer id);

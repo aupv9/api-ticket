@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.request.ShowTimeDto;
 import com.apps.response.TimePick;
 import com.apps.response.entity.ShowTimesDetailDto;
 import org.apache.ibatis.annotations.Param;
@@ -34,7 +35,7 @@ public interface ShowTimesDetailService {
                          Boolean comingSoon);
 
     ShowTimesDetail findById(int id);
-    int insert(ShowTimesDetail showTimesDetail) throws SQLException;
+    int insert(ShowTimeDto shoTimes) throws SQLException;
     List<ShowTimesDetail> findByShowTimes(int idShowTimes);
     List<List<ShowTimesDetailMini>> findShowTimesDetailByLocationAndDate(@Param("location") int location,
                                                                          @Param("date") String date);

@@ -2,6 +2,7 @@ package com.apps.controllers;
 
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.ShowTimesDetail;
+import com.apps.request.ShowTimeDto;
 import com.apps.response.ResponseCount;
 import com.apps.response.ResponseList;
 import com.apps.response.ResponseRA;
@@ -131,7 +132,7 @@ public class ShowTimesDetailController {
     }
 
     @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimesDetail showTimes) throws SQLException {
+    public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimeDto showTimes) throws SQLException {
 //        Instant instant = Instant.parse(showTimes.getTimeStart());
 //        Timestamp timestamp = Timestamp.from(instant);
 //        showTimes.setTimeStart(timestamp.toString());

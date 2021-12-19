@@ -59,9 +59,7 @@
     <update id="update" >
         update room
         <set>
-            <if test="room.type != null">
-                type = #{room.type},
-            </if>
+
             <if test="room.name != null">
                 name = #{room.name},
             </if>

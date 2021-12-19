@@ -2,7 +2,6 @@ package com.apps.service.impl;
 
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Cast;
-import com.apps.domain.entity.Media;
 import com.apps.domain.entity.Movie;
 import com.apps.domain.entity.Tag;
 import com.apps.domain.repository.MovieCustomRepository;
@@ -86,6 +85,16 @@ public class MovieServiceImpl implements MovieService {
             unless = "#result == null ")
     public Movie findById(int id) {
         return movieRepository.findById(id);
+    }
+
+    @Override
+    public Movie findByName(String name) {
+        return this.movieRepository.findByName(name);
+    }
+
+    @Override
+    public Movie findByCode(String code) {
+        return this.movieRepository.findByCode(code);
     }
 
     @Override

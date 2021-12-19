@@ -47,4 +47,11 @@ public interface MovieRepository {
 
     @Select("select cast_id from movie_cast where movie_id = #{movie}")
     List<Integer> findAllCastInMovie(@Param("movie")Integer movie);
+
+    @Select("select * from movie where code = #{code}")
+    Movie findByCode(@Param("code")String code);
+
+    @Select("select * from movie where name = #{name}")
+    Movie findByName(@Param("name")String name);
+
 }

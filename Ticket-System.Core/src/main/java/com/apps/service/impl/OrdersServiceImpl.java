@@ -24,15 +24,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -54,11 +51,11 @@ public class OrdersServiceImpl implements OrdersService {
     private final SeatService seatService;
     private final MovieService movieService;
 
+
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
 
-
-    @Scheduled(fixedRate = 500000)
+    @Scheduled(fixedRate = 12121212)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
         String currentTime = Utilities.getCurrentTime();
         var listOrderExpire = this.findAllOrderExpiredReserved(currentTime);
@@ -93,7 +90,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 121212121)
     public void updateStatusShowTimes(){
         var listShowTimesNowPlaying =
                 this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",
@@ -116,7 +113,7 @@ public class OrdersServiceImpl implements OrdersService {
                         0,0,null,null,0,false,false);
         listShowTimes.parallelStream().forEach(item ->{
             var isExpire = Timestamp.valueOf(item.getTimeEnd()).compareTo(Timestamp.from(Instant.now()));
-            if(isExpire == 0){
+            if(isExpire < 0){
                 item.setStatus(ShowStatusEnum.Expire.getName());
                 this.showTimesDetailService.update(item);
             }
@@ -155,6 +152,12 @@ public class OrdersServiceImpl implements OrdersService {
             return item.getTheaterId() == this.userService.getTheaterByUser();
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public int countSeatAvailable(Integer show,Integer room) {
+        return this.seatService.findSeatInRoomByShowTimesDetail(show,room).size();
+    }
+
 
     @Override
     public List<Integer> findAllOrderExpiredReserved(String time) {

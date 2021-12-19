@@ -31,8 +31,8 @@ public class RoomController {
     private UserServiceImpl userService;
 
     @GetMapping("rooms")
-    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) Integer size,
-                                          @RequestParam(value = "page", required = false)Integer page,
+    public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false,defaultValue = "1") Integer size,
+                                          @RequestParam(value = "page", required = false,defaultValue = "10")Integer page,
                                           @RequestParam(value = "sort", required = false) String sort,
                                           @RequestParam(value = "order", required = false) String order,
                                           @RequestParam(value = "search", required = false) String search,
@@ -42,7 +42,8 @@ public class RoomController {
         var userId = this.userService.getUserFromContext();
         var isSeniorManager = this.userService.isSeniorManager(userId);
         if(theaterId == 0) theaterId = this.userService.getTheaterByUser();
-        var resultList = this.roomService.findAll(page - 1,size,sort,order,search,theaterId,isSeniorManager);
+        var resultList =
+                this.roomService.findAll(page - 1,size,sort,order,search,theaterId,isSeniorManager);
         var totalElement = this.roomService.findCountAll(search,theaterId,isSeniorManager);
         var response = ResponseRA.builder()
                 .content(resultList)

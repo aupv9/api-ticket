@@ -1,10 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Room;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -22,6 +19,10 @@ public interface RoomRepository {
                        @Param("search") String search, @Param("theater") Integer theater);
 
     Room findById(@Param("id")Integer id);
+
+    @Select("select * from room where code = #{code}")
+    Room findByCode(@Param("code")String code);
+
     int update(@Param("room")Room room);
     void delete(@Param("id")Integer id);
     int findCountAll(@Param("search") String search, @Param("theater") Integer theater);

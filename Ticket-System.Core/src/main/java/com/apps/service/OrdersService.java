@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface OrdersService {
+    int countSeatAvailable(Integer show,Integer room);
+
     List<Integer> findAllOrderExpiredReserved(String time);
     List<Integer> findOrderDetailById(Integer id);
     List<Integer> findOrderSeatById(Integer id);
@@ -65,5 +67,6 @@ public interface OrdersService {
 
     int updateMyOrder(MyOrderUpdateDto orders) throws ExecutionException, InterruptedException;
     void sendDataToClient() throws ExecutionException, InterruptedException;
+
 
 }

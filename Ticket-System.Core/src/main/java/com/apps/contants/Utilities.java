@@ -29,12 +29,11 @@ public class Utilities {
         return LocalDate.now().format(dateFormatter)+" "+ LocalTime.now().format(timeFormatter);
     }
 
+    public static String convertIsoToDateTime(String date){
+        return Timestamp.valueOf(date).toLocalDateTime().format(dateTimeFormatter);
+    }
     public static String convertIsoToDate(String date){
-//        Instant instant = Instant.parse(date);
-//        ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-//        ZonedDateTime zdt = instant.atZone(zoneId);
         return LocalDate.parse(date).format(dateFormatter);
-//        return timestamp.toLocalDateTime().format(dateFormatter);
     }
 
     public static LocalDate convertStringToLocalDate(String date){
@@ -64,6 +63,7 @@ public class Utilities {
     public static String addDate(long countDate){
         return LocalDate.now().plusDays(countDate).format(dateFormatter);
     }
+
     public static String addDateParam(long countDate,String date ){
         return LocalDate.parse(date).plusDays(countDate).format(dateFormatter);
     }

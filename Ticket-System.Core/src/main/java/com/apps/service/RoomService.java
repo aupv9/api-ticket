@@ -15,7 +15,9 @@ public interface RoomService {
                        String search,
                        Integer theater,Boolean isSeniorManager);
     int insert(RoomDto room) throws SQLException;
-    Room findById(Integer id);
+    RoomDto findById(Integer id);
+    Room findByCode(String id);
+
     int update(RoomDto room);
     void delete(Integer id);
     int findCountAll(String search, Integer theater,Boolean isSeniorManager);

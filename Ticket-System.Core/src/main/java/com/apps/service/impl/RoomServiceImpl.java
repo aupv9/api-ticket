@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,12 +34,16 @@ public class RoomServiceImpl implements RoomService {
 
     private final ServiceRepository serviceRepository;
 
+
     @Override
-    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+'-'+#sort +'-'+#order +'-'+#search+'-'+#theater+'-'+#isSeniorManager", unless = "#result == null")
+    @Cacheable(value = "RoomService" ,key = "'RoomList_'+#page +'-'+#size+" +
+            "'-'+#sort +'-'+#order +'-'+#search+'-'+#theater+'-'+#isSeniorManager", unless = "#result == null")
     public List<Room> findAll(Integer page, Integer size, String sort, String order, String search,
                               Integer theater,Boolean isSeniorManager) {
         return this.roomRepository.findAll(size,page * size,sort,order,search,isSeniorManager ? null : theater);
     }
+
+
 
     @Override
     public int insert(RoomDto room) throws SQLException {
@@ -60,19 +66,33 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Cacheable(value = "RoomService" ,key = "'findByRoom_'+#id", unless = "#result == null")
-    public Room findById(Integer id) {
-        Room room1 = this.roomRepository.findById(id);
-        if(room1 == null){
-            throw new NotFoundException("Not Found Object have Id:"+ id);
+    public RoomDto findById(Integer id) {
+        Room room = this.roomRepository.findById(id);
+        var roomDto = RoomDto.builder().id(room.getId())
+                .code(room.getCode()).name(room.getName())
+                .theaterId(room.getTheaterId())
+                .active(room.isActive())
+                .build();
+        var roomService = this.serviceRepository.findRoomServiceByRoom(room.getId());
+        var listService = new ArrayList<Integer>();
+        for (var item : roomService){
+            listService.add(item.getServiceId());
         }
-        return this.roomRepository.findById(id);
+        roomDto.setServices(listService);
+        return roomDto;
     }
 
     @Override
+    public Room findByCode(String code) {
+        return this.roomRepository.findByCode(code);
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "RoomService",allEntries = true)
     public int update(RoomDto roomDto) {
         Room room1 = this.roomRepository.findById(roomDto.getId());
         room1.setName(roomDto.getName());
-        room1.setCode(roomDto.getName());
+        room1.setCode(roomDto.getCode());
         room1.setActive(roomDto.isActive());
         room1.setTheaterId(roomDto.getTheaterId());
         for (var service : roomDto.getServices()){

@@ -1,7 +1,9 @@
 package com.apps.mybatis.mysql;
 
+import com.apps.domain.entity.RoomService;
 import com.apps.domain.entity.Service;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -13,4 +15,7 @@ public interface ServiceRepository {
     int update(@Param("service")Service service);
     int delete(@Param("id")Integer id);
     int insertRoomService(@Param("roomId")Integer roomId,@Param("serviceId")Integer serviceId);
+
+    @Select("select * from room_service where room_id = #{room}")
+    List<RoomService> findRoomServiceByRoom(@Param("room")Integer room);
 }

@@ -29,13 +29,18 @@ public class ShowTimesDetailsCustomRepository implements Repository<ShowTimesDet
             stmt.setInt(2,showTimes.getRoomId());
             stmt.setString(3,showTimes.getTimeStart());
             stmt.setString(4,showTimes.getTimeEnd());
+            stmt.setDouble(5,showTimes.getPrice());
+
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){
                 generatedKey = rs.getInt(1);
             }
+            connection.commit();
+
         }finally {
             assert connection != null;
+            if(rs != null) rs.close();
             if(!connection.isClosed()) connection.close();
             if(!stmt.isClosed()) stmt.close();
         }
