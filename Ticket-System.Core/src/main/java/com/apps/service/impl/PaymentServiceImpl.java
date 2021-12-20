@@ -10,6 +10,8 @@ import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 

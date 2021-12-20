@@ -26,6 +26,8 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import xyz.downgoon.snowflake.Snowflake;
+
 import java.sql.SQLException;
 
 import java.sql.Timestamp;
@@ -55,7 +57,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
 
-    @Scheduled(fixedRate = 12121212)
+    @Scheduled(fixedRate = 12122)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
         String currentTime = Utilities.getCurrentTime();
         var listOrderExpire = this.findAllOrderExpiredReserved(currentTime);
@@ -90,7 +92,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-    @Scheduled(fixedRate = 121212121)
+    @Scheduled(fixedRate = 12121)
     public void updateStatusShowTimes(){
         var listShowTimesNowPlaying =
                 this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",
@@ -132,8 +134,6 @@ public class OrdersServiceImpl implements OrdersService {
         return orders;
     }
 
-
-
     private List<OrderStatistics> addTotalToOrderStatistics(List<OrderStatistics> orders){
         for (var order:orders){
             if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
@@ -146,6 +146,7 @@ public class OrdersServiceImpl implements OrdersService {
         return orders;
     }
 
+
     private List<OrderRoomDto> filterOrderByTheater(List<OrderRoomDto> orders){
         return orders.stream().filter(order ->{
             var item = this.showTimesDetailService.findById(order.getShowTimesDetailId());
@@ -156,6 +157,12 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public int countSeatAvailable(Integer show,Integer room) {
         return this.seatService.findSeatInRoomByShowTimesDetail(show,room).size();
+    }
+
+    @Override
+    @Cacheable(value = "OrdersService" ,key = "'findAllByCreationAndCreated_'+#creation +'-'+#createdDate", unless = "#result == null")
+    public List<Orders> findAllByCreationAndCreated(Integer creation, String createdDate) {
+        return this.ordersRepository.findAllByCreationAndCreated(creation,createdDate);
     }
 
 
@@ -191,39 +198,41 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public List<Orders> findAll(Integer limit, Integer offset, String sort, String order, Integer showTimes,
-                                String type, Integer userId,String status,Integer creation,String dateGte) {
+                                String type, Integer userId,String status,Integer creation,String dateGte,String code) {
         var idUserContext = this.userService.getUserFromContext();
         var isSenior  = this.userService.isSeniorManager(idUserContext);
 
-        return isSenior ? this.addTotalToOrder(this.findAllOrders(limit, offset,sort, order,showTimes,type,userId,status,
-                                    creation, this.convertLocalDate(dateGte),null)) :
+        return isSenior ? this.addTotalToOrder(
+                this.findAllOrders(limit, offset,sort, order,
+                                    showTimes,type,userId,status,
+                        creation, this.convertLocalDate(dateGte), null,code)) :
                 this.addTotalToOrder(this.findAllOrderManager(limit,offset,sort,order,showTimes,type,
-                        userId,status, creation,
-                        this.convertLocalDate(dateGte)));
+                                     userId,status, creation,
+                                    this.convertLocalDate(dateGte),code));
     }
 
-    @Override
-    public List<Orders> findAllOrderManager(Integer limit, Integer offset, String sort, String order,
+    private List<Orders> findAllOrderManager(Integer limit, Integer offset, String sort, String order,
                                             Integer showTimes, String type, Integer userId, String status,
-                                            Integer creation, String dateGte) {
+                                            Integer creation, String dateGte,String code) {
 
         return this.addTotalToOrder(this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,
-                null,this.convertLocalDate(dateGte),null)).stream().filter(item -> {
+                null,this.convertLocalDate(dateGte),null,code)).stream().filter(item -> {
             return this.showTimesDetailService.findById(item.getShowTimesDetailId()).getTheaterId()
                     == this.userService.getTheaterByUser();
         }).collect(Collectors.toList());
     }
 
 
+
     @Cacheable(value = "OrdersService" ,key = "'findAllOrders_'+#limit +'-'+#offset +'-'" +
             "+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#type+'-'+#userId +'-'+#status" +
-            "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")
+            "+'-'+#creation +'-'+#dateGte+'-'+#isYear+'-'+#code", unless = "#result == null")
     public List<Orders> findAllOrders(Integer limit, Integer offset, String sort, String order, Integer showTimes,
                                       String type, Integer userId,String status,
-                                      Integer creation,String dateGte,Boolean isYear){
-        return this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,creation,dateGte,isYear);
+                                      Integer creation,String dateGte,Boolean isYear,String code){
+        return this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,
+                userId,status,creation,dateGte,isYear,code);
     }
-
 
 
     @Override
@@ -235,7 +244,7 @@ public class OrdersServiceImpl implements OrdersService {
         var isManager= this.userService.isManager(idUserContext);
         var listOrders = this.ordersRepository.findAll(limit,offset,sort,
                 order,showTimes,type,userId,status, isManager || isSenior ? null :
-                        idUserContext, this.convertLocalDate(dateGte),true);
+                        idUserContext, this.convertLocalDate(dateGte),true,null);
         return this.addInfoOrders(this.addTotalToOrder(listOrders),isManager,isSenior);
     }
 
@@ -272,7 +281,7 @@ public class OrdersServiceImpl implements OrdersService {
                     .userId(order.getUserId()).createdDate(order.getCreatedDate())
                     .creation(order.getCreation()).id(order.getId()).tax(order.getTax()).profile(order.isProfile())
                     .status(order.getStatus()).total(order.getTotal())
-                    .updatedBy(order.getUpdatedBy())
+                    .updatedBy(order.getUpdatedBy()).isOnline(order.isOnline())
                     .showTimesDetailId(order.getShowTimesDetailId())
                     .totalSeats(order.getTotalSeats()).totalConcessions(order.getTotalConcessions())
                     .build();
@@ -296,9 +305,14 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-
     @Override
     public List<Orders> findCountAllOrderRoom(Integer page, Integer size, String sort, String order, Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+        return null;
+    }
+
+    @Override
+    public List<Orders> findAllOrderByCreation(String sort, String order, Integer showTimes,
+                                               String type, String status, Integer creation, String dateGte) {
         return null;
     }
 
@@ -353,28 +367,29 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public int findAllOrderManagerCount(Integer showTimes, String type, Integer userId, String status, Integer creation, String dateGte) {
+    public int findAllOrderManagerCount(Integer showTimes, String type, Integer userId,
+                                        String status, Integer creation, String dateGte,String code) {
         var idUserContext = this.userService.getUserFromContext();
         var isSenior  = this.userService.isSeniorManager(idUserContext);
         var manager =  this.userService.isManager(idUserContext);
 
         return isSenior ? this.findAllOrders(null, null,"createdDate", "DESC",showTimes,type,userId,status,
                 isSenior || manager ? null : idUserContext,
-                this.convertLocalDate(dateGte),null).size() :
+                this.convertLocalDate(dateGte),null,code).size() :
                 this.findAllOrderManager(null, null,"createdDate", "DESC",showTimes,type,userId,status, null,
-                        this.convertLocalDate(dateGte)).size();
+                        this.convertLocalDate(dateGte),code).size();
     }
 
     @Override
     public int findAllCount(Integer showTimes, String type, Integer userId,
-                            String status,Integer creation,String dateGte) {
+                            String status,Integer creation,String dateGte,String code) {
         var idUserContext = this.userService.getUserFromContext();
         var isSenior  = this.userService.isSeniorManager(idUserContext);
 
         return isSenior ? this.findAll(null, null,"createdDate", "DESC",showTimes,type,userId,status,
-                null , this.convertLocalDate(dateGte)).size() :
+                null , this.convertLocalDate(dateGte),code).size() :
                 (int) this.findAll(null, null, "createdDate", "DESC", showTimes, type, userId, status,
-                        null, this.convertLocalDate(dateGte)).stream().filter(orders -> {
+                        null, this.convertLocalDate(dateGte),code).stream().filter(orders -> {
                     return this.showTimesDetailService.findById(orders.getShowTimesDetailId()).getTheaterId()
                             == this.userService.getTheaterByUser();
                 }).count();
@@ -412,7 +427,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-    private double getTotalOrder(Orders orders){
+    public double getTotalOrder(Orders orders){
         var concessions = this.concessionRepository.findAllConcessionInOrder(orders.getId());
         var seats = this.ordersRepository.findSeatInOrders(orders.getId());
         var totalConcession = this.totalConcession(concessions);
@@ -451,6 +466,7 @@ public class OrdersServiceImpl implements OrdersService {
         double totalAmount = this.getTotalOrder(concessions,seats,orders);
         var response = MyOrderResponse.builder()
                 .id(id)
+                .code(orders.getCode())
                 .expirePayment(orders.getExpirePayment())
                 .concessions(concessions)
                 .seats(seats)
@@ -464,6 +480,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .status(orders.getStatus())
                 .profile(orders.isProfile())
                 .userId(orders.getUserId())
+
                 .build();
         var offerHistory = this.offerHistoryService.findByOrder(id);
         if(offerHistory != null){
@@ -490,7 +507,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     @CacheEvict(cacheNames = "OrdersService",allEntries = true)
     public int insert(Orders orders) throws SQLException {
-        String sql = "Insert into orders(user_id,showtimes_detail_id,created_date,note,creation,profile,status,expire_payment,total) values (?,?,?,?,?,?,?,?,?)";
+        String sql = "Insert into orders(user_id,showtimes_detail_id,created_date,note,creation,profile,status,expire_payment,total,code) values (?,?,?,?,?,?,?,?,?,?)";
         return this.ordersCustomRepository.insert(orders,sql);
     }
 
@@ -527,6 +544,11 @@ public class OrdersServiceImpl implements OrdersService {
         return reservedSeatAndConcession(orderDto,this.userService.getUserFromContext(),0);
     }
 
+    private String generateOrderCode(){
+        Snowflake snowflake = new Snowflake(1, 1);
+        return String.valueOf(snowflake.nextId());
+    }
+
     private int reservedSeatAndConcession(OrderDto orderDto,int creation,int userId) throws ExecutionException, InterruptedException, SQLException {
         var taxAmount = (orderDto.getTotalAmount() / 100) * 10;
         Orders orders = Orders.builder()
@@ -536,6 +558,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .profile(orderDto.getTypeUser())
                 .userId(orderDto.getUserId())
                 .status(OrderStatus.NON_PAYMENT.getStatus())
+                .code(generateOrderCode())
                 .expirePayment(Utilities.getTimeExpirePayment5m())
                 .userId(userId)
                 .createdDate(Utilities.getCurrentTime())

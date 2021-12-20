@@ -6,7 +6,10 @@ import com.apps.domain.entity.Location;
 import com.apps.mapper.UserRegisterDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
+import com.apps.service.DashBoardService;
 import com.apps.service.EmployeeService;
+import com.apps.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +20,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
+@RequiredArgsConstructor
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
-    }
+
 
     @GetMapping("employees")
     public ResponseEntity<?> findAllEmployee(@RequestParam(value = "pageSize", required = false) Integer size,
@@ -40,6 +42,11 @@ public class EmployeeController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
 
 
     @GetMapping("employees/{id}")

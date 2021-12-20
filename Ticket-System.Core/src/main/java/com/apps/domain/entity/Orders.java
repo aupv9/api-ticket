@@ -16,7 +16,7 @@ public class Orders implements Serializable {
     private static final long serialVersionUID = 1L;
     private double tax;
     private Integer showTimesDetailId,userId,updatedBy = 0,creation,id;
-    private String note,status,createdDate,expirePayment,updatedAt;
-    private boolean profile = false;
+    private String note,status,createdDate,expirePayment,updatedAt,code;
+    private boolean profile = false,isOnline;
     private double total;
 }

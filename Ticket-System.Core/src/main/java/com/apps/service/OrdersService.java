@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutionException;
 public interface OrdersService {
     int countSeatAvailable(Integer show,Integer room);
 
+    List<Orders> findAllByCreationAndCreated( Integer creation,
+                                             String createdDate);
     List<Integer> findAllOrderExpiredReserved(String time);
     List<Integer> findOrderDetailById(Integer id);
     List<Integer> findOrderSeatById(Integer id);
@@ -24,12 +26,12 @@ public interface OrdersService {
     List<Orders> findAll( Integer limit, Integer offset,
                          String sort,  String order,
                          Integer showTimes, String type,
-                         Integer userId,String status,Integer creation,String dateGte);
+                         Integer userId,String status,Integer creation,String dateGte,String code);
 
-    List<Orders> findAllOrderManager(Integer limit, Integer offset,
-                          String sort,  String order,
-                          Integer showTimes, String type,
-                          Integer userId,String status,Integer creation,String dateGte);
+//    List<Orders> findAllOrderManager(Integer limit, Integer offset,
+//                          String sort,  String order,
+//                          Integer showTimes, String type,
+//                          Integer userId,String status,Integer creation,String dateGte,String code);
 
     List<OrderRoomDto> findAllOrderRoom(Integer limit, Integer offset,
                                         String sort, String order,
@@ -40,6 +42,9 @@ public interface OrdersService {
                                        String sort,  String order,
                                        Integer showTimes, String type,
                                        Integer userId,String status,Integer creation,String dateGte);
+    List<Orders> findAllOrderByCreation(String sort,  String order,
+                                        Integer showTimes, String type,
+                                        String status,Integer creation,String dateGte);
 
     List<Orders> findAllMyOrders( Integer page, Integer size,
                           String sort,  String order,
@@ -52,10 +57,10 @@ public interface OrdersService {
                             Integer creation,String dateGte,Boolean isYear);
 
     int findAllOrderManagerCount(Integer showTimes,String type,
-                     Integer userId,String status,Integer creation,String dateGte);
+                     Integer userId,String status,Integer creation,String dateGte,String code);
 
     int findAllCount(Integer showTimes,String type,
-                     Integer userId,String status,Integer creation,String dateGte);
+                     Integer userId,String status,Integer creation,String dateGte,String code);
     MyOrderResponse findById(int id);
 
     Orders findOrdersById(int id);

@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.tomcat.jni.Local;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
         return theaterId;
     }
 
-    @Cacheable(value = "OrdersService" ,key = "'isSeniorManager_'+#userId", unless = "#result == null")
+    @Cacheable(value = "UserCaching" ,key = "'isSeniorManager_'+#userId", unless = "#result == null")
     public boolean isSeniorManager(Integer userId){
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
@@ -114,7 +115,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "OrdersService" ,key = "'isManager_'+#userId", unless = "#result == null")
+    @Cacheable(value = "UserCaching" ,key = "'isManager_'+#userId", unless = "#result == null")
     public boolean isManager(Integer userId) {
         if(userId > 0){
             var userRoles = this.roleService.findUserRoleById(userId);
@@ -262,6 +263,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = "UserCaching",key = "'findById_'+#id",unless = "#result == null ")
     public com.apps.response.entity.UserDto findById(int id) {
         var user =  this.userAccountRepository.findUserById(id);
         var roles = this.roleRepository.findUserRoleById(id);
@@ -288,6 +290,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "UserCaching",allEntries = true)
     public int update(UserDto userDto) {
         UserInfo userInfo = UserInfo.builder()
                 .id(userDto.getId()).firstName(userDto.getFirstName())
@@ -335,6 +338,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+//    @Cacheable(cacheNames = "UserCaching",key = "'authenticate_'+#email+'-'+#password",unless = "#result == null ")
     public UserLoginResponse authenticate(String email, String password) throws JOSEException {
         var user = this.userAccountRepository.findUserByEmail(email);
         if(user == null){

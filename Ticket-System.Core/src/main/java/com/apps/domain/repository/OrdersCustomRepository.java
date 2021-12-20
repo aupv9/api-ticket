@@ -37,6 +37,7 @@ public class OrdersCustomRepository implements Repository<Orders>{
             stmt.setString(7,orders.getStatus());
             stmt.setString(8,orders.getExpirePayment());
             stmt.setDouble(9,orders.getTotal());
+            stmt.setString(10,orders.getCode());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             while (rs.next()){

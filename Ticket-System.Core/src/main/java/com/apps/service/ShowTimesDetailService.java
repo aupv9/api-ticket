@@ -36,6 +36,8 @@ public interface ShowTimesDetailService {
 
     ShowTimesDetail findById(int id);
     int insert(ShowTimeDto shoTimes) throws SQLException;
+    int insert2(ShowTimesDetail shoTimes) throws SQLException;
+
     List<ShowTimesDetail> findByShowTimes(int idShowTimes);
     List<List<ShowTimesDetailMini>> findShowTimesDetailByLocationAndDate(@Param("location") int location,
                                                                          @Param("date") String date);

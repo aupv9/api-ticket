@@ -18,7 +18,7 @@ public interface OrdersRepository {
                          @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
                          @Param("userId")Integer userId,@Param("status")String status
                         ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,
-                         @Param("isYear")Boolean isYear);
+                         @Param("isYear")Boolean isYear,@Param("code") String code);
 
     List<Orders> findMyOrders(@Param("limit") Integer limit, @Param("offset") Integer offset,
                                  @Param("sort")String sort, @Param("order") String order,
@@ -27,10 +27,15 @@ public interface OrdersRepository {
                               @Param("creation") Integer creation,@Param("dateGte") String dateGte,
                               @Param("isYear")Boolean isYear);
 
+    @Select("select  * from orders where creation = #{creation} and date(created_date) =#{createdDate}")
+    List<Orders> findAllByCreationAndCreated(@Param("creation") Integer creation,
+                                             @Param("createdDate") String createdDate);
+
+
     int findCountAll(@Param("showTimes")Integer showTimes, @Param("typeUser")String type,
-                     @Param("userId")Integer userId,@Param("status")String status
-                    ,@Param("creation") Integer creation,@Param("dateGte") String dateGte,
-                     @Param("isYear")Boolean isYear);
+                     @Param("userId")Integer userId,@Param("status")String status,
+                     @Param("creation") Integer creation,@Param("dateGte") String dateGte,
+                     @Param("isYear")Boolean isYear,@Param("code") String code);
 
     int findCountAllMyOrder(@Param("showTimes")Integer showTimes, @Param("typeUser")String type
                             ,@Param("status")String status,@Param("creation") Integer creation,@Param("dateGte") String dateGte,

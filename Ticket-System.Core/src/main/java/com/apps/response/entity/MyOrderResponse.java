@@ -23,7 +23,7 @@ public class MyOrderResponse implements Serializable {
     private String note;
     private Boolean profile = false;
     private Integer creation,updatedBy;
-    private String status;
+    private String status,code;
     private String expirePayment,updatedDate;
     private List<ConcessionMyOrder> concessions;
     private List<OrderSeats> seats;

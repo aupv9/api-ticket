@@ -1,16 +1,19 @@
 package com.apps.service.impl;
 
 import com.apps.domain.entity.Employee;
+import com.apps.domain.entity.User;
 import com.apps.domain.entity.UserRole;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.EmployeeRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.response.entity.EmployeeDto;
+import com.apps.response.entity.RevenueEmployee;
 import com.apps.service.EmployeeService;
 import com.apps.service.RoleService;
 import com.apps.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,12 +33,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final RoleService roleService;
 
-    private final UserAccountRepository userAccountRepository;
-
     @Override
     public List<EmployeeDto> findAll(Integer limit, Integer offset, String sort, String order, Integer roleId, Integer theaterId) {
         return addRole(this.employeeRepository.findAll(limit,offset,sort,order,roleId > 0 ? roleId : null,theaterId > 0 ? theaterId :null));
     }
+
+
     private List<EmployeeDto> addRole(List<Employee> employees){
         var listEmployee = new ArrayList<EmployeeDto>();
         employees.forEach(employee -> {
@@ -53,10 +56,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return listEmployee;
     }
 
-    private List<Integer> getRolesByUser(int userId){
+    @Cacheable(cacheNames = "RoleService",key = "'getRolesByUser_'+#userId",unless = "#result == null ")
+    public List<Integer> getRolesByUser(Integer userId){
         return this.roleService.findUserRoleById(userId)
                 .stream().map(UserRole::getRoleId).collect(Collectors.toList());
     }
+
     @Override
     public int findCountAll(Integer roleId, Integer theaterId) {
         return this.employeeRepository.findCountAll(roleId > 0 ? roleId : null,theaterId > 0 ? theaterId :null);
@@ -91,31 +96,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public int insert(Integer userId, Integer createdBy, String status,String createdAt) {
         return this.employeeRepository.insert(userId,createdBy,status,createdAt);
     }
-    public int getUserFromContext() {
-        int userId = 0;
-        var userDetails = this.getAuthenticationFromContext();
-        if( userDetails != null){
-            String email = userDetails.getUsername();
-            var user = this.userAccountRepository.findUserByEmail(email);
-            if( user!= null){
-                userId = user.getId();
-            }else{
-                var userInfo1 = this.userAccountRepository.findUserInfoByEmail(email);
-                if(userInfo1 != null){
-                    userId = userInfo1.getId();
-                }
-            }
-        }
-        return userId;
-    }
-    public UserDetails getAuthenticationFromContext() {
-        var authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        if((UserDetails) authentication.getPrincipal() != null){
-            var userDetails = (UserDetails) authentication.getPrincipal();
-            System.out.println(userDetails.getUsername());
-        }
-        return  (UserDetails)authentication.getPrincipal();
-    }
+
     @Override
     public int update(Employee employee) {
         DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");

@@ -218,8 +218,9 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Cacheable(cacheNames = "ShowTimesDetailService",
             key = "'findAllByMovie_'+#limit +'-'+#offset+'-'+#sort +'-'+#order+" +
                     "'-'+#search+'-'+#movieId +'-'+#roomId+'-'" +
-                    "+#dateStart+'-'+#theater+'-'+#nowPlaying+'-'+#comingSoon ",unless = "#result == null")
-    public List<ShowTimesDetailDto> findAllByMovie(int limit, int offset, String sort, String order, Integer movieId,
+                    "+#dateStart+'-'+#theater",unless = "#result == null")
+    public List<ShowTimesDetailDto> findAllByMovie(int limit, int offset, String sort, String order,
+                                                   Integer movieId,
                                                 Integer roomId, String search, String dateStart,
                                                    Integer theater) {
         return this.addCountSeat(this.showTimesDetailRepository.findAllByMovie(limit, offset, sort, order, movieId > 0 ? movieId : null,
@@ -229,7 +230,8 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Override
     @Cacheable(cacheNames = "ShowTimesDetailService",
-            key = "'findCountAllShow_'+#search+'-'+#movieId +'-'+#roomId+'-'+#dateStart+'-'+#theater+'-'+#nowPlaying+'-'+#comingSoon ",unless = "#result == null")
+            key = "'findCountAllShow_'+#search+'-'+#movieId +'-'+#roomId+'-'" +
+                    "+#dateStart+'-'+#theater+'-'+#nowPlaying+'-'+#comingSoon ",unless = "#result == null")
     public int findCountAllShow(Integer movieId, Integer roomId,String search,
                                 Integer theater,String dateStart,Boolean nowPlaying,
                                 Boolean comingSoon){
@@ -283,6 +285,22 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             show.setMovieId(movie.getId());
         }
         return this.repository.insert(show,sql);
+    }
+
+    @Override
+    public int insert2(ShowTimesDetail showTimes) throws SQLException {
+        String sql = "INSERT INTO showtimes_detail(movie_id,room_id,time_start,time_end,price) values(?,?,?,?,?)";
+        Instant instant = Instant.parse(showTimes.getTimeStart());
+        if(instant != null){
+            Timestamp timestamp = Timestamp.from(instant);
+            showTimes.setTimeStart(timestamp.toString());
+        }
+        instant = Instant.parse(showTimes.getTimeEnd());
+        if(instant != null){
+            Timestamp timestamp = Timestamp.from(instant);
+            showTimes.setTimeEnd(timestamp.toString());
+        }
+        return this.repository.insert(showTimes,sql);
     }
 
     @Override

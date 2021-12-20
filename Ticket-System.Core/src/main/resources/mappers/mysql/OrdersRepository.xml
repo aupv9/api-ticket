@@ -5,7 +5,6 @@
 
     <select id="findAll" resultType="com.apps.domain.entity.Orders">
         select * from orders
-
         <where>
             <if test="showTimes != null">
                 showtimes_detail_id = #{showTimes}
@@ -21,6 +20,9 @@
             </if>
             <if test="creation != null">
                 and creation = #{creation}
+            </if>
+            <if test="code != null">
+                and code like concat('%',#{code},'%')
             </if>
             <if test="dateGte != null">
                 and date(created_date)
@@ -187,6 +189,9 @@
             </if>
             <if test="creation != null">
                 and creation = #{creation}
+            </if>
+            <if test="code != null">
+                and code like concat('%',#{code},'%')
             </if>
             <if test="dateGte != null">
                 and date(created_date)

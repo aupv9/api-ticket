@@ -131,12 +131,19 @@ public class ShowTimesDetailController {
         return ResponseEntity.ok(showTimes);
     }
 
-    @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "showTimesDetails-import",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> createAccountStatus(@RequestBody ShowTimeDto showTimes) throws SQLException {
 //        Instant instant = Instant.parse(showTimes.getTimeStart());
 //        Timestamp timestamp = Timestamp.from(instant);
 //        showTimes.setTimeStart(timestamp.toString());
         int id = this.showTimesDetailService.insert(showTimes);
+        showTimes.setId(id);
+        return ResponseEntity.ok(showTimes);
+    }
+
+    @PostMapping(value = "showTimesDetails",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> createShowTimes(@RequestBody ShowTimesDetail showTimes) throws SQLException {
+        int id = this.showTimesDetailService.insert2(showTimes);
         showTimes.setId(id);
         return ResponseEntity.ok(showTimes);
     }

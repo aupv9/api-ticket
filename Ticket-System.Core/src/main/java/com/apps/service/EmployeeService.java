@@ -9,6 +9,11 @@ public interface EmployeeService {
     List<EmployeeDto> findAll(Integer limit, Integer offset,
                               String sort, String order,
                               Integer roleId, Integer theaterId);
+
+//    List<RevenueEmployee> findAllRevenue(Integer limit, Integer offset,
+//                                         String sort, String order,
+//                                         Integer roleId, Integer theaterId);
+
     int findCountAll(Integer roleId,Integer theaterId);
     EmployeeDto findById(Integer id);
     Employee findByUserId(Integer userId);

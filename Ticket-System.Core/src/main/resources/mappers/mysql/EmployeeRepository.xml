@@ -47,7 +47,6 @@
         select count(*)
         from employee
         <where>
-
             <if test="theaterId != null ">
                 and theater_id = #{theaterId}
             </if>

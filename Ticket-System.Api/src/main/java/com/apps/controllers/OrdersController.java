@@ -53,11 +53,12 @@ public class OrdersController {
                                           @RequestParam(value = "status", required = false) String status,
                                           @RequestParam(value = "creation", required = false) Integer creation,
                                           @RequestParam(value = "date_gte", required = false) String dateGte,
-                                          @RequestHeader("Authorization") String token
-                                          ){
+                                          @RequestParam(value = "search", required = false) String code
+                                       ){
         var resultList = this.ordersService.findAll(size,(page - 1) * size,sort,order,
-                showTimesId,type,userId,status,creation,dateGte);
-        var totalElements = this.ordersService.findAllOrderManagerCount(showTimesId,type,userId,status,creation,dateGte);
+                showTimesId,type,userId,status,creation,dateGte,code);
+        var totalElements = this.ordersService.findAllOrderManagerCount(showTimesId,type,userId,
+                status,creation,dateGte,code);
         var response = ResponseRA.builder()
                                     .content(resultList)
                                     .totalElements(totalElements)
