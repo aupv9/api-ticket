@@ -87,14 +87,17 @@ create table movie
 (
     name          varchar(255)              null,
     thumbnail     varchar(255)              null,
+    genre         varchar(254) charset utf8 null,
+    released_date date                      null,
+    trailer_url   varchar(254)              null,
+    duration_min  int                       null,
     image         varchar(255)              null,
     active        int                       null,
     id            int auto_increment
         primary key,
-    genre         varchar(254) charset utf8 null,
-    released_date date                      null,
-    trailer_url   varchar(254)              null,
-    duration_min  int                       null
+    code          varchar(254)              null,
+    constraint movie_code_uindex
+        unique (code)
 );
 
 create table movie_cast
@@ -382,13 +385,15 @@ create index seat_ibfk_1
 
 create table showtimes_detail
 (
-    movie_id   int              not null,
-    room_id    int              not null,
+    movie_id   int                                                         not null,
+    room_id    int                                                         not null,
     id         int auto_increment
         primary key,
-    time_end   time             null,
-    time_start timestamp        null,
-    price      double default 0 null,
+    time_end   timestamp                                                   null,
+    time_start timestamp                                                   null,
+    price      double                                        default 0     null,
+    reshow     bit                                           default b'0'  null,
+    status     enum ('Now Playing', 'Soon', 'New', 'Expire') default 'New' null,
     constraint showtimes_detail_movie_id_room_id_date_start_time_start_uindex
         unique (movie_id, room_id, time_start),
     constraint showtimes_detail_movie_id_fk
@@ -404,6 +409,7 @@ create table orders
     note                varchar(255)                                                    null,
     total               double                                                          null,
     updatedBy           int                                                             null,
+    isOnline            bit    default b'0'                                             null,
     updatedAt           datetime                                                        null,
     expire_payment      datetime                                                        null,
     created_date        datetime                                                        null,
@@ -413,6 +419,9 @@ create table orders
     profile             bit                                                             null,
     user_id             int                                                             null,
     creation            int                                                             null,
+    code                varchar(254)                                                    not null,
+    constraint orders_code_uindex
+        unique (code),
     constraint ticket_showtimes_detail_id_fk
         foreign key (showtimes_detail_id) references showtimes_detail (id)
 );
@@ -436,6 +445,9 @@ create table offer_history
 
 create index offer_history_user_info_id_fk
     on offer_history (user_id);
+
+create index orders_code_index
+    on orders (code);
 
 create index user_id
     on orders (user_id);

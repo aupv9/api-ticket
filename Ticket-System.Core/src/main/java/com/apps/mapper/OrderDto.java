@@ -17,6 +17,6 @@ public class OrderDto {
     private Integer[] concessionId;
     private Integer[] seats;
     private Integer room;
-    private boolean isOnline;
+    private boolean isOnline = false;
 
 }

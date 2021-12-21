@@ -562,6 +562,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .expirePayment(Utilities.getTimeExpirePayment5m())
                 .userId(userId)
                 .createdDate(Utilities.getCurrentTime())
+                .isOnline(orderDto.isOnline())
                 .note("")
                 .build();
         int idOrderCreated = this.insert(orders);
