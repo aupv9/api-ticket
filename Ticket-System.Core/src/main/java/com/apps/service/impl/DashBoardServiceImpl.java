@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.contants.Role;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Employee;
 import com.apps.domain.entity.UserRole;
@@ -71,9 +72,20 @@ public class DashBoardServiceImpl implements DashBoardService {
                 .stream().map(UserRole::getRoleId).collect(Collectors.toList());
     }
 
+
+    private boolean filterEmployee(List<Integer> roles){
+        for (Integer role : roles) {
+            if(this.roleService.findRoleById(role).getCode().equals(Role.ADMIN.getName())
+                || this.roleService.findRoleById(role).getCode().equals(Role.SENIOR_MANAGER.getName())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<RevenueEmployee> addRevenue(List<EmployeeDto> employeeList,String date){
         var listEmployee = new ArrayList<RevenueEmployee>();
-        employeeList.forEach(item ->{
+        employeeList.stream().filter(employeeDto -> !filterEmployee(employeeDto.getRoleIds())).forEach(item ->{
             var user = this.userService.findById(item.getUserId());
             var employee = RevenueEmployee.builder().avatar(user.getPhoto())
                     .id(item.getId()).createdAt(item.getCreatedAt()).fullName(user.getFullName())
@@ -85,6 +97,7 @@ public class DashBoardServiceImpl implements DashBoardService {
                     .build();
             var orders = this.ordersService.findAllByCreationAndCreated(employee.getUserId(),
                     Utilities.convertIsoToDate(date));
+            employee.setCountOrder(orders.size());
             double revenue = 0.d;
             for (var order : orders){
                 revenue += this.ordersService.getTotalOrder(order);

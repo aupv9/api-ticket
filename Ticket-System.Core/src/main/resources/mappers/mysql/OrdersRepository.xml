@@ -232,7 +232,7 @@
     </select>
 
     <update id="updateMyOrder">
-        update orders
+         update orders
         <set>
             <if test="order.profile != null">
                 profile = #{order.profile},
@@ -273,6 +273,7 @@
             <if test="order.updatedAt != null">
                 updatedAt = #{order.updatedAt}
             </if>
+
         </set>
         <where>
             id = #{order.id}

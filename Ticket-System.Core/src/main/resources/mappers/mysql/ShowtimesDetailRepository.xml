@@ -231,6 +231,9 @@
             <if test="entity.timeStart != null">
                 time_start = #{entity.timeStart},
             </if>
+            <if test="entity.timeEnd != null">
+                time_end = #{entity.timeEnd},
+            </if>
             <if test="entity.price != null">
                 price = #{entity.price},
             </if>

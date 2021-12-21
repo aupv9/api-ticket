@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class RevenueEmployee implements Serializable {
     private static final long serialVersionUID = 1508569595806149475L;
-    private Integer userId, theaterId, createdBy, id,updatedBy;
+    private Integer userId, theaterId, createdBy, id,updatedBy,countOrder;
     private String createdAt, status,updatedAt,startsAt, endsAt, notes,fullName,avatar;
     private List<Integer> roleIds;
     private boolean online;

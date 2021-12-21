@@ -76,19 +76,18 @@ public class OrdersServiceImpl implements OrdersService {
             }
             int deleted = this.delete(order);
         }
-        if(this.userService.getUserFromContext() != 0){
-            var listOrderNew = this.findAllOrderRoom(0,25,
-                    "updatedAt","DESC",null,null,null,null,
-                    null,Utilities.subDate(30));
-            var listOrders =this.findAllOrderRoom(0,1000,
-                    "updatedAt","DESC",null,null,null,
-                    null,null,null);
-            List<Object> objectList = new ArrayList<>();
-            objectList.add(listOrderNew);
-            objectList.add(listOrders);
-            kafkaTemplate.send("test-websocket","order-chart",
-                    new com.apps.config.kafka.Message("order",objectList)).get();
-        }
+        var listOrderNew = this.findAllOrderRoom(0,25,
+                "updatedAt","DESC",null,null,null,null,
+                null,Utilities.subDate(30));
+        var listOrders =this.findAllOrderRoom(0,1000,
+                "updatedAt","DESC",null,null,null,
+                null,null,null);
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(listOrderNew);
+        objectList.add(listOrders);
+        kafkaTemplate.send("test-websocket","order-chart",
+                new com.apps.config.kafka.Message("order",objectList)).get();
+
     }
 
 

@@ -23,6 +23,10 @@ public interface MovieRepository {
     List<Movie> findAllCurrentWeek(@Param("startWeek")String startWeek,
                                    @Param("endWeek")String endWeek);
 
+    @Select("select * from movie where released_date >= #{minDate} and #{maxDate} > released_date")
+    List<Movie> findAllNowPlaying(@Param("minDate")String minDate, @Param("maxDate")String maxDate);
+
+
     @Select("select * from movie where id in\n" +
             "(select movie_id from showtimes_detail where date(time_start) > #{dateGte})")
     List<Movie> findAllComingSoon(@Param("dateGte")String dateGte);

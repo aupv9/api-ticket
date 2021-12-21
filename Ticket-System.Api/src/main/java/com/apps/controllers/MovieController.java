@@ -56,6 +56,18 @@ public class MovieController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("movies-nowPlaying")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> findMovieNowPlaying() {
+        var resultList = this.movieService.findAllNowPlaying();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
     @GetMapping("movies-comingSoon")
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> findMovieComingSoon() {

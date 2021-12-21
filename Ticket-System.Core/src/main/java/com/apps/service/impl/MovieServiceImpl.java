@@ -124,10 +124,22 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Cacheable(cacheNames = "MovieService", key = "'findAllCurrentWeek'",
+            unless = "#result == null ")
     public List<Movie> findAllCurrentWeek() {
         return this.movieRepository.findAllCurrentWeek(Utilities.startOfWeek("yyyy-MM-dd")
                 ,Utilities.addDate(30));
     }
+
+    @Override
+    @Cacheable(cacheNames = "MovieService", key = "'findAllNowPlaying'",
+            unless = "#result == null ")
+    public List<Movie> findAllNowPlaying() {
+        String minDate = Utilities.subDate(42);
+        String maxDate = Utilities.addDateParam(48,minDate);
+        return this.movieRepository.findAllNowPlaying(minDate,maxDate);
+    }
+
 
     @Override
     public List<Movie> findAllComingSoon() {

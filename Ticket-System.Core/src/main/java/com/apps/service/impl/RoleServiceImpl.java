@@ -168,7 +168,13 @@ public class RoleServiceImpl implements RoleService {
         return 0;
     }
 
-//    @Cacheable(value = "RoleService",key = "'getAuthorities_'+#roles")
+    @Override
+    @Cacheable(value = "RoleService",key = "'findRoleByCode_'+#code",unless = "#result == null ")
+    public Role findRoleByCode(String code) {
+        return this.roleRepository.findByCode(code);
+    }
+
+    //    @Cacheable(value = "RoleService",key = "'getAuthorities_'+#roles")
     public Collection<? extends GrantedAuthority> getAuthorities(final List<UserRole> roles) {
         return getGrantedAuthorities(getPrivileges(roles));
     }

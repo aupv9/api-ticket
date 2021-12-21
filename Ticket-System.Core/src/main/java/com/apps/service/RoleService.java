@@ -41,4 +41,6 @@ public interface RoleService {
     int insertRole(RoleDto roleDto) throws SQLException;
 
     int deleteRole(Integer idRole);
+
+    Role findRoleByCode(String code);
 }

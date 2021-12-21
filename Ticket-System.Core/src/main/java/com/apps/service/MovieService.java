@@ -20,6 +20,9 @@ public interface MovieService {
     int insert(Movie movie) throws SQLException;
     void delete(Integer id);
     List<Movie> findAllCurrentWeek();
+
+    List<Movie> findAllNowPlaying();
+
     List<Movie> findAllComingSoon();
     int insertMulti(MovieDto movieDto) throws SQLException;
 

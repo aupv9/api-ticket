@@ -329,21 +329,25 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         return listResult;
     }
 
+    private String convertDate(String date){
+        var time = date.split(" ");
+        if(time.length > 1){
+            return date;
+        }else{
+            Instant instant = Instant.parse(date);
+            if(instant != null){
+                return Timestamp.from(instant).toString();
+            }
+        }
+        return date;
+    }
+
     @Override
     @CacheEvict(value = "ShowTimesDetailService",allEntries = true)
     public int update(ShowTimesDetailDto showTimesDetail) {
         ShowTimesDetail showTimesDetail1 = this.findById(showTimesDetail.getId());
-        var time = showTimesDetail.getTimeStart().split(" ");
-        if(time.length > 1){
-            showTimesDetail1.setTimeStart(showTimesDetail.getTimeStart());
-        }else{
-            Instant instant = Instant.parse(showTimesDetail.getTimeStart());
-            if(instant != null){
-                Timestamp timestamp = Timestamp.from(instant);
-                showTimesDetail1.setTimeStart(timestamp.toString());
-            }
-        }
-
+        showTimesDetail1.setTimeStart(convertDate(showTimesDetail.getTimeStart()));
+        showTimesDetail1.setTimeEnd(convertDate(showTimesDetail.getTimeEnd()));
         showTimesDetail1.setMovieId(showTimesDetail.getMovieId());
         showTimesDetail1.setRoomId(showTimesDetail.getRoomId());
         showTimesDetail1.setPrice(showTimesDetail.getPrice());

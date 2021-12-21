@@ -36,8 +36,6 @@ public class ShowTimesDetailsCustomRepository implements Repository<ShowTimesDet
             while (rs.next()){
                 generatedKey = rs.getInt(1);
             }
-            connection.commit();
-
         }finally {
             assert connection != null;
             if(rs != null) rs.close();
