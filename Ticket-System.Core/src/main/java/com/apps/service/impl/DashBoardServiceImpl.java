@@ -61,6 +61,7 @@ public class DashBoardServiceImpl implements DashBoardService {
         for (var room : listRoom){
             var percentCoverRoom = new PercentCoverRoom();
             var listShow = this.showTimesDetailService.findShowStartByDay(date,room.getId());
+
             for (var show: listShow){
                 var countAvailable = this.seatService.countSeatAvailable(show,room.getId());
                 var countSeatByRoom = this.roomService.countSeatById(room.getId());
@@ -70,7 +71,6 @@ public class DashBoardServiceImpl implements DashBoardService {
                 percentCoverRoom.setLabel(room.getName());
                 percentCoverRoom.setValue(percentCover);
             }
-
 
         }
 
