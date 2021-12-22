@@ -20,6 +20,7 @@ public interface SeatRepository {
     Seat findById(Integer id);
 
     List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesId") Integer showTimesDetailId, @Param("roomId") Integer roomId);
+
     int findCountAll(@Param("search") String search, @Param("room") Integer room);
 
     @Select("Select * from seat where room_id =#{room} ")

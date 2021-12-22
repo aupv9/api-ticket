@@ -57,7 +57,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
 
-    @Scheduled(fixedRate = 12122)
+    @Scheduled(fixedRate = 100000)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
         String currentTime = Utilities.getCurrentTime();
         var listOrderExpire = this.findAllOrderExpiredReserved(currentTime);
@@ -91,7 +91,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-    @Scheduled(fixedRate = 12121)
+    @Scheduled(fixedRate = 100000)
     public void updateStatusShowTimes(){
         var listShowTimesNowPlaying =
                 this.showTimesDetailService.findAllSeniorManager(null,null,"id","ASC",

@@ -30,4 +30,6 @@ public interface SeatService {
     ShowTimesDetail findShowTimesById(Integer id);
 
     void sendDataToClient(Integer showTimesId) throws ExecutionException, InterruptedException;
+
+    double percentCoverRoom(Integer room);
 }

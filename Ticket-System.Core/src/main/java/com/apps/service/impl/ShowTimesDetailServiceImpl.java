@@ -2,33 +2,26 @@ package com.apps.service.impl;
 
 
 import com.apps.contants.Utilities;
-import com.apps.domain.entity.Movie;
-import com.apps.domain.entity.Room;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.mybatis.mysql.ShowTimesDetailRepository;
-import com.apps.request.RoomDto;
 import com.apps.request.ShowTimeDto;
 import com.apps.response.TimePick;
 import com.apps.response.entity.ShowTimesDetailDto;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import org.apache.log4j.helpers.DateTimeDateFormat;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.Format;
-import java.text.SimpleDateFormat;
+
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -373,5 +366,15 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         var showTimesDetail = this.findById(id);
         this.showTimesDetailRepository.delete(id);
     }
+
+    @Override
+    @Cacheable(cacheNames = "ShowTimesDetailService",
+            key ="'findShowStartByDay_'+#date+'-'+#room",unless = "#result == null")
+    public List<Integer> findShowStartByDay(String date,Integer room) {
+        return this.showTimesDetailRepository.findShowStartByDay(date,room);
+    }
+
+
+
 
 }

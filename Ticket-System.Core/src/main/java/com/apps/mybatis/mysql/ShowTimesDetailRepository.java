@@ -55,4 +55,6 @@ public interface ShowTimesDetailRepository {
 
     void delete(@Param("id") Integer id);
 
+    List<Integer> findShowStartByDay(@Param("date") String date,@Param("room") Integer room);
+
 }

@@ -116,5 +116,19 @@ public class RoomServiceImpl implements RoomService {
         return this.roomRepository.findCountAll(search, isSeniorManager ? null : theater);
     }
 
+    @Override
+    @Cacheable(value = "RoomService" ,
+            key = "'countSeatById_'+#room", unless = "#result == null")
+    public int countSeatById(Integer room) {
+        return this.roomRepository.countSeatById(room);
+    }
+
+    @Override
+    @Cacheable(value = "RoomService" ,
+            key = "'findByTheater_'+#theater", unless = "#result == null")
+    public List<Room> findByTheater(Integer theater) {
+        return this.roomRepository.findByTheater(theater);
+    }
+
 
 }

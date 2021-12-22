@@ -57,6 +57,7 @@ public interface OrdersRepository {
     int insertOrderConcession(@Param("concessionId") int concessionId,
                               @Param("ordersId") int ordersId,
                               @Param("quantity") int quantity);
+
     int insertOrderSeat(@Param("seatId") int seatId,
                               @Param("ordersId") int ordersId);
 
@@ -78,4 +79,6 @@ public interface OrdersRepository {
     int deleteOrderSeat(@Param("ordersId")Integer id);
 
     int updateMyOrder(@Param("order") Orders order);
+
+
 }

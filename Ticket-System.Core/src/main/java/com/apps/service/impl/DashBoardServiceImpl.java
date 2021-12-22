@@ -6,10 +6,9 @@ import com.apps.domain.entity.Employee;
 import com.apps.domain.entity.UserRole;
 import com.apps.mybatis.mysql.EmployeeRepository;
 import com.apps.response.entity.EmployeeDto;
+import com.apps.response.entity.PercentCoverRoom;
 import com.apps.response.entity.RevenueEmployee;
-import com.apps.service.DashBoardService;
-import com.apps.service.RoleService;
-import com.apps.service.UserService;
+import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,6 +31,12 @@ public class DashBoardServiceImpl implements DashBoardService {
 
     private final UserService userService;
 
+    private final ShowTimesDetailService showTimesDetailService;
+
+    private final SeatService seatService;
+
+    private final RoomService roomService;
+
     @Override
 //    @Cacheable(value = "DashBoardService" ,key = "'findAllRevenue_'+#limit+'-'+#offset+" +
 //            "'-+#sort+'-'+#order+'-''+#roleId+'-'+#theaterId+'-'+#date", unless = "#result == null")
@@ -48,6 +53,30 @@ public class DashBoardServiceImpl implements DashBoardService {
     public int findCountAll(Integer roleId, Integer theaterId) {
         return 0;
     }
+
+    @Override
+    public List<PercentCoverRoom> getPercentCoverSeatOnTheater(String date,Integer theater) {
+        var listPercentCoverRoom = new ArrayList<PercentCoverRoom>();
+        var listRoom = this.roomService.findByTheater(theater);
+        for (var room : listRoom){
+            var percentCoverRoom = new PercentCoverRoom();
+            var listShow = this.showTimesDetailService.findShowStartByDay(date,room.getId());
+            for (var show: listShow){
+                var countAvailable = this.seatService.countSeatAvailable(show,room.getId());
+                var countSeatByRoom = this.roomService.countSeatById(room.getId());
+                int remainSeat = countSeatByRoom - countAvailable;
+                var percentCover = ((double)(remainSeat / countSeatByRoom ) * 100);
+                percentCoverRoom.setId(room.getName());
+                percentCoverRoom.setLabel(room.getName());
+                percentCoverRoom.setValue(percentCover);
+            }
+
+
+        }
+
+        return null;
+    }
+
 
     public List<EmployeeDto> addRole(List<Employee> employees){
         var listEmployee = new ArrayList<EmployeeDto>();

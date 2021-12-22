@@ -46,5 +46,6 @@ public interface ShowTimesDetailService {
     List<TimePick> getTimeStart();
     void delete(Integer id);
 
+    List<Integer> findShowStartByDay(String date,Integer room);
 
 }

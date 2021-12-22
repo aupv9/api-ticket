@@ -481,6 +481,7 @@ public class UserServiceImpl implements UserService {
         return this.updateCurrentLogged(user.getId(),false);
     }
 
+
     public int getUserFromContext() {
         int userId = 0;
         var userDetails = this.getAuthenticationFromContext();

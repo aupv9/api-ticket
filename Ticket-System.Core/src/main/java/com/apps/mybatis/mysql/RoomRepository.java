@@ -26,4 +26,10 @@ public interface RoomRepository {
     int update(@Param("room")Room room);
     void delete(@Param("id")Integer id);
     int findCountAll(@Param("search") String search, @Param("theater") Integer theater);
+
+    @Select("select count(*) from seat where id = #{id}")
+    int countSeatById(@Param("id")Integer room);
+
+    @Select("select * from room where theater_id = #{theater}")
+    List<Room> findByTheater(@Param("theater")Integer theater);
 }

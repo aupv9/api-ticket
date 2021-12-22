@@ -198,6 +198,14 @@ public class SeatServiceImpl implements SeatService {
                 new com.apps.config.kafka.Message("seat",showTimes.getId(), Collections.singletonList(seatMap))).get();
     }
 
+    @Override
+    public double percentCoverRoom(Integer room) {
+
+
+
+        return 0;
+    }
+
 //    @Override
 //    public List<Seat> findByShowTimes(int showTimes) {
 //        var showTimesDetail = this.showTimesDetailService.findById(showTimes);

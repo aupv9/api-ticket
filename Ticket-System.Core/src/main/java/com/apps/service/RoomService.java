@@ -22,4 +22,9 @@ public interface RoomService {
     void delete(Integer id);
     int findCountAll(String search, Integer theater,Boolean isSeniorManager);
 
+    int countSeatById(Integer room);
+
+    List<Room> findByTheater(Integer theater);
+
+
 }

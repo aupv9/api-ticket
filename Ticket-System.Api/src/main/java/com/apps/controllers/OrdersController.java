@@ -32,7 +32,6 @@ public class OrdersController {
     public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "date_gte", required = false) String dateGte){
         var creation = this.userService.getUserFromContext();
         var resultList = this.ordersService.findOrderStatistics(creation,dateGte);
-
         var totalElements = resultList.size();
         var response = ResponseRA.builder()
                 .content(resultList)
