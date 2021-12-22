@@ -55,26 +55,29 @@ public class DashBoardServiceImpl implements DashBoardService {
     }
 
     @Override
+    @Cacheable(cacheNames = "PercentService",key = "'getPercentCoverSeatOnTheater_'" +
+            "+#date+'-'+#theater",unless = "#result == null ")
     public List<PercentCoverRoom> getPercentCoverSeatOnTheater(String date,Integer theater) {
         var listPercentCoverRoom = new ArrayList<PercentCoverRoom>();
         var listRoom = this.roomService.findByTheater(theater);
         for (var room : listRoom){
             var percentCoverRoom = new PercentCoverRoom();
             var listShow = this.showTimesDetailService.findShowStartByDay(date,room.getId());
-
+            double percentPerShow = 0.d;
             for (var show: listShow){
                 var countAvailable = this.seatService.countSeatAvailable(show,room.getId());
                 var countSeatByRoom = this.roomService.countSeatById(room.getId());
                 int remainSeat = countSeatByRoom - countAvailable;
                 var percentCover = ((double)(remainSeat / countSeatByRoom ) * 100);
-                percentCoverRoom.setId(room.getName());
-                percentCoverRoom.setLabel(room.getName());
-                percentCoverRoom.setValue(percentCover);
+                percentPerShow += percentCover;
             }
-
+            double mediumPercentCoverPerRoom = (double) (percentPerShow /listShow.size());
+            percentCoverRoom.setId(room.getName());
+            percentCoverRoom.setLabel(room.getName());
+            percentCoverRoom.setValue(mediumPercentCoverPerRoom);
+            listPercentCoverRoom.add(percentCoverRoom);
         }
-
-        return null;
+        return listPercentCoverRoom;
     }
 
 
