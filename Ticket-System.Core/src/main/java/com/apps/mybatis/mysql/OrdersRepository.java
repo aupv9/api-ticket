@@ -44,6 +44,9 @@ public interface OrdersRepository {
     List<OrderStatistics> findOrderStatistics(@Param("creation")Integer creation,
                                               @Param("dateGte")String dateGte);
 
+    List<OrderStatistics> findOrderByDate(@Param("date")String date);
+
+
     Orders findById(@Param("id")Integer id);
 
     @Select("select * from orders where id = #{id}")

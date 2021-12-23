@@ -140,21 +140,25 @@ public class PaymentServiceImpl implements PaymentService {
                     .updatedAt(Utilities.getCurrentTime())
                     .status(OrderStatus.ORDERED.getStatus())
                     .build();
-            if(!payment.getCode().isEmpty()){
+            if(!paymentDto.getCode().isEmpty()){
                 var offerCode =
-                        this.promotionRepository.checkPromotionCode(payment.getCode());
+                        this.promotionRepository.checkPromotionCode(paymentDto.getCode());
                 var offer = this.promotionRepository.findById(offerCode.getOfferId());
-                var discountAmount = Utilities.getDiscountByCode(payment.getCode(),order.getTotalAmount(),offer);
-                var offerHistory = OfferHistory.builder()
-                        .offerId(offer.getId())
-                        .orderId(payment.getPartId())
-                        .userId( order.getUserId())
-                        .timeUsed(Utilities.getCurrentTime())
-                        .status(OfferStatus.USED.name())
-                        .code(offerCode.getCode())
-                        .totalDiscount(discountAmount)
-                        .build();
-                this.promotionRepository.insertOfferHistory(offerHistory);
+                int remainUse = offer.getMaxTotalUsage();
+                if(remainUse > 0){
+                    var discountAmount = Utilities.getDiscountByCode(payment.getCode(),order.getTotalAmount(),offer);
+                    var offerHistory = OfferHistory.builder()
+                            .offerId(offer.getId())
+                            .orderId(payment.getPartId())
+                            .userId(order.getUserId())
+                            .timeUsed(Utilities.getCurrentTime())
+                            .status(OfferStatus.USED.name())
+                            .code(offerCode.getCode())
+                            .totalDiscount(discountAmount)
+                            .build();
+                    this.promotionRepository.insertOfferHistory(offerHistory);
+                    this.promotionRepository.updateMaxTotalUsage(offer.getMaxTotalUsage() - 1,offer.getId());
+                }
             }
             this.ordersService.update(orders);
 

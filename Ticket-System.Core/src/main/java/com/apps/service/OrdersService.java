@@ -53,6 +53,9 @@ public interface OrdersService {
 
     List<OrderStatistics> findOrderStatistics(Integer creation, String dateGte);
 
+    List<OrderStatistics> findOrderByDate(String date);
+
+
     int findCountAllMyOrder(Integer showTimes, String type, String status,
                             Integer creation,String dateGte,Boolean isYear);
 

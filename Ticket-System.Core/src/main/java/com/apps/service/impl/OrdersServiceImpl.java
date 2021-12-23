@@ -337,6 +337,50 @@ public class OrdersServiceImpl implements OrdersService {
         return this.addInfoOrderStatistics(addPriceOrders,isManager,isSenior);
     }
 
+
+    @Override
+    public List<OrderStatistics> findOrderByDate(String date) {
+        var userId = this.userService.getUserFromContext();
+        var isSenior =  this.userService.isSeniorManager(userId);
+        return isSenior ? this.addInfo(this.addTotalToOrderStatistics(
+                this.ordersRepository.findOrderByDate(Utilities.convertIsoToDate(date))
+        )):
+               this.addInfo(
+                       this.addTotalToOrderStatistics(
+                            this.ordersRepository.findOrderByDate(Utilities.convertIsoToDate(date)).stream().filter(
+                               order ->{
+                                   var item = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+                                   return item.getTheaterId() == this.userService.getTheaterByUser();
+                               }
+               ).collect(Collectors.toList())));
+    }
+
+    public List<OrderStatistics> addInfo(List<OrderStatistics> orders){
+        var orderStatistics = new ArrayList<OrderStatistics>();
+        for (var order: orders){
+            var orderStatistic = OrderStatistics.builder()
+                    .userId(order.getUserId()).createdDate(order.getCreatedDate())
+                    .creation(order.getCreation()).id(order.getId()).tax(order.getTax()).profile(order.isProfile())
+                    .status(order.getStatus()).total(order.getTotal())
+                    .updatedBy(order.getUpdatedBy()).isOnline(order.isOnline())
+                    .showTimesDetailId(order.getShowTimesDetailId())
+                    .totalSeats(order.getTotalSeats()).totalConcessions(order.getTotalConcessions())
+                    .build();
+            var showTimes = this.showTimesDetailService.findById(order.getShowTimesDetailId());
+            orderStatistic.setRoomName(showTimes.getRoomName());
+            orderStatistic.setTimeStart(showTimes.getTimeStart());
+            var theater = this.theaterService.findById(showTimes.getTheaterId());
+            orderStatistic.setTheaterName(theater.getName());
+            var location  = this.locationService.findById(theater.getLocationId());
+            var movie  = this.movieService.findById(showTimes.getMovieId());
+            orderStatistic.setMovieName(movie.getName());
+            orderStatistic.setLocationName(location.getName());
+            orderStatistics.add(orderStatistic);
+        }
+        return orderStatistics;
+    }
+
+
     @Cacheable(value = "OrdersService" ,key = "'findAllMyOrder_'+#limit +'-'+#offset +'-'" +
             "+#sort +'-'+#order +'-'+#showTimes+'-'+#order +'-'+#type+'-'+#status" +
             "+'-'+#creation +'-'+#dateGte+'-'+#isYear", unless = "#result == null")

@@ -138,6 +138,14 @@ public class SeatController {
         return ResponseEntity.ok(seatDto);
     }
 
+    @PostMapping(value = "/seats-import",produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<?> createArraySeat(@RequestBody SeatDto seatDto) throws SQLException {
+        int id = this.seatService.insert2(seatDto);
+        seatDto.setId(id);
+        log.info("Id return : "+ id);
+        return ResponseEntity.ok(seatDto);
+    }
+
     @PutMapping(value = "/seats/{id}",produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<?> updateSeat(@PathVariable("id") Integer id,@RequestBody Seat seat)  {
         seat.setId(id);

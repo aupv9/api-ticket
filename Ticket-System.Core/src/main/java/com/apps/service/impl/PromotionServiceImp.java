@@ -103,11 +103,16 @@ public class PromotionServiceImp implements PromotionService {
 
         var offerCode = this.promotionRepository.checkPromotionCode(code);
         if(offerCode != null){
+            var offer = this.promotionRepository.findById(offerCode.getOfferId());
+            if(offer.getMaxTotalUsage() <= 0){
+                throw new NotFoundException("Promo Code of movie invalid");
+            }
             var offerMovie = this.promotionRepository.findOfferMovie(offerCode.getOfferId(),movie);
             if(offerMovie == null){
                 throw new NotFoundException("Promo Code of movie invalid");
             }
         }
+
         return offerCode;
     }
 

@@ -1,10 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.*;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -27,6 +24,8 @@ public interface PromotionRepository {
 
     int findAllCountOfferDetail(@Param("offerId") Integer offer);
 
+    @Select("select max_total_usage from offer where id = #{id}")
+    int countRemainUsage(@Param("id")Integer id);
 
 
     @Insert("insert into offer_detail(offer_id,code) values(#{offerId},#{code})")
@@ -49,4 +48,7 @@ public interface PromotionRepository {
 
 
     int insertOfferHistory(@Param("offer")OfferHistory offerHistory);
+
+    @Update("update offer set max_total_usage = #{count} where id = #{id}")
+    int updateMaxTotalUsage(@Param("count")Integer remain,@Param("id")Integer id);
 }

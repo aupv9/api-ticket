@@ -14,12 +14,12 @@ import java.io.Serializable;
 public class SeatDto implements Serializable {
     private static final long serialVersionUID = -219252588585659787L;
     private int id;
-    private String seatType;
+    private String seatType,type;
     private Integer roomId;
     private Integer numbers;
     private String tier;
     private Boolean isSelected = false;
-    private String status;
+    private String status,room;
     private double price;
 
 }

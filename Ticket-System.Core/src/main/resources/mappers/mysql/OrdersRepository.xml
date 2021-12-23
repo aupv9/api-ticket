@@ -82,7 +82,16 @@
             </if>
             and year(created_date) = year(current_time)
         </where>
-    </select >
+    </select>
+
+    <select id="findOrderByDate" resultType="com.apps.mapper.OrderStatistics">
+        select *  from orders
+        <where>
+            <if test="date != null">
+                date(created_date) = date(#{date})
+            </if>
+        </where>
+    </select>
 
 
     <select id="findMyOrders" resultType="com.apps.domain.entity.Orders">

@@ -14,6 +14,7 @@ import lombok.var;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,6 +55,8 @@ public class DashBoardServiceImpl implements DashBoardService {
         return 0;
     }
 
+    private static final DecimalFormat df = new DecimalFormat("0.00");
+
     @Override
     @Cacheable(cacheNames = "PercentService",key = "'getPercentCoverSeatOnTheater_'" +
             "+#date+'-'+#theater",unless = "#result == null ")
@@ -62,24 +65,36 @@ public class DashBoardServiceImpl implements DashBoardService {
         var listRoom = this.roomService.findByTheater(theater);
         for (var room : listRoom){
             var percentCoverRoom = new PercentCoverRoom();
-            var listShow = this.showTimesDetailService.findShowStartByDay(date,room.getId());
-            double percentPerShow = 0.d;
-            for (var show: listShow){
-                var countAvailable = this.seatService.countSeatAvailable(show,room.getId());
-                var countSeatByRoom = this.roomService.countSeatById(room.getId());
-                int remainSeat = countSeatByRoom - countAvailable;
-                var percentCover = ((double)(remainSeat / countSeatByRoom ) * 100);
-                percentPerShow += percentCover;
-            }
-            double mediumPercentCoverPerRoom = (double) (percentPerShow /listShow.size());
             percentCoverRoom.setId(room.getName());
             percentCoverRoom.setLabel(room.getName());
-            percentCoverRoom.setValue(mediumPercentCoverPerRoom);
+            var listShow =
+                    this.showTimesDetailService.findShowStartByDay(Utilities.convertIsoToDate(date),
+                    room.getId());
+            double percentPerShow = 0.d;
+            for (var show: listShow){
+                double countSeatByRoom = this.roomService.countSeatById(room.getId());
+                double countAvailable = this.seatService.countSeatAvailable(show.getId(),room.getId());
+                double remainSeat = countSeatByRoom - countAvailable;
+                if(countSeatByRoom <= 0){
+                    percentPerShow += 0;
+                }else{
+                    var percentCover = ((remainSeat / countSeatByRoom ));
+                   ;
+                    percentPerShow +=  Double.parseDouble(df.format(percentCover));
+                }
+            }
+            int showCount = listShow.size();
+            double mediumPercentCoverPerRoom = 0.d;
+            if(showCount > 0){
+                 mediumPercentCoverPerRoom = Double.parseDouble(df.format(percentPerShow / showCount));
+                percentCoverRoom.setValue(mediumPercentCoverPerRoom);
+            }else{
+                percentCoverRoom.setValue(0);
+            }
             listPercentCoverRoom.add(percentCoverRoom);
         }
         return listPercentCoverRoom;
     }
-
 
     public List<EmployeeDto> addRole(List<Employee> employees){
         var listEmployee = new ArrayList<EmployeeDto>();

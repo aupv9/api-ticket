@@ -13,5 +13,6 @@ public interface DashBoardService {
 
     List<PercentCoverRoom> getPercentCoverSeatOnTheater(String date,Integer theater);
 
+
 }
 

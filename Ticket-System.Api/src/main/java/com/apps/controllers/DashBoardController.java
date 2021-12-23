@@ -3,6 +3,7 @@ package com.apps.controllers;
 import com.apps.response.ResponseRA;
 import com.apps.service.DashBoardService;
 import com.apps.service.EmployeeService;
+import com.apps.service.OrdersService;
 import com.apps.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class DashBoardController {
 
     private final EmployeeService employeeService;
 
+    private final OrdersService ordersService;
+
     @GetMapping("employees-revenue")
     public ResponseEntity<?> findAllEmployeeRevenue(@RequestParam(value = "pageSize", required = false) Integer size,
                                                     @RequestParam(value = "page", required = false)Integer page,
@@ -42,6 +45,31 @@ public class DashBoardController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("percentCoverSeat")
+    public ResponseEntity<?> getPercentCoverSeat(@RequestParam(value = "date", required = false) String date){
+
+        var theaterId = this.userService.getTheaterByUser();
+        var resultList = this.dashBoardService.getPercentCoverSeatOnTheater(date,theaterId);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("order-dashboard")
+    public ResponseEntity<?> getOrderdashboard(@RequestParam(value = "date", required = false) String date){
+        var resultList = this.ordersService.findOrderByDate(date);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 }

@@ -25,4 +25,6 @@ public interface OfferHistoryRepository {
 
     @Select("select * from offer_history where id = #{id}")
     OfferHistory findById(@Param("id")int id);
+
+
 }

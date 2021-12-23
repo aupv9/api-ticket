@@ -4,6 +4,7 @@ import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.config.kafka.Message;
 import com.apps.contants.SeatStatus;
 import com.apps.domain.entity.Reserved;
+import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.repository.SeatCustomRepository;
@@ -11,6 +12,7 @@ import com.apps.mapper.ReservedDto;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.request.SeatDto;
 import com.apps.response.ResponseRA;
+import com.apps.service.RoomService;
 import com.apps.service.SeatService;
 import com.apps.service.ShowTimesDetailService;
 import com.apps.service.TicketService;
@@ -41,6 +43,8 @@ public class SeatServiceImpl implements SeatService {
 
     private final TicketService ticketService;
 
+    private final RoomService roomService;
+
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
 
@@ -64,10 +68,25 @@ public class SeatServiceImpl implements SeatService {
                 .tier(seatDto.getTier()).numbers(seatDto.getNumbers())
                 .seatType(seatDto.getSeatType()).roomId(seatDto.getRoomId())
                 .build();
-        int result = this.seatCustomRepository.insert(seat,sql);
-        if(result < 0) return 0;
-        cacheManager.clearCache("SeatService");
-        return result;
+        return this.seatCustomRepository.insert(seat,sql);
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "SeatService",allEntries = true)
+    public int insert2(SeatDto seat) throws SQLException {
+        String sql = "insert into seat(seat_type, tier, numbers,room_id) VALUES (?,?,?,?)";
+        var seat1 = Seat.builder()
+                .seatType(seat.getType()).tier(seat.getTier())
+                .numbers(seat.getNumbers())
+                .build();
+        var room = this.roomService.findByCode(seat.getRoom());
+        if(room != null){
+            seat1.setRoomId(room.getId());
+        }else{
+            var room1 = this.roomService.findByCode(seat.getRoom());
+            seat1.setRoomId(room1.getId());
+        }
+        return this.seatCustomRepository.insert(seat1,sql);
     }
 
     @Override

@@ -15,6 +15,8 @@ public interface SeatService {
 
 
     int insert(SeatDto seat) throws SQLException;
+    int insert2(SeatDto seat) throws SQLException;
+
     int update(Seat seat);
 
     Seat findById(Integer id);

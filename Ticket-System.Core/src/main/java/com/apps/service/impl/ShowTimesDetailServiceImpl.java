@@ -370,7 +370,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     @Override
     @Cacheable(cacheNames = "ShowTimesDetailService",
             key ="'findShowStartByDay_'+#date+'-'+#room",unless = "#result == null")
-    public List<Integer> findShowStartByDay(String date,Integer room) {
+    public List<ShowTimesDetail> findShowStartByDay(String date,Integer room) {
         return this.showTimesDetailRepository.findShowStartByDay(date,room);
     }
 

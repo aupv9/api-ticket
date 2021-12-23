@@ -250,8 +250,8 @@
     </delete>
 
 
-    <select id="findShowStartByDay">
-        select id  from showtimes_detail
+    <select id="findShowStartByDay" resultType="com.apps.domain.entity.ShowTimesDetail">
+        select *  from showtimes_detail
         <where>
             <if test="date != null">
                 date(time_start) = date(#{date})

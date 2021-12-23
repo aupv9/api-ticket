@@ -86,6 +86,7 @@
 
     </select>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+
         insert into booksystem.payment(payment_method_id, amount, status, transaction_id, createtion_date, start_date, end_date, note, use_for, part_id)
         values (#{payment.paymentMethodId},#{payment.amount},#{payment.status},#{payment.transactionId},#{payment.createtionDate},
         #{payment.startDate},#{payment.endDate},#{payment.note},#{payment.useFor},#{payment.partId})
