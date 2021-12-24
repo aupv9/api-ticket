@@ -1,4 +1,4 @@
-create table cast
+create table booksystem.cast
 (
     id      int auto_increment
         primary key,
@@ -7,7 +7,7 @@ create table cast
     role    varchar(254)              null
 );
 
-create table category
+create table booksystem.category
 (
     id          int auto_increment
         primary key,
@@ -18,7 +18,7 @@ create table category
     type        enum ('combos', 'foods', 'others', 'drinks') null
 );
 
-create table concession
+create table booksystem.concession
 (
     image       varchar(255) null,
     thumbnail   varchar(255) null,
@@ -28,10 +28,10 @@ create table concession
     price       double       null,
     category_id int          null,
     constraint concession_category_id_fk
-        foreign key (category_id) references category (id)
+        foreign key (category_id) references booksystem.category (id)
 );
 
-create table location
+create table booksystem.location
 (
     latitude  varchar(255) null,
     longitude varchar(255) null,
@@ -41,7 +41,7 @@ create table location
     zipcode   varchar(50)  null
 );
 
-create table media
+create table booksystem.media
 (
     id            int auto_increment
         primary key,
@@ -54,7 +54,7 @@ create table media
     path          varchar(254) null
 );
 
-create table membership
+create table booksystem.membership
 (
     id            int auto_increment
         primary key,
@@ -75,15 +75,15 @@ create table membership
 );
 
 create index membership_birthday_index
-    on membership (birthday);
+    on booksystem.membership (birthday);
 
 create index membership_level_index
-    on membership (level);
+    on booksystem.membership (level);
 
 create index user_id
-    on membership (user_id);
+    on booksystem.membership (user_id);
 
-create table movie
+create table booksystem.movie
 (
     name          varchar(255)              null,
     thumbnail     varchar(255)              null,
@@ -100,49 +100,49 @@ create table movie
         unique (code)
 );
 
-create table movie_cast
+create table booksystem.movie_cast
 (
     cast_id  int not null,
     movie_id int not null,
     primary key (movie_id, cast_id),
     constraint movie_cast_cast_id_fk
-        foreign key (cast_id) references cast (id),
+        foreign key (cast_id) references booksystem.cast (id),
     constraint movie_cast_movie_id_fk
-        foreign key (movie_id) references movie (id)
+        foreign key (movie_id) references booksystem.movie (id)
 );
 
-create table movie_media
+create table booksystem.movie_media
 (
     movie_id int not null
         primary key,
     media_id int null,
     constraint movie_media_ibfk_1
-        foreign key (media_id) references media (id),
+        foreign key (media_id) references booksystem.media (id),
     constraint movie_media_ibfk_2
-        foreign key (movie_id) references movie (id)
+        foreign key (movie_id) references booksystem.movie (id)
 );
 
 create index media_id
-    on movie_media (media_id);
+    on booksystem.movie_media (media_id);
 
-create table movie_type
+create table booksystem.movie_type
 (
     name varchar(254) not null
         primary key
 );
 
-create table movie_tags
+create table booksystem.movie_tags
 (
     movie_id int          not null,
     tag_name varchar(254) not null,
     primary key (movie_id, tag_name),
     constraint movie_tags_movie_id_fk
-        foreign key (movie_id) references movie (id),
+        foreign key (movie_id) references booksystem.movie (id),
     constraint movie_tags_movie_type_name_fk
-        foreign key (tag_name) references movie_type (name)
+        foreign key (tag_name) references booksystem.movie_type (name)
 );
 
-create table offer
+create table booksystem.offer
 (
     name               varchar(254) charset utf8                not null,
     type               enum ('Flat', 'Percentage')              null,
@@ -169,14 +169,14 @@ create table offer
         unique (name)
 );
 
-create table offer_detail
+create table booksystem.offer_detail
 (
     offer_id int          not null,
     code     varchar(254) not null,
     primary key (offer_id, code)
 );
 
-create table offer_movie
+create table booksystem.offer_movie
 (
     offer_id int not null,
     movie_id int not null,
@@ -184,9 +184,9 @@ create table offer_movie
 );
 
 create index offer_movie_movie_id_fk
-    on offer_movie (movie_id);
+    on booksystem.offer_movie (movie_id);
 
-create table payment_method
+create table booksystem.payment_method
 (
     id   int auto_increment
         primary key,
@@ -194,7 +194,7 @@ create table payment_method
     name varchar(255) null
 );
 
-create table payment
+create table booksystem.payment
 (
     note              varchar(254)                             null,
     updatedAt         datetime                                 null,
@@ -211,35 +211,35 @@ create table payment
     transaction_id    varchar(255)                             null,
     created_date      datetime                                 null,
     constraint payment_ibfk_1
-        foreign key (payment_method_id) references payment_method (id)
+        foreign key (payment_method_id) references booksystem.payment_method (id)
 );
 
 create index FK_payment_paymentmethod
-    on payment (payment_method_id);
+    on booksystem.payment (payment_method_id);
 
 create index payment_created_date_index
-    on payment (created_date);
+    on booksystem.payment (created_date);
 
 create index payment_creation_index
-    on payment (creation);
+    on booksystem.payment (creation);
 
 create index payment_status_index
-    on payment (status);
+    on booksystem.payment (status);
 
 create index payment_use_for_index
-    on payment (use_for);
+    on booksystem.payment (use_for);
 
 create index payment_user_info_id_fk
-    on payment (user_id);
+    on booksystem.payment (user_id);
 
-create table privilege
+create table booksystem.privilege
 (
     id   int auto_increment
         primary key,
     name varchar(255) null
 );
 
-create table promotion
+create table booksystem.promotion
 (
     id                int auto_increment
         primary key,
@@ -259,7 +259,7 @@ create table promotion
     global            bit                                                      null
 );
 
-create table discount_promo
+create table booksystem.discount_promo
 (
     adjuster               double       null,
     calculator_description varchar(254) null,
@@ -267,33 +267,33 @@ create table discount_promo
         primary key,
     one_use                decimal(1)   null,
     constraint discount_promo_ibfk_1
-        foreign key (promotion_id) references promotion (id)
+        foreign key (promotion_id) references booksystem.promotion (id)
 );
 
-create table promo_code
+create table booksystem.promo_code
 (
     promotion_id int          not null,
     code         varchar(254) not null,
     primary key (promotion_id, code),
     constraint promo_code_ibfk_1
-        foreign key (promotion_id) references promotion (id)
+        foreign key (promotion_id) references booksystem.promotion (id)
 );
 
-create table promo_media
+create table booksystem.promo_media
 (
     promotion_id int not null
         primary key,
     media_id     int not null,
     constraint promo_media_ibfk_1
-        foreign key (promotion_id) references promotion (id),
+        foreign key (promotion_id) references booksystem.promotion (id),
     constraint promo_media_ibfk_2
-        foreign key (media_id) references media (id)
+        foreign key (media_id) references booksystem.media (id)
 );
 
 create index media_id
-    on promo_media (media_id);
+    on booksystem.promo_media (media_id);
 
-create table reserved
+create table booksystem.reserved
 (
     seat_id              int      null,
     user_id              int      null,
@@ -302,7 +302,7 @@ create table reserved
     time_expire_reserved datetime null
 );
 
-create table role
+create table booksystem.role
 (
     id   int auto_increment
         primary key,
@@ -310,14 +310,14 @@ create table role
     name varchar(254) null
 );
 
-create table roles_privileges
+create table booksystem.roles_privileges
 (
     role_id      int not null,
     privilege_id int not null,
     primary key (role_id, privilege_id)
 );
 
-create table service
+create table booksystem.service
 (
     id          int auto_increment
         primary key,
@@ -326,7 +326,7 @@ create table service
     thumbnail   text         null
 );
 
-create table theater
+create table booksystem.theater
 (
     latitude    varchar(255)     null,
     longitude   varchar(255)     null,
@@ -340,10 +340,10 @@ create table theater
     location_id int              not null,
     active      bit default b'0' null,
     constraint theater_ibfk_1
-        foreign key (location_id) references location (id)
+        foreign key (location_id) references booksystem.location (id)
 );
 
-create table room
+create table booksystem.room
 (
     id         int auto_increment
         primary key,
@@ -352,21 +352,21 @@ create table room
     theater_id int              not null,
     active     bit default b'0' null,
     constraint room_ibfk_1
-        foreign key (theater_id) references theater (id)
+        foreign key (theater_id) references booksystem.theater (id)
 );
 
-create table room_service
+create table booksystem.room_service
 (
     room_id    int not null,
     service_id int not null,
     primary key (room_id, service_id),
     constraint room_service_room_id_fk
-        foreign key (room_id) references room (id),
+        foreign key (room_id) references booksystem.room (id),
     constraint room_service_service_id_fk
-        foreign key (service_id) references service (id)
+        foreign key (service_id) references booksystem.service (id)
 );
 
-create table seat
+create table booksystem.seat
 (
     id        int auto_increment
         primary key,
@@ -377,13 +377,13 @@ create table seat
     constraint seat_room_id_tier_numbers_uindex
         unique (room_id, tier, numbers),
     constraint seat_room_id_fk
-        foreign key (room_id) references room (id)
+        foreign key (room_id) references booksystem.room (id)
 );
 
 create index seat_ibfk_1
-    on seat (seat_type);
+    on booksystem.seat (seat_type);
 
-create table showtimes_detail
+create table booksystem.showtimes_detail
 (
     movie_id   int                                                         not null,
     room_id    int                                                         not null,
@@ -397,12 +397,12 @@ create table showtimes_detail
     constraint showtimes_detail_movie_id_room_id_date_start_time_start_uindex
         unique (movie_id, room_id, time_start),
     constraint showtimes_detail_movie_id_fk
-        foreign key (movie_id) references movie (id),
+        foreign key (movie_id) references booksystem.movie (id),
     constraint showtimes_detail_room_id_fk
-        foreign key (room_id) references room (id)
+        foreign key (room_id) references booksystem.room (id)
 );
 
-create table orders
+create table booksystem.orders
 (
     showtimes_detail_id int                                                             not null,
     tax                 double default 10                                               null,
@@ -423,10 +423,10 @@ create table orders
     constraint orders_code_uindex
         unique (code),
     constraint ticket_showtimes_detail_id_fk
-        foreign key (showtimes_detail_id) references showtimes_detail (id)
+        foreign key (showtimes_detail_id) references booksystem.showtimes_detail (id)
 );
 
-create table offer_history
+create table booksystem.offer_history
 (
     order_id       int          null,
     user_id        int          null,
@@ -438,76 +438,76 @@ create table offer_history
     total_discount double       null,
     code           varchar(254) null,
     constraint offer_history_offer_id_fk
-        foreign key (offer_id) references offer (id),
+        foreign key (offer_id) references booksystem.offer (id),
     constraint offer_history_orders_id_fk
-        foreign key (order_id) references orders (id)
+        foreign key (order_id) references booksystem.orders (id)
 );
 
 create index offer_history_user_info_id_fk
-    on offer_history (user_id);
+    on booksystem.offer_history (user_id);
 
 create index orders_code_index
-    on orders (code);
+    on booksystem.orders (code);
 
 create index user_id
-    on orders (user_id);
+    on booksystem.orders (user_id);
 
-create table orders_detail
+create table booksystem.orders_detail
 (
     concession_id int not null,
     quantity      int null,
     orders_id     int not null,
     primary key (concession_id, orders_id),
     constraint orders_detail_concession_id_fk
-        foreign key (concession_id) references concession (id),
+        foreign key (concession_id) references booksystem.concession (id),
     constraint orders_detail_orders_id_fk
-        foreign key (orders_id) references orders (id)
+        foreign key (orders_id) references booksystem.orders (id)
 );
 
-create table orders_seat
+create table booksystem.orders_seat
 (
     type      enum ('Adult', 'Child', 'Student', 'Senior') default 'Adult' not null,
     seat_id   int                                                          not null,
     orders_id int                                                          not null,
     primary key (orders_id, seat_id),
     constraint FKgi0g5nsmkdaoyc25unogm3rry
-        foreign key (orders_id) references orders (id),
+        foreign key (orders_id) references booksystem.orders (id),
     constraint orders_seat_ibfk_1
-        foreign key (seat_id) references seat (id)
+        foreign key (seat_id) references booksystem.seat (id)
 );
 
 create index seat_id
-    on orders_seat (seat_id);
+    on booksystem.orders_seat (seat_id);
 
-create table promotion_showtime
+create table booksystem.promotion_showtime
 (
     promotion_id int null,
     show_time_id int null,
     constraint promotion_showtime_promotion_id_fk
-        foreign key (promotion_id) references promotion (id),
+        foreign key (promotion_id) references booksystem.promotion (id),
     constraint promotion_showtime_showtimes_detail_id_fk
-        foreign key (show_time_id) references showtimes_detail (id)
+        foreign key (show_time_id) references booksystem.showtimes_detail (id)
 );
 
-create table theater_media
+create table booksystem.theater_media
 (
     theater_id int not null
         primary key,
     media_id   int null,
     constraint theater_media_ibfk_1
-        foreign key (media_id) references media (id)
+        foreign key (media_id) references booksystem.media (id)
 );
 
 create index media_id
-    on theater_media (media_id);
+    on booksystem.theater_media (media_id);
 
-create table time
+create table booksystem.time
 (
     time varchar(254) not null
         primary key
 );
 
-create table user_account_status
+create table booksystem.user_account_status
 (
     id   int auto_increment
         primary key,
@@ -515,7 +515,7 @@ create table user_account_status
     name varchar(200) null
 );
 
-create table user_info
+create table booksystem.user_info
 (
     photo           varchar(255) default ''   null,
     current_logged  bit          default b'0' null,
@@ -530,7 +530,7 @@ create table user_info
     is_login_social bit                       null
 );
 
-create table employee
+create table booksystem.employee
 (
     user_id    int                                                         null,
     status     enum ('New', 'Approved', 'Active', 'Blocked', 'Terminated') null,
@@ -545,28 +545,28 @@ create table employee
     updatedBy  int                                                         null,
     theater_id int                                                         null,
     constraint fk_employee_creator
-        foreign key (createdBy) references user_info (id),
+        foreign key (createdBy) references booksystem.user_info (id),
     constraint fk_employee_modifier
-        foreign key (updatedBy) references user_info (id),
+        foreign key (updatedBy) references booksystem.user_info (id),
     constraint fk_employee_theater
-        foreign key (theater_id) references theater (id),
+        foreign key (theater_id) references booksystem.theater (id),
     constraint fk_employee_user
-        foreign key (user_id) references user_info (id)
+        foreign key (user_id) references booksystem.user_info (id)
 );
 
 create index idx_employee_creator
-    on employee (createdBy);
+    on booksystem.employee (createdBy);
 
 create index idx_employee_modifier
-    on employee (updatedBy);
+    on booksystem.employee (updatedBy);
 
 create index idx_employee_theater
-    on employee (theater_id);
+    on booksystem.employee (theater_id);
 
 create index idx_employee_user
-    on employee (user_id);
+    on booksystem.employee (user_id);
 
-create table gift_card
+create table booksystem.gift_card
 (
     gift_id         int auto_increment
         primary key,
@@ -578,13 +578,13 @@ create table gift_card
     end_date        date             null,
     balance         double default 0 null,
     constraint gift_card_ibfk_1
-        foreign key (user_id) references user_info (id)
+        foreign key (user_id) references booksystem.user_info (id)
 );
 
 create index user_id
-    on gift_card (user_id);
+    on booksystem.gift_card (user_id);
 
-create table google_account
+create table booksystem.google_account
 (
     user_info_id int         not null
         primary key,
@@ -592,26 +592,26 @@ create table google_account
     constraint google_account_google_id_uindex
         unique (google_id),
     constraint google_account_user_info_id_fk
-        foreign key (user_info_id) references user_info (id)
+        foreign key (user_info_id) references booksystem.user_info (id)
 );
 
-create table theater_manager
+create table booksystem.theater_manager
 (
     theater_id  int not null,
     employee_id int not null,
     constraint theater_manager_ibfk_1
-        foreign key (theater_id) references theater (id),
+        foreign key (theater_id) references booksystem.theater (id),
     constraint theater_manager_ibfk_2
-        foreign key (employee_id) references employee (id)
+        foreign key (employee_id) references booksystem.employee (id)
 );
 
 create index employee_id
-    on theater_manager (employee_id);
+    on booksystem.theater_manager (employee_id);
 
 create index theater_id
-    on theater_manager (theater_id);
+    on booksystem.theater_manager (theater_id);
 
-create table user_account
+create table booksystem.user_account
 (
     user_account_status_id   int default 1 null,
     email                    varchar(255)  null,
@@ -631,50 +631,25 @@ create table user_account
     state                    text          null,
     city                     text          null,
     constraint FK_user_account_user_account_status
-        foreign key (user_account_status_id) references user_account_status (id),
+        foreign key (user_account_status_id) references booksystem.user_account_status (id),
     constraint FK_user_account_user_info
-        foreign key (user_info_id) references user_info (id)
+        foreign key (user_info_id) references booksystem.user_info (id)
 );
 
 create index user_info_email_index
-    on user_info (email);
+    on booksystem.user_info (email);
 
-create table user_role
+create table booksystem.user_role
 (
     user_id int not null,
     role_id int not null,
     primary key (user_id, role_id),
     constraint user_role_ibfk_1
-        foreign key (user_id) references user_info (id),
+        foreign key (user_id) references booksystem.user_info (id),
     constraint user_role_ibfk_2
-        foreign key (role_id) references role (id)
+        foreign key (role_id) references booksystem.role (id)
 );
 
 create index group_id
-    on user_role (role_id);
-
-create
-definer = root@localhost procedure clockSeatRoom(IN idSeat int, IN statusParam varchar(255), OUT idSeatRoom int)
-BEGIN
-START TRANSACTION;
-SELECT * FROM booksystem.seat_room WHERE id = idSeat and status = 'Available' FOR UPDATE OF seat_room NOWAIT;
-UPDATE booksystem.seat_room set status = statusParam where id = idSeat;
-set idSeatRoom = idSeat;
-commit;
-END;
-
-create
-definer = root@localhost procedure findAllShowTimes()
-BEGIN
-SELECT * FROM booksystem.showtimes;
-
-END;
-
-create
-definer = root@localhost procedure unClockSeatRoom(IN idRoom int)
-BEGIN
-SELECT status FROM booksystem.seat_room WHERE id = idRoom for update nowait;
-update seat_room set status = 'Available' where id = idRoom;
-commit;
-END;
+    on booksystem.user_role (role_id);
 
