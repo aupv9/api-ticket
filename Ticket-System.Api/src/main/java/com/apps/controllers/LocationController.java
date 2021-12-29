@@ -1,6 +1,5 @@
 package com.apps.controllers;
 
-import com.apps.contants.AuthorityValue;
 import com.apps.domain.entity.Location;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseCount;
@@ -58,7 +57,7 @@ public class LocationController {
 
 
     @PostMapping("locations")
-    @PreAuthorize("hasAuthority('CREATE_LOCATION')")
+//    @PreAuthorize("hasAuthority('CREATE_LOCATION')")
     public ResponseEntity<?> createLocation(@RequestBody Location location) throws SQLException {
         int idReturned = this.locationService.insert(location);
         location.setId(idReturned);

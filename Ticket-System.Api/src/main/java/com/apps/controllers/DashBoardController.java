@@ -70,6 +70,16 @@ public class DashBoardController {
     }
 
 
+    @GetMapping("percentPaymentMethod")
+    public ResponseEntity<?> percentPaymentMethod(@RequestParam(value = "date", required = false) String date){
+        var resultList = this.dashBoardService.getPercentPaymentMethod(date);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 
 
 }

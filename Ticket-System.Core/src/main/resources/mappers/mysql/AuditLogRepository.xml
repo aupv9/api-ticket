@@ -1,0 +1,56 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.apps.mybatis.mysql.AuditLogRepository">
+
+    <select id="findAll" resultType="com.apps.mapper.AuditLogDto" >
+        select * from audit_log
+        <where>
+            <if test="actionDate != null">
+                 date(actionDate) = date(actionDate)
+            </if>
+        </where>
+        <if test="sort != null">
+            order by
+            <choose>
+                <when test="sort == 'id'">
+                    id
+                </when>
+                <when test="sort == 'actionDate'">
+                    actionDate
+                </when>
+                <otherwise>
+                    actionStatus
+                </otherwise>
+            </choose>
+        </if>
+        <if test="order != 'ASC' and sort != null" >
+            DESC
+        </if>
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+    <select id="findCountAll" resultType="Int">
+        select count(*)
+        from audit_log
+        <where>
+            <if test="actionDate != null">
+                date(actionDate) = date(actionDate)
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.AuditLog.id">
+        INSERT INTO audit_log (resourceName,accountName,objectName,action,
+        actionDate,actionStatus)
+        VALUES (#{audit.resourceName},#{audit.accountName},#{audit.objectName}
+        ,#{audit.action},#{audit.actionDate},#{audit.actionStatus})
+        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+
+</mapper>

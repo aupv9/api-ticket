@@ -510,6 +510,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserByEmail(String email) {
+        return this.userAccountRepository.findUserByEmail(email);
+    }
+
+    @Override
     public String getNowDateTime() {
         DateTimeFormatter simpleDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();

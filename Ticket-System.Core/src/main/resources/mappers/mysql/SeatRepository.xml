@@ -4,13 +4,19 @@
 <mapper namespace="com.apps.mybatis.mysql.SeatRepository">
 
     <select id="findAll" resultType="com.apps.domain.entity.Seat">
-        select * from seat
+        select   seat.id,seat_type,room_id,numbers,tier
+        from seat
+        join booksystem.room r on seat.room_id = r.id
+        join booksystem.theater t on r.theater_id = t.id
         <where>
+            <if test="theater != null" >
+                t.id = #{theater}
+            </if>
             <if test="search != null">
                 numbers like concat('%',#{search},'%')
             </if>
             <if test="room != null">
-                seat.room_id = #{room}
+                and seat.room_id = #{room}
             </if>
         </where>
         <if test="sort != null">
@@ -36,17 +42,24 @@
         <if test="order != 'ASC' and sort != null" >
             DESC
         </if>
-        limit #{limit} offset #{offset}
+        <if test="limit != null and offset != null">
+            limit #{limit} offset #{offset}
+        </if>
     </select>
 
     <select id="findCountAll" resultType="Int" >
         select count(*) from seat
+        join booksystem.room r on seat.room_id = r.id
+        join booksystem.theater t on r.theater_id = t.id
         <where>
+            <if test="theater != null" >
+                t.id = #{theater}
+            </if>
             <if test="search != null">
                 numbers like concat('%',#{search},'%')
             </if>
             <if test="room != null">
-                seat.room_id = #{room}
+                and seat.room_id = #{room}
             </if>
         </where>
     </select>

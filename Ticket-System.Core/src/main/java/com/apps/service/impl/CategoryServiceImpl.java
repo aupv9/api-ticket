@@ -28,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Cacheable(cacheNames = "CategoryService", key = "'CategoryList_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#name +'-'+#type")
-    public List<Category> findAll(int page, int size, String sort, String order, String name, String type) {
+    public List<Category> findAll(Integer page, Integer size, String sort, String order, String name, String type) {
         return this.categoryRepository.findAll(size,page * size,sort,order,name,type);
     }
 

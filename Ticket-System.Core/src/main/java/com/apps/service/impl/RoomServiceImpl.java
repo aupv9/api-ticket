@@ -46,6 +46,7 @@ public class RoomServiceImpl implements RoomService {
 
 
     @Override
+    @CacheEvict(value = "RoomService",allEntries = true)
     public int insert(RoomDto room) throws SQLException {
         String sql = "INSERT INTO room (code, name, theater_id) VALUES (?,?,?)";
         var room1 = Room.builder()
@@ -83,6 +84,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Cacheable(value = "RoomService" ,key = "'findByCode_'+#code", unless = "#result == null")
     public Room findByCode(String code) {
         return this.roomRepository.findByCode(code);
     }
@@ -104,6 +106,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @CacheEvict(value = "RoomService",allEntries = true)
     public void delete(Integer id) {
         Room room = this.roomRepository.findById(id);
         this.roomRepository.delete(id);

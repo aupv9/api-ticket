@@ -3,6 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.PaymentRepository">
 
+    <select id="findAllByDate" resultType="com.apps.domain.entity.Payment">
+        select * from payment
+        <where>
+            <if test="method != null">
+                 payment_method_id = #{method}
+            </if>
+            <if test="createdDate != null">
+                and date(created_date) = #{createdDate}
+            </if>
+        </where>
+    </select>
+
         <select id="findAll" resultType="com.apps.domain.entity.Payment">
             select * from payment
             <where>

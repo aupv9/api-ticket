@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface CategoryService {
-    List<Category> findAll( int limit, int offset,
+    List<Category> findAll( Integer limit, Integer offset,
                           String sort,String order,
                           String name, String type);
     int findCountAll(String name,String type);

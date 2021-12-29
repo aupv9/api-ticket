@@ -13,7 +13,8 @@ public interface SeatRepository {
 
     List<Seat> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                        @Param("sort") String sort, @Param("order") String order,
-                       @Param("search") String search, @Param("room") Integer room);
+                       @Param("search") String search, @Param("room") Integer room,
+                       @Param("theater")Integer theater);
 
 
     @Select("SELECT * FROM SEAT WHERE ID = #{id}")
@@ -21,7 +22,8 @@ public interface SeatRepository {
 
     List<Seat> findSeatInRoomByShowTimesDetail(@Param("showTimesId") Integer showTimesDetailId, @Param("roomId") Integer roomId);
 
-    int findCountAll(@Param("search") String search, @Param("room") Integer room);
+    int findCountAll(@Param("search") String search, @Param("room") Integer room,
+                     @Param("theater")Integer theater);
 
     @Select("Select * from seat where room_id =#{room} ")
     List<Seat> findByRoom(@Param("room") Integer room);

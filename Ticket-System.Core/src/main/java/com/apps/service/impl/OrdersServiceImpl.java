@@ -1,12 +1,7 @@
 package com.apps.service.impl;
 
-import com.apps.contants.OrderStatus;
-import com.apps.contants.ShowStatusEnum;
-import com.apps.contants.Utilities;
-import com.apps.domain.entity.OrderRoomDto;
-import com.apps.domain.entity.Orders;
-import com.apps.domain.entity.Seat;
-import com.apps.domain.entity.ShowTimesDetail;
+import com.apps.contants.*;
+import com.apps.domain.entity.*;
 import com.apps.domain.repository.OrdersCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mapper.OrderDto;
@@ -52,10 +47,16 @@ public class OrdersServiceImpl implements OrdersService {
     private final LocationService locationService;
     private final SeatService seatService;
     private final MovieService movieService;
-
+    private final AuditLogService auditLogService;
 
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
+
+
+    private void newAuditLog(AuditLog auditLog){
+        this.auditLogService.insert(auditLog);
+    }
+
 
     @Scheduled(fixedRate = 100000)
     public void reportCurrentTime() throws ExecutionException, InterruptedException {
@@ -66,15 +67,47 @@ public class OrdersServiceImpl implements OrdersService {
             if(listOrdersDetail.size() > 0){
                 for (Integer orderDetail: listOrdersDetail){
                     int deleted = this.deleteOrderDetail(orderDetail);
+//                    if(deleted > 0){
+//                        var auditLog = AuditLog.builder()
+//                                .accountName(AccountAudit.System.name())
+//                                .resourceName(Resource.Order_Detail.name())
+//                                .actionDate(Utilities.getCurrentTime())
+//                                .objectName(ObjectType.AL.name())
+//                                .action(AuditAction.DL.name()).
+//                                actionStatus(ActionStatus.Success.name())
+//                                .build();
+//                        newAuditLog(auditLog);
+//                    }
                 }
             }
             var listOrdersSeat = this.findOrderSeatById(order);
             if(listOrdersSeat.size() > 0){
                 for (Integer orderSeat: listOrdersSeat){
                     int deleted = this.deleteOrderSeat(orderSeat);
+//                    if(deleted > 0){
+//                        var auditLog = AuditLog.builder()
+//                                .accountName(AccountAudit.System.name())
+//                                .resourceName(Resource.Order_Seat.name())
+//                                .actionDate(Utilities.getCurrentTime())
+//                                .objectName(ObjectType.AL.name())
+//                                .action(AuditAction.DL.name())
+//                                .actionStatus(ActionStatus.Success.name())
+//                                .build();
+//                        newAuditLog(auditLog);
+//                    }
                 }
             }
             int deleted = this.delete(order);
+//            if(deleted > 0){
+//                var auditLog = AuditLog.builder()
+//                        .resourceName(Resource.Orders.name())
+//                        .actionDate(Utilities.getCurrentTime())
+//                        .objectName(ObjectType.AL.name())
+//                        .action(AuditAction.DL.name())
+//                        .actionStatus(ActionStatus.Success.name())
+//                        .build();
+//                newAuditLog(auditLog);
+//            }
         }
         var listOrderNew = this.findAllOrderRoom(0,25,
                 "updatedAt","DESC",null,null,null,null,
@@ -99,6 +132,15 @@ public class OrdersServiceImpl implements OrdersService {
         listShowTimesNowPlaying.parallelStream().forEach(item ->{
                 item.setStatus(ShowStatusEnum.Now.getName());
                 this.showTimesDetailService.update(item);
+//                var auditLog = AuditLog.builder()
+//                        .accountName(AccountAudit.System.name())
+//                        .resourceName(Resource.ShowTimesDetail.name())
+//                        .actionDate(Utilities.getCurrentTime())
+//                        .objectName(ObjectType.AL.name())
+//                        .action(AuditAction.MO.name())
+//                        .actionStatus(ActionStatus.Success.name())
+//                        .build();
+//                newAuditLog(auditLog);
         });
 
         var listShowTimesSoon =
@@ -107,6 +149,15 @@ public class OrdersServiceImpl implements OrdersService {
         listShowTimesSoon.parallelStream().forEach(item ->{
             item.setStatus(ShowStatusEnum.Soon.getName());
             this.showTimesDetailService.update(item);
+//            var auditLog = AuditLog.builder()
+//                    .accountName(AccountAudit.System.name())
+//                    .resourceName(Resource.ShowTimesDetail.name())
+//                    .actionDate(Utilities.getCurrentTime())
+//                    .objectName(ObjectType.AL.name())
+//                    .action(AuditAction.MO.name())
+//                    .actionStatus(ActionStatus.Success.name())
+//                    .build();
+//            newAuditLog(auditLog);
         });
 
         var listShowTimes =
@@ -117,6 +168,15 @@ public class OrdersServiceImpl implements OrdersService {
             if(isExpire < 0){
                 item.setStatus(ShowStatusEnum.Expire.getName());
                 this.showTimesDetailService.update(item);
+//                var auditLog = AuditLog.builder()
+//                        .accountName(AccountAudit.System.name())
+//                        .resourceName(Resource.ShowTimesDetail.name())
+//                        .actionDate(Utilities.getCurrentTime())
+//                        .objectName(ObjectType.AL.name())
+//                        .action(AuditAction.MO.name())
+//                        .actionStatus(ActionStatus.Success.name())
+//                        .build();
+//                newAuditLog(auditLog);
             }
         });
 
@@ -629,6 +689,17 @@ public class OrdersServiceImpl implements OrdersService {
         }else{
             return 0;
         }
+        var user = this.userService.findById(this.userService.getUserFromContext());
+
+        var auditLog = AuditLog.builder()
+                .objectName(ObjectType.AL.name())
+                .accountName(user.getEmail())
+                .resourceName(Resource.Orders.name())
+                .actionDate(Utilities.getCurrentTime())
+                .action(AuditAction.CE.name())
+                .actionStatus(ActionStatus.Success.name())
+                .build();
+        newAuditLog(auditLog);
         return idOrderCreated;
     }
 
@@ -688,6 +759,20 @@ public class OrdersServiceImpl implements OrdersService {
         order.setUpdatedAt(Utilities.getCurrentTime());
         order.setUpdatedBy(userService.getUserFromContext()) ;
         order.setTotal(orders.getTotal());
-        return this.ordersRepository.updateMyOrder(order);
+        int updated = this.ordersRepository.updateMyOrder(order);
+        if(updated > 0){
+            var user = this.userService.findById(this.userService.getUserFromContext());
+            var auditLog = AuditLog.builder()
+                    .objectName(ObjectType.AL.name())
+                    .accountName(user.getEmail())
+                    .resourceName(Resource.Orders.name())
+                    .actionDate(Utilities.getCurrentTime())
+                    .action(AuditAction.CE.name())
+                    .actionStatus(ActionStatus.Success.name())
+                    .build();
+            newAuditLog(auditLog);
+        }
+        return updated;
+
     }
 }

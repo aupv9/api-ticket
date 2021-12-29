@@ -3,6 +3,7 @@ package com.apps.service.impl;
 import com.apps.config.kafka.Message;
 import com.apps.contants.*;
 import com.apps.domain.entity.*;
+import com.apps.domain.entity.PaymentMethod;
 import com.apps.domain.repository.PaymentCustomRepository;
 import com.apps.mapper.PaymentDto;
 import com.apps.mybatis.mysql.PaymentRepository;
@@ -10,8 +11,7 @@ import com.apps.mybatis.mysql.PromotionRepository;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +38,37 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final MemberService memberService;
 
-    @Override
-    public int insert(Payment payment) {
-        return paymentRepository.insert(payment);
+    private final AuditLogService auditLogService;
+
+
+    private void newAuditLog(AuditLog auditLog){
+        this.auditLogService.insert(auditLog);
     }
 
     @Override
-    public List<Payment> findAll(int limit, int offset, String sort, String order, String createdDate, String useFor, String status,
+    public int insert(Payment payment) {
+        int inserted = paymentRepository.insert(payment);
+        if(inserted > 0){
+            var user = this.userService.findById(this.userService.getUserFromContext());
+            if(user != null){
+                var auditLog = AuditLog.builder()
+                        .objectName(ObjectName.Payment.name())
+                        .accountName(user.getEmail())
+                        .resourceName(Resource.Payment.name())
+                        .actionDate(Utilities.getCurrentTime())
+                        .objectName(ObjectType.AL.name())
+                        .action(AuditAction.CE.name())
+                        .actionStatus(ActionStatus.Success.name())
+                        .build();
+                newAuditLog(auditLog);
+            }
+        }
+        return inserted;
+
+    }
+
+    @Override
+    public List<Payment> findAll(Integer limit, Integer offset, String sort, String order, String createdDate, String useFor, String status,
                                  Integer creation,Integer method) {
         var userId = userService.getUserFromContext();
         return this.paymentRepository.findAll(limit,offset,sort,order,createdDate,useFor,status,
@@ -133,6 +157,20 @@ public class PaymentServiceImpl implements PaymentService {
 
         int result = this.paymentCustomRepository.insert(payment,sql);
         if(result > 0){
+            var user = this.userService.findById(this.userService.getUserFromContext());
+            if(user != null){
+                var auditLog = AuditLog.builder()
+                        .objectName(ObjectName.Payment.name())
+                        .accountName(user.getEmail())
+                        .resourceName(Resource.Payment.name())
+                        .actionDate(Utilities.getCurrentTime())
+                        .objectName(ObjectType.AL.name())
+                        .action(AuditAction.CE.name())
+                        .actionStatus(ActionStatus.Success.name())
+                        .build();
+                newAuditLog(auditLog);
+            }
+
             var order = this.ordersService.findById(payment.getPartId());
             var orders = Orders.builder()
                     .id(order.getId())
@@ -156,12 +194,53 @@ public class PaymentServiceImpl implements PaymentService {
                             .code(offerCode.getCode())
                             .totalDiscount(discountAmount)
                             .build();
-                    this.promotionRepository.insertOfferHistory(offerHistory);
-                    this.promotionRepository.updateMaxTotalUsage(offer.getMaxTotalUsage() - 1,offer.getId());
+                    int inserted = this.promotionRepository.insertOfferHistory(offerHistory);
+                    if(inserted > 0){
+                        if(user != null){
+                            var auditLog = AuditLog.builder()
+                                    .objectName(ObjectName.OfferHistory.name())
+                                    .accountName(user.getEmail())
+                                    .resourceName(Resource.OfferHistory.name())
+                                    .actionDate(Utilities.getCurrentTime())
+                                    .objectName(ObjectType.AL.name())
+                                    .action(AuditAction.CE.name())
+                                    .actionStatus(ActionStatus.Success.name())
+                                    .build();
+                            newAuditLog(auditLog);
+                        }
+                    }
+                    int updated = this.promotionRepository.updateMaxTotalUsage(offer.getMaxTotalUsage() - 1,offer.getId());
+                    if(updated > 0){
+                        if(user != null){
+                            var auditLog = AuditLog.builder()
+                                    .objectName(ObjectName.Offer.name())
+                                    .accountName(user.getEmail())
+                                    .resourceName(Resource.Offer.name())
+                                    .actionDate(Utilities.getCurrentTime())
+                                    .objectName(ObjectType.AL.name())
+                                    .action(AuditAction.MO.name())
+                                    .actionStatus(ActionStatus.Success.name())
+                                    .build();
+                            newAuditLog(auditLog);
+                        }
+                    }
                 }
             }
-            this.ordersService.update(orders);
-
+            int updated = this.ordersService.update(orders);
+            if(updated > 0){
+                if(user != null) {
+                    var auditLog = AuditLog.builder()
+                            .objectName(ObjectName.Order.name())
+                            .accountName(user.getEmail())
+                            .resourceName(Resource.Orders.name())
+                            .actionDate(Utilities.getCurrentTime())
+                            .objectName(ObjectType.AL.name())
+                            .action(AuditAction.MO.name())
+                            .actionStatus(ActionStatus.Success.name())
+                            .build();
+                    newAuditLog(auditLog);
+                }
+            }
             this.ordersService.sendDataToClient();
             this.seatService.sendDataToClient(order.getShowTimesDetailId());
         }
@@ -202,7 +281,35 @@ public class PaymentServiceImpl implements PaymentService {
         }
         payment.setStatus(paymentDto.getStatus());
         payment.setAmount(paymentDto.getAmount());
-        return this.paymentRepository.update(payment);
+        int updated = this.paymentRepository.update(payment);
+        if(updated > 0){
+            var user = this.userService.findById(this.userService.getUserFromContext());
+            if(user != null){
+                var auditLog = AuditLog.builder()
+                        .objectName(ObjectName.Payment.name())
+                        .accountName(user.getEmail())
+                        .resourceName(Resource.Payment.name())
+                        .actionDate(Utilities.getCurrentTime())
+                        .objectName(ObjectType.AL.name())
+                        .action(AuditAction.MO.name())
+                        .actionStatus(ActionStatus.Success.name())
+                        .build();
+                newAuditLog(auditLog);
+            }
+        }
+        return updated;
+    }
+
+    @Override
+    @Cacheable(value = "PaymentService" ,key = "'ffindAllByDate_'+#date+'-'+#method", unless = "#result == null")
+    public List<Payment> findAllByDate(String date,Integer method) {
+        return this.paymentRepository.findAllByDate(Utilities.convertIsoToDate(date),method);
+    }
+
+    @Override
+    @Cacheable(value = "PaymentService" ,key = "'findByCode_'+#code+'-'+#method", unless = "#result == null")
+    public PaymentMethod findByCode(String code) {
+        return this.paymentRepository.findByCode(code);
     }
 
 

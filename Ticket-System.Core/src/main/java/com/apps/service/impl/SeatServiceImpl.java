@@ -12,13 +12,11 @@ import com.apps.mapper.ReservedDto;
 import com.apps.mybatis.mysql.SeatRepository;
 import com.apps.request.SeatDto;
 import com.apps.response.ResponseRA;
-import com.apps.service.RoomService;
-import com.apps.service.SeatService;
-import com.apps.service.ShowTimesDetailService;
-import com.apps.service.TicketService;
+import com.apps.service.*;
 import javafx.application.Application;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,19 +44,34 @@ public class SeatServiceImpl implements SeatService {
 
     private final RoomService roomService;
 
+    private final UserService userService;
+
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
 
     @Override
     @Cacheable(cacheNames = "SeatService",key = "'SeatList_findAll_'+#page +'-'+#size+'-'+#sort +'-'+#order+'-'+#search+'-'+#room",unless = "#result == null")
-    public List<Seat> findAll(Integer page, Integer size, String sort , String order, String search, Integer room) {
-        return seatRepository.findAll(size, page * size, sort, order,  search,  room);
+    public List<Seat> findAll(Integer page, Integer size, String sort , String order, String search, Integer room
+            ,Integer idUserContext) {
+        var isSenior  = this.userService.isSeniorManager(idUserContext);
+        return isSenior ? seatRepository.findAll(size, page * size, sort, order,  search,  room, null) :
+               seatRepository.findAll(size, page * size, sort, order,  search,  room, this.userService.getTheaterByUser()) ;
     }
 
+    public List<Seat> listSeatByTheater(List<Seat> seats){
+        return seats.stream().filter(seat -> {
+            var room = this.roomService.findById(seat.getRoomId());
+            return room.getTheaterId() == this.userService.getTheaterByUser();
+        }).collect(Collectors.toList());
+    }
+
+
     @Override
-    @Cacheable(cacheNames = "SeatService",key = "'SeatList_findCountAll_'+#search +'-'+#room",unless = "#result == null")
-    public int findCountAll(String search, Integer room) {
-        return seatRepository.findCountAll(search,room);
+    @Cacheable(cacheNames = "SeatService",key = "'SeatList_findCountAll_'+#search+'-'+#room+'-'+#idUserContext",unless = "#result == null")
+    public int findCountAll(String search, Integer room,Integer idUserContext) {
+        var isSenior  = this.userService.isSeniorManager(idUserContext);
+        return isSenior ? this.seatRepository.findCountAll(search,room,null) :
+                this.seatRepository.findCountAll(search,room,this.userService.getTheaterByUser()) ;
     }
 
     @Override
@@ -152,7 +166,7 @@ public class SeatServiceImpl implements SeatService {
             key = "'findByRoom_'+#limit +'-'+#offset+'-'+#sort+" +
                     "'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
     public List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,Integer room,Integer showTimes) {
-        var arrSeat = this.seatRepository.findAll(limit,offset,sort,order,null,room);
+        var arrSeat = this.seatRepository.findAll(limit,offset,sort,order,null,room,this.userService.getTheaterByUser());
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
         for (Seat seat : arrSeatAvailable){

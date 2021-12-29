@@ -1,6 +1,7 @@
 package com.apps.service;
 
 import com.apps.response.entity.PercentCoverRoom;
+import com.apps.response.entity.PercentPaymentMethod;
 import com.apps.response.entity.RevenueEmployee;
 
 import java.util.List;
@@ -12,6 +13,8 @@ public interface DashBoardService {
     int findCountAll(Integer roleId,Integer theaterId);
 
     List<PercentCoverRoom> getPercentCoverSeatOnTheater(String date,Integer theater);
+
+    List<PercentPaymentMethod> getPercentPaymentMethod(String date);
 
 
 }

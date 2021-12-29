@@ -49,4 +49,7 @@ public interface PaymentRepository {
 
     int update(@Param("payment")PaymentDto payment);
 
+     List<Payment> findAllByDate(@Param("createdDate") String date, @Param("method")Integer method);
+
+
 }

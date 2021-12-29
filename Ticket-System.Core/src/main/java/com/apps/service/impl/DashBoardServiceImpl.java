@@ -1,5 +1,6 @@
 package com.apps.service.impl;
 
+import com.apps.contants.PaymentMethod;
 import com.apps.contants.Role;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Employee;
@@ -7,6 +8,7 @@ import com.apps.domain.entity.UserRole;
 import com.apps.mybatis.mysql.EmployeeRepository;
 import com.apps.response.entity.EmployeeDto;
 import com.apps.response.entity.PercentCoverRoom;
+import com.apps.response.entity.PercentPaymentMethod;
 import com.apps.response.entity.RevenueEmployee;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,9 @@ public class DashBoardServiceImpl implements DashBoardService {
     private final SeatService seatService;
 
     private final RoomService roomService;
+
+    private final PaymentService paymentService;
+
 
     @Override
 //    @Cacheable(value = "DashBoardService" ,key = "'findAllRevenue_'+#limit+'-'+#offset+" +
@@ -86,7 +91,7 @@ public class DashBoardServiceImpl implements DashBoardService {
             int showCount = listShow.size();
             double mediumPercentCoverPerRoom = 0.d;
             if(showCount > 0){
-                 mediumPercentCoverPerRoom = Double.parseDouble(df.format(percentPerShow / showCount));
+                mediumPercentCoverPerRoom = Double.parseDouble(df.format(percentPerShow / showCount));
                 percentCoverRoom.setValue(mediumPercentCoverPerRoom);
             }else{
                 percentCoverRoom.setValue(0);
@@ -94,6 +99,36 @@ public class DashBoardServiceImpl implements DashBoardService {
             listPercentCoverRoom.add(percentCoverRoom);
         }
         return listPercentCoverRoom;
+    }
+
+    @Override
+    @Cacheable(cacheNames = "PercentService",key = "'getPercentPaymentMethod_'" +
+            "+#date",unless = "#result == null ")
+    public List<PercentPaymentMethod> getPercentPaymentMethod(String date) {
+
+        var percentPaymentMethods = new ArrayList<PercentPaymentMethod>();
+        double percent = 0.d;
+        var paymentMethod = this.paymentService.findAllPaymentMethod();
+        var listPayment = this.paymentService.findAllByDate(Utilities.convertIsoToDate(date),null);
+
+        for (var method : paymentMethod){
+            var payments =
+                    this.paymentService.findAllByDate(Utilities.convertIsoToDate(date),method.getId());
+            var percentMethod = new PercentPaymentMethod();
+
+            percentMethod.setLabel(method.getName());
+            percentMethod.setId(method.getName());
+            if(listPayment.size() > 0 && payments.size() > 0){
+                percent = Double.parseDouble(df.format(listPayment.size() / payments.size()));
+                percentMethod.setValue(percent);
+            }else{
+                percentMethod.setValue(0);
+            }
+            percentPaymentMethods.add(percentMethod);
+        }
+
+
+        return percentPaymentMethods;
     }
 
     public List<EmployeeDto> addRole(List<Employee> employees){

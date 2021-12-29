@@ -5,6 +5,7 @@ import com.apps.request.SeatDto;
 import com.apps.response.RAResponseUpdate;
 import com.apps.response.ResponseRA;
 import com.apps.service.SeatService;
+import com.apps.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,10 @@ public class SeatController {
 
     @Autowired
     private SeatService seatService;
+
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping("seats-validate")
     public ResponseEntity<?> getLocations( @RequestParam(value = "tier", required = false) String tier,
@@ -45,8 +50,8 @@ public class SeatController {
                                       @RequestParam(value = "order", required = false) String order,
                                       @RequestParam(value = "search", required = false) String search,
                                       @RequestParam(value = "room_id",required = false) Integer room){
-        var result  = seatService.findAll(page - 1, size, sort, order,  search,  room);
-        var totalElement = seatService.findCountAll(search,room);
+        var result  = seatService.findAll(page - 1, size, sort, order,  search,  room,this.userService.getUserFromContext());
+        var totalElement = seatService.findCountAll(search,room,this.userService.getUserFromContext());
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)
@@ -65,7 +70,7 @@ public class SeatController {
                                                        @RequestParam("showTimesId") Integer id,
                                                        @RequestParam("room") Integer room){
         var result  = seatService.findByRoom(size,(page - 1) * size,sort,order,room,id);
-        var totalElement = seatService.findCountAll(null,room);
+        var totalElement = seatService.findCountAll(null,room,this.userService.getUserFromContext());
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)
@@ -82,7 +87,7 @@ public class SeatController {
                                            @RequestParam("showTimesId") Integer id,
                                            @RequestParam("room") Integer room){
         var result  = seatService.findByRoom(size,(page - 1)*size,sort,order,room,id);
-        var totalElement = seatService.findCountAll(null,room);
+        var totalElement = seatService.findCountAll(null,room,this.userService.getUserFromContext());
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)

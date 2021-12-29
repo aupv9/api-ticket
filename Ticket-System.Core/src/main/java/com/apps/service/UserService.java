@@ -1,6 +1,8 @@
 package com.apps.service;
 
 
+import com.apps.domain.entity.User;
+import com.apps.domain.entity.UserInfo;
 import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
 import com.apps.request.GoogleLoginRequest;
@@ -36,6 +38,8 @@ public interface UserService {
     boolean isManager(Integer userId);
     int getUserFromContext();
     boolean checkTokenEmail(String token);
+
+    User findUserByEmail(String email);
 
 
 }

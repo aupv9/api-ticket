@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface SeatService {
-    List<Seat> findAll(Integer page, Integer size,String sort ,String order, String search, Integer room);
-    int findCountAll(String search, Integer room);
+    List<Seat> findAll(Integer page, Integer size,String sort ,String order, String search, Integer room
+            ,Integer idUserContext);
+    int findCountAll(String search, Integer room,
+                     Integer idUserContext);
 
 
     int insert(SeatDto seat) throws SQLException;
