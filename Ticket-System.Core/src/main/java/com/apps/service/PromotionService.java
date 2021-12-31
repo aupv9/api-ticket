@@ -23,10 +23,15 @@ public interface PromotionService {
 
     Offer findById(int id);
 
-    List<OfferDetail> findAllOfferDetail(int limit, int offset, String sort, String order,
+    List<OfferDetail> findAllOfferDetail(Integer limit, Integer offset, String sort, String order,
                               Integer offer);
     int findAllCountOfferDetail(Integer offer);
 
+    int insertSubNewsLetter(String email);
+
+    int sendToSubscriber(List<Integer> offerId);
+
+    List<String> findAllSubscriber();
 
 
 }

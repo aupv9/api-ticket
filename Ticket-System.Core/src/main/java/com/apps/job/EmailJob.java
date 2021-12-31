@@ -16,7 +16,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 
-@Component
 @Slf4j
 public class EmailJob extends QuartzJobBean {
 

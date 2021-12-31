@@ -14,6 +14,6 @@ import java.io.Serializable;
 @Builder
 public class OfferDetail implements Serializable {
     private static final long serialVersionUID = -7857095928839035967L;
-    private Integer offerId;
+    private Integer offerId,id;
     private String code;
 }

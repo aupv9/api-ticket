@@ -19,7 +19,7 @@ public interface PromotionRepository {
                      @Param("type") String promotionType, @Param("method")String method,@Param("multi")boolean multi,
                      @Param("search")String search);
 
-    List<OfferDetail> findAllOfferDetail(@Param("limit") int limit, @Param("offset")int offset, @Param("sort") String sort, @Param("order")String order,
+    List<OfferDetail> findAllOfferDetail(@Param("limit") Integer limit, @Param("offset")Integer offset, @Param("sort") String sort, @Param("order")String order,
                                          @Param("offerId") Integer offer);
 
     int findAllCountOfferDetail(@Param("offerId") Integer offer);
@@ -51,4 +51,21 @@ public interface PromotionRepository {
 
     @Update("update offer set max_total_usage = #{count} where id = #{id}")
     int updateMaxTotalUsage(@Param("count")Integer remain,@Param("id")Integer id);
+
+    @Insert("insert into newsletter(email) values(#{email})")
+    int insertNewsletter(@Param("email")String email);
+
+    @Select("select email from newsletter")
+    List<String> findAllSubscriber();
+
+    @Select("select code from offer_detail where offer_id = #{id}")
+    List<String> findAllCodeInOffer(@Param("id")Integer id);
+
+    @Select("select code from offer_history where offer_id = #{id}")
+    List<String> findCodeUsed(@Param("id")Integer offer);
+
+    @Select("select code from offer_detail where offer_id = #{id} not in\n" +
+            "                                    (Select code from offer_history\n" +
+            "                                    where offer_detail.offer_id = #{id})")
+    List<String> findCodeRemain(@Param("id")Integer id);
 }

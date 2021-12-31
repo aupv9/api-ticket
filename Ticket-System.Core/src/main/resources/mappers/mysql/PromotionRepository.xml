@@ -105,7 +105,7 @@
     </select>
 
     <select id="findAllOfferDetail" resultType="com.apps.domain.entity.OfferDetail">
-        select * from offer_detail
+        select offer_id as offerId,code, offer_id as id from offer_detail
         <where>
             <if test="offerId != null">
                 offer_id = #{offerId}
@@ -133,7 +133,7 @@
     </select>
 
     <select id="findAllCountOfferDetail" resultType="INT">
-        select count(*) offer_detail
+        select count(*) from offer_detail
         <where>
             <if test="offerId != null">
                 offer_id = #{offerId}

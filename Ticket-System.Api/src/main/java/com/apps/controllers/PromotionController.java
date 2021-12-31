@@ -1,5 +1,7 @@
 package com.apps.controllers;
 
+import com.apps.request.EmailsOfferDto;
+import com.apps.request.NewsLetterDto;
 import com.apps.request.OfferDto;
 import com.apps.response.ResponseRA;
 import com.apps.service.OfferHistoryService;
@@ -90,6 +92,18 @@ public class PromotionController {
         int idReturned = this.promotionService.insertOffer(offerDto);
         offerDto.setId(idReturned);
         return ResponseEntity.ok(offerDto);
+    }
+
+    @PostMapping("newsletter")
+    public ResponseEntity<?> subNewsLetter(@RequestBody NewsLetterDto newsLetterDto){
+        int idReturned = this.promotionService.insertSubNewsLetter(newsLetterDto.getEmail());
+        return ResponseEntity.ok(idReturned);
+    }
+
+    @PostMapping("sendSub")
+    public ResponseEntity<?> subNewsLetter(@RequestBody EmailsOfferDto emailsOfferDto){
+        int idReturned = this.promotionService.sendToSubscriber(emailsOfferDto.getOffers());
+        return ResponseEntity.ok(idReturned);
     }
 
 

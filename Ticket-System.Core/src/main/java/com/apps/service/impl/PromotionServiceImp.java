@@ -1,26 +1,35 @@
 package com.apps.service.impl;
 
 import com.apps.contants.OfferStatus;
+import com.apps.contants.OfferType;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Offer;
 import com.apps.domain.entity.OfferCode;
 import com.apps.domain.entity.OfferDetail;
 import com.apps.domain.repository.OfferCustomRepository;
 import com.apps.exception.NotFoundException;
+import com.apps.job.EmailJob;
+import com.apps.job.NewsLetterJob;
 import com.apps.mybatis.mysql.PromotionRepository;
+import com.apps.request.EmailNewsletter;
 import com.apps.request.OfferDto;
 import com.apps.service.PromotionService;
 import com.apps.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.quartz.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import xyz.downgoon.snowflake.Snowflake;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List;
+import java.time.LocalDate;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +38,9 @@ public class PromotionServiceImp implements PromotionService {
     private final PromotionRepository promotionRepository;
     private final UserService userService;
     private final OfferCustomRepository offerCustomRepository;
+
+    @Autowired
+    private Scheduler scheduler;
 
 
     @Override
@@ -47,21 +59,6 @@ public class PromotionServiceImp implements PromotionService {
                 anonProfile,promotionType,method,multi,search);
     }
 
-//            stmt.setString(1, offer.getName());
-//            stmt.setString(2, offer.getCreationDate());
-//            stmt.setString(3, offer.getStartDate());
-//            stmt.setString(4, offer.getEndDate());
-//            stmt.setString(5, offer.getType());
-//            stmt.setString(6, offer.getMethod());
-//            stmt.setInt(7,offer.getCreationBy());
-//            stmt.setDouble(8,offer.getMaxDiscount());
-//            stmt.setDouble(9,offer.getMaxTotalUsage());
-//            stmt.setInt(10,offer.getMaxUsagePerUser());
-//            stmt.setString(11,offer.getRule());
-//            stmt.setDouble(12,offer.getPercentage());
-//            stmt.setBoolean(13,offer.isAnonProfile());
-//            stmt.setBoolean(14,offer.isAllowMultiple());
-//            stmt.setString(15,offer.getMessage());
     @Override
     public int insertOffer(OfferDto offerDto) throws SQLException {
         String sql = "insert into offer(name,creation_date,start_date,end_date,type,method,creationBy," +
@@ -122,13 +119,82 @@ public class PromotionServiceImp implements PromotionService {
     }
 
     @Override
-    public List<OfferDetail> findAllOfferDetail(int limit, int offset, String sort, String order, Integer offer) {
+    public List<OfferDetail> findAllOfferDetail(Integer limit, Integer offset, String sort, String order, Integer offer) {
         return this.promotionRepository.findAllOfferDetail(limit,offset,sort,order,offer > 0 ? offer : null);
     }
 
     @Override
     public int findAllCountOfferDetail(Integer offer) {
         return this.promotionRepository.findAllCountOfferDetail(offer > 0 ? offer : null);
+    }
+
+    @Override
+    public int insertSubNewsLetter(String email) {
+        return this.promotionRepository.insertNewsletter(email);
+    }
+
+    private JobDetail buildJobDetail(List<EmailNewsletter> emailNewsletters) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("data",emailNewsletters);
+        return JobBuilder.newJob(NewsLetterJob.class)
+                .withIdentity(UUID.randomUUID().toString(), "email-jobs")
+                .withDescription("Send Email Job")
+                .usingJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    private Trigger buildJobTrigger(JobDetail jobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), "email-triggers")
+                .withDescription("Send Email Promotion Trigger")
+                .startAt(Date.valueOf(LocalDate.now()))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                .build();
+    }
+
+
+
+    @Override
+    public int sendToSubscriber(List<Integer> offers) {
+        var listEmail = this.findAllSubscriber();
+        var listEmailNews = new ArrayList<EmailNewsletter>();
+        for (var email : listEmail){
+            var newsLetterEmail = new EmailNewsletter();
+            newsLetterEmail.setEmail(email);
+            listEmailNews.add(newsLetterEmail);
+        }
+
+        offers.forEach(offer ->{
+            var listCode = this.promotionRepository.findAllCodeInOffer(offer);
+            var offerOrigin = this.findById(offer);
+            if(offerOrigin.getMethod().equals(OfferType.Coupon.name())){
+                for (var email : listEmailNews){
+                    email.setCode(listCode.get(0));
+                }
+            }else{
+                var listCodeRemain = this.promotionRepository.findCodeRemain(offer);
+                for (int i = 0; i < listEmailNews.size(); i++) {
+                    if(listCodeRemain.size() >= listEmailNews.size()){
+                        listEmailNews.get(i).setCode(listCodeRemain.get(i));
+                    }
+                }
+            }
+            JobDetail jobDetail = buildJobDetail(listEmailNews);
+            Trigger trigger = buildJobTrigger(jobDetail);
+            try {
+                scheduler.scheduleJob(jobDetail, trigger);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        });
+        return 1;
+    }
+
+    @Override
+    public List<String> findAllSubscriber() {
+        return this.promotionRepository.findAllSubscriber();
     }
 
     private String convertISOtoLocalDatetime(String isoDate){
@@ -161,5 +227,7 @@ public class PromotionServiceImp implements PromotionService {
     private boolean checkCodeOfOffer(int offerId,String code){
         return this.promotionRepository.checkCodeOffer(offerId,code) > 0;
     }
+
+
 
 }

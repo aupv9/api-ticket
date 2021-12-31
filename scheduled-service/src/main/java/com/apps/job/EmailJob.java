@@ -39,36 +39,35 @@ public class EmailJob extends QuartzJobBean {
 
     private final OrdersService ordersService;
 
-    @Async
-    @Scheduled(cron = "*/5 * * * *")
-    public void reportCurrentTime() throws ExecutionException, InterruptedException {
-        String currentTime = Utilities.getCurrentTime();
-        var listOrderExpire = this.ordersService.findAllOrderExpiredReserved(currentTime);
-        for (Integer order : listOrderExpire){
-            var listOrdersDetail = this.ordersService.findOrderDetailById(order);
-            if(listOrdersDetail.size() > 0){
-                for (Integer orderDetail: listOrdersDetail){
-                    int deleted = this.ordersService.deleteOrderDetail(orderDetail);
-                }
-            }
-            var listOrdersSeat = this.ordersService.findOrderSeatById(order);
-            if(listOrdersSeat.size() > 0){
-                for (Integer orderSeat: listOrdersSeat){
-                    int deleted = this.ordersService.deleteOrderSeat(orderSeat);
-                }
-            }
-            int deleted = this.ordersService.delete(order);
-        }
-            this.ordersService.sendDataToClient();
-//            this.seatService.sendDataToClient();
-
-    }
+//    @Async
+//    @Scheduled(cron = "*/5 * * * *")
+//    public void reportCurrentTime() throws ExecutionException, InterruptedException {
+//        String currentTime = Utilities.getCurrentTime();
+//        var listOrderExpire = this.ordersService.findAllOrderExpiredReserved(currentTime);
+//        for (Integer order : listOrderExpire){
+//            var listOrdersDetail = this.ordersService.findOrderDetailById(order);
+//            if(listOrdersDetail.size() > 0){
+//                for (Integer orderDetail: listOrdersDetail){
+//                    int deleted = this.ordersService.deleteOrderDetail(orderDetail);
+//                }
+//            }
+//            var listOrdersSeat = this.ordersService.findOrderSeatById(order);
+//            if(listOrdersSeat.size() > 0){
+//                for (Integer orderSeat: listOrdersSeat){
+//                    int deleted = this.ordersService.deleteOrderSeat(orderSeat);
+//                }
+//            }
+//            int deleted = this.ordersService.delete(order);
+//        }
+//            this.ordersService.sendDataToClient();
+////            this.seatService.sendDataToClient();
+//
+//    }
 
 
     @Async
     @Scheduled(cron = "0 0 0 * * *")
     public void updateStatusShowTimes() {
-
 
     }
 

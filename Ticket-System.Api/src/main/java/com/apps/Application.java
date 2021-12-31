@@ -1,9 +1,9 @@
 package com.apps;
 
-import com.apps.contants.Utilities;
 import com.apps.utils.CommonUtils;
 
 
+import it.ozimov.springboot.mail.configuration.EnableEmailTools;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.boot.ApplicationRunner;
@@ -16,6 +16,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -23,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 
@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @EnableScheduling
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableEmailTools
 public class Application extends SpringBootServletInitializer {
 
     @Override
