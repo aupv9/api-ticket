@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -74,6 +74,37 @@ public class SeatController {
         var response = ResponseRA.builder()
                 .content(result)
                 .totalElements(totalElement)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    private List<List<SeatDto>> seatToSeat(List<SeatDto> list) {
+        Map<String,List<SeatDto>> map = new HashMap<>();
+        for (var item:list){
+            var key = item.getTier();
+            if(!map.containsKey(key)) {
+                map.put(key, new ArrayList<>());
+                map.get(key).add(item);
+            }else{
+                map.get(key).add(item);
+            }
+        }
+        var listResult = new ArrayList<List<SeatDto>>();
+        for (var item: map.entrySet()){
+            listResult.add(item.getValue());
+        }
+        return listResult;
+    }
+    @GetMapping("getSeatsByShowTime")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getShowTime(@RequestParam(value = "date",required = false) String date,
+                                         @RequestParam(value = "time",required = false) String time,
+                                         @RequestParam(value = "theater",required = false) Integer theater,
+                                         @RequestParam(value = "movie",required = false)Integer movie){
+
+        var result  = this.seatToSeat(this.seatService.findByTheater(date,time,theater,movie));
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
                 .build();
         return ResponseEntity.ok(response);
     }

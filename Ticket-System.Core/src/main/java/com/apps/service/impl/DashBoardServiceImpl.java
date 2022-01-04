@@ -6,10 +6,7 @@ import com.apps.contants.Utilities;
 import com.apps.domain.entity.Employee;
 import com.apps.domain.entity.UserRole;
 import com.apps.mybatis.mysql.EmployeeRepository;
-import com.apps.response.entity.EmployeeDto;
-import com.apps.response.entity.PercentCoverRoom;
-import com.apps.response.entity.PercentPaymentMethod;
-import com.apps.response.entity.RevenueEmployee;
+import com.apps.response.entity.*;
 import com.apps.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
@@ -129,6 +126,13 @@ public class DashBoardServiceImpl implements DashBoardService {
 
 
         return percentPaymentMethods;
+    }
+
+    @Override
+    public List<ConcessionRevenue> getRevenueConcession(String startDate,String endDate,Integer creation) {
+        var resultList = this.ordersService.findOrderStatistics(creation,startDate,endDate,null);
+
+        return null;
     }
 
     public List<EmployeeDto> addRole(List<Employee> employees){

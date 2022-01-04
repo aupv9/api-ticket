@@ -27,6 +27,9 @@ public interface SeatService {
     Boolean validateSeat( Integer room, String tier, Integer numbers);
     void delete(Integer id);
     List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,Integer room,Integer showTimes);
+    List<SeatDto> findByTheater(String date,String time,Integer theater,Integer movie);
+
+
     int countSeatAvailable(Integer show,Integer room);
     List<List<Seat>> findByRoomShow( Integer showTimesDetailId,Integer roomId);
     List<Seat> findAllSeatInShowTimeUnavailable(Integer showTimesId);

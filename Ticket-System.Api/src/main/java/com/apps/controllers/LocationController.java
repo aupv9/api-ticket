@@ -25,7 +25,7 @@ public class LocationController {
 
 
     @GetMapping("locations")
-    @PreAuthorize("hasAuthority('READ_LOCATION')")
+//    @PreAuthorize("hasAuthority('READ_LOCATION')")
     public ResponseEntity<?> getLocations(@RequestParam(value = "pageSize", required = false) int size,
                                           @RequestParam(value = "page", required = false)int page,
                                           @RequestParam(value = "sort", required = false) String sort,

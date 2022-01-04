@@ -3,6 +3,7 @@ package com.apps.service.impl;
 import com.apps.config.cache.ApplicationCacheManager;
 import com.apps.config.kafka.Message;
 import com.apps.contants.SeatStatus;
+import com.apps.contants.Utilities;
 import com.apps.domain.entity.Reserved;
 import com.apps.domain.entity.Room;
 import com.apps.domain.entity.Seat;
@@ -45,6 +46,7 @@ public class SeatServiceImpl implements SeatService {
     private final RoomService roomService;
 
     private final UserService userService;
+
 
     @Autowired
     private KafkaTemplate<String, Message> kafkaTemplate;
@@ -165,9 +167,24 @@ public class SeatServiceImpl implements SeatService {
     @Cacheable(cacheNames = "SeatService",
             key = "'findByRoom_'+#limit +'-'+#offset+'-'+#sort+" +
                     "'-'+#order+'-'+#room+'-'+#showTimes",unless = "#result == null")
-    public List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,Integer room,Integer showTimes) {
+    public List<SeatDto> findByRoom(Integer limit, Integer offset,String sort ,String order,
+                                    Integer room,Integer showTimes) {
         var arrSeat = this.seatRepository.findAll(limit,offset,sort,order,null,room,this.userService.getTheaterByUser());
         var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(showTimes,room);
+        return this.convertSeat(arrSeat,arrSeatAvailable,showTimes);
+    }
+
+    @Override
+    public List<SeatDto> findByTheater(String date, String time, Integer theater, Integer movie) {
+        var show = this.showTimesDetailService.findByTheaterMovieTime(movie,theater,date,time);
+        var arrSeat = this.seatRepository.findAll(1000,0,"tier","ASC",null,
+                show.getRoomId(),theater);
+        var arrSeatAvailable = this.seatRepository.findSeatInRoomByShowTimesDetail(show.getId(),show.getRoomId());
+
+        return this.convertSeat(arrSeat,arrSeatAvailable,show.getId());
+    }
+
+    private List<SeatDto> convertSeat(List<Seat> arrSeat,List<Seat> arrSeatAvailable,Integer showTime){
         List<Integer> arrIdSeatAvailable = new ArrayList<>();
         for (Seat seat : arrSeatAvailable){
             arrIdSeatAvailable.add(seat.getId());
@@ -181,8 +198,11 @@ public class SeatServiceImpl implements SeatService {
                 seat.setStatus(SeatStatus.Unavailable.name());
             }
         }
-        return this.convertSeatToSeatHavePrice(arrSeat,showTimes);
+        return this.convertSeatToSeatHavePrice(arrSeat,showTime);
     }
+
+
+
 
     @Override
     public int countSeatAvailable(Integer show,Integer room) {

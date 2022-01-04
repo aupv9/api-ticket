@@ -12,6 +12,7 @@ import com.apps.response.entity.ConcessionMyOrder;
 import com.apps.response.entity.MyOrderResponse;
 import com.apps.response.entity.OrderSeats;
 import com.apps.service.*;
+import com.apps.service.RoomService;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class OrdersServiceImpl implements OrdersService {
     private final SeatService seatService;
     private final MovieService movieService;
     private final AuditLogService auditLogService;
-
+    private final RoomService roomService;
     @Autowired
     private KafkaTemplate<String, com.apps.config.kafka.Message> kafkaTemplate;
 
@@ -182,8 +183,6 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
-
-
     private List<Orders> addTotalToOrder(List<Orders> orders){
         for (var order:orders){
             if(!order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
@@ -216,6 +215,12 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public int countSeatAvailable(Integer show,Integer room) {
         return this.seatService.findSeatInRoomByShowTimesDetail(show,room).size();
+    }
+
+    @Override
+    @Cacheable(value = "OrdersService" ,key = "'findOrderByUser_'+#user", unless = "#result == null")
+    public List<Orders> findOrderByUser(Integer user) {
+        return this.ordersRepository.findOrderByUser(user);
     }
 
     @Override
@@ -273,11 +278,13 @@ public class OrdersServiceImpl implements OrdersService {
     private List<Orders> findAllOrderManager(Integer limit, Integer offset, String sort, String order,
                                             Integer showTimes, String type, Integer userId, String status,
                                             Integer creation, String dateGte,String code) {
+        var ordersList = this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,
+                null,this.convertLocalDate(dateGte),null,code);
 
-        return this.addTotalToOrder(this.ordersRepository.findAll(limit,offset,sort,order,showTimes,type,userId,status,
-                null,this.convertLocalDate(dateGte),null,code)).stream().filter(item -> {
-            return this.showTimesDetailService.findById(item.getShowTimesDetailId()).getTheaterId()
-                    == this.userService.getTheaterByUser();
+        return ordersList.stream().filter(item -> {
+            var roomId = this.showTimesDetailService.findById(item.getShowTimesDetailId()).getRoomId();
+            var theaterId = this.roomService.findById(roomId).getTheaterId();
+            return theaterId == this.userService.getTheaterByUser();
         }).collect(Collectors.toList());
     }
 
@@ -387,12 +394,12 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    @Cacheable(value = "OrdersService" ,key = "'findOrderStatistics_'+#creation +'-'+#dateGte", unless = "#result == null")
-    public List<OrderStatistics> findOrderStatistics(Integer creation, String dateGte) {
+    @Cacheable(value = "OrdersService" ,key = "'findOrderStatistics_'+#creation +'-'+#startDate+'-'+#endDate+'-'+#year", unless = "#result == null")
+    public List<OrderStatistics> findOrderStatistics(Integer creation, String startDate,String endDate,String year) {
         var isSenior =  this.userService.isSeniorManager(creation);
         var isManager= this.userService.isManager(creation);
         var listOrders = this.ordersRepository.findOrderStatistics( isManager || isSenior ? null :
-                creation, this.convertLocalDate(dateGte));
+                creation, startDate,endDate,year);
         var addPriceOrders = this.addTotalToOrderStatistics(listOrders);
         return this.addInfoOrderStatistics(addPriceOrders,isManager,isSenior);
     }
@@ -475,7 +482,6 @@ public class OrdersServiceImpl implements OrdersService {
         var idUserContext = this.userService.getUserFromContext();
         var isSenior  = this.userService.isSeniorManager(idUserContext);
         var manager =  this.userService.isManager(idUserContext);
-
         return isSenior ? this.findAllOrders(null, null,"createdDate", "DESC",showTimes,type,userId,status,
                 isSenior || manager ? null : idUserContext,
                 this.convertLocalDate(dateGte),null,code).size() :
@@ -738,8 +744,9 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public void sendDataToClient() throws ExecutionException, InterruptedException {
         var userId = this.userService.getUserFromContext();
-        var listOrderNew = this.findOrderStatistics(userId,Utilities.subDate(30));
-        var listOrders = this.findOrderStatistics(userId,null);
+        var listOrderNew = this.findOrderStatistics(userId,Utilities.subDate(30),
+                Utilities.getCurrentTime(),null);
+        var listOrders = this.findOrderStatistics(userId,null,null,null);
         List<Object> objectList = new ArrayList<>();
         objectList.add(listOrderNew);
         objectList.add(listOrders);

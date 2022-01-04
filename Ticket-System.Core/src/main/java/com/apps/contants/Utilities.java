@@ -2,21 +2,18 @@ package com.apps.contants;
 
 
 import com.apps.domain.entity.Offer;
-import com.apps.filter.JWTService;
-import lombok.RequiredArgsConstructor;
+
 import lombok.var;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 
 public class Utilities {
@@ -35,12 +32,17 @@ public class Utilities {
     public static String convertIsoToDate(String date){
         return LocalDate.parse(date).format(dateFormatter);
     }
+    public static String stringIsoToDate(String date){
+        return LocalDate.from(Instant.parse(date)).format(dateFormatter);
+    }
+
+    public static String convertToDate(String date){
+        return Date.valueOf(date).toLocalDate().format(dateFormatter);
+    }
 
     public static LocalDate convertStringToLocalDate(String date){
         return LocalDate.parse(date,dateTimeFormatter);
     }
-
-
 
 
     public static String getTimeExpirePayment5m(){
@@ -68,24 +70,24 @@ public class Utilities {
         return LocalDate.parse(date).plusDays(countDate).format(dateFormatter);
     }
 
-    public static Date startOfWeek() {
-        return startOfWeek(new Date());
+    public static java.util.Date startOfWeek() {
+        return startOfWeek((Date) new java.util.Date());
     }
 
-    public static Date startOfWeek(Date date) {
+    public static java.util.Date startOfWeek(java.util.Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
         return cal.getTime();
     }
 
-    public static String startOfWeek(Date date, String format) {
+    public static String startOfWeek(java.util.Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(startOfWeek(date));
     }
 
     public static String startOfWeek(String format) {
-        return startOfWeek(new Date(), format);
+        return startOfWeek(new java.util.Date(), format);
     }
     public static String currentWeekEndDate() {
         Calendar mth = Calendar.getInstance();

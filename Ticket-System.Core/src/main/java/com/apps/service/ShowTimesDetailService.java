@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.domain.entity.Theater;
 import com.apps.request.ShowTimeDto;
 import com.apps.response.TimePick;
 import com.apps.response.entity.ShowTimesDetailDto;
@@ -22,7 +23,7 @@ public interface ShowTimesDetailService {
                                          Boolean comingSoon
                                          );
 
-    List<ShowTimesDetailDto> findAllByMovie(int page, int size, String sort, String order,
+    List<ShowTimesDetailDto> findAllByMovie(Integer limit, Integer offset, String sort, String order,
                                             Integer movieId, Integer roomId, String search, String dateStart,
                                             Integer theater);
 
@@ -47,5 +48,12 @@ public interface ShowTimesDetailService {
     void delete(Integer id);
 
     List<ShowTimesDetail> findShowStartByDay(String date,Integer room);
+
+
+    List<Theater> findCinemasByMovie(Integer movie);
+
+    List<ShowTimesDetailDto> findByTheaterMovie(Integer movie,Integer theater,String date);
+
+    ShowTimesDetailDto findByTheaterMovieTime(Integer movie,Integer theater,String date,String time);
 
 }

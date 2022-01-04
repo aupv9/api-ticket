@@ -3,6 +3,51 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.apps.mybatis.mysql.ShowTimesDetailRepository">
 
+
+    <select id="findByTheaterAndMovieTime" resultType="com.apps.response.entity.ShowTimesDetailDto">
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
+        price,status
+        <if test="theaterId != null">
+            ,r.theater_id  as theaterId
+        </if>
+        from showtimes_detail
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
+        </if>
+        <if test="movieId != null">
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
+        <where>
+            <if test="movieId != null">
+                movie_id = #{movieId}
+            </if>
+            <if test="date != null">
+                and date(time_start)= date(#{date})
+            </if>
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
+            </if>
+            <if test="time != null">
+                and time(time_start) = #{time}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findCinemasByMovie" resultType="com.apps.domain.entity.Theater">
+        select distinct t.id as id, t.name, t.image as image,
+                        t.code as code, t.address as address
+                    from showtimes_detail
+        join room r on showtimes_detail.room_id = r.id
+        join theater t on r.theater_id = t.id
+        <where>
+            <if test="movie != null">
+                movie_id = #{movie}
+            </if>
+            AND (showtimes_detail.status = 'New' OR showtimes_detail.status = 'Now Playing')
+        </where>
+    </select>
+
     <select id="findAll" resultType="com.apps.response.entity.ShowTimesDetailDto">
         select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
                price,status,m.released_date as releasedDate
@@ -72,7 +117,34 @@
         </if>
     </select>
 
-    <select id="findAllByMovie" resultType="com.apps.domain.entity.ShowTimesDetail">
+    <select id="findByMovieAndTime" resultType="com.apps.response.entity.ShowTimesDetailDto">
+        select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
+        price,status,time(time_start) as time
+        <if test="theaterId != null">
+            ,r.theater_id  as theaterId
+        </if>
+        from showtimes_detail
+        <if test="theaterId != null">
+            join room r on showtimes_detail.room_id = r.id
+        </if>
+        <if test="movieId != null">
+            inner join movie m on showtimes_detail.movie_id = m.id
+        </if>
+        <where>
+            <if test="movieId != null">
+                 movie_id = #{movieId}
+            </if>
+            <if test="date != null">
+                and date(time_start)= date(#{date})
+            </if>
+            <if test="theaterId != null">
+                and r.theater_id = #{theaterId}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findAllByMovie" resultType="com.apps.response.entity.ShowTimesDetailDto">
         select movie_id,room_id,time_start,time_end, showtimes_detail.id as id,
         price,status
         <if test="theaterId != null">
@@ -87,18 +159,21 @@
             <if test="movieId != null">
                 and movie_id = #{movieId}
             </if>
+
             <if test="dateStart != null">
                 and date(time_start)= #{dateStart}
             </if>
+
             <if test="search != null">
                 and m.name like concat('%',#{search},'%')
             </if>
             <if test="theaterId != null">
                 and r.theater_id = #{theaterId}
             </if>
-            <if test="currentTime != null">
-                and time_start > #{currentTime}
-            </if>
+--             and status = 'Now Playing' or status = 'New'
+<!--            <if test="currentTime != null">-->
+<!--                and time_start > #{currentTime}-->
+<!--            </if>-->
         </where>
         <if test="sort != null">
             order by

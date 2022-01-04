@@ -9,6 +9,7 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +24,9 @@ public class TheaterController {
 
 
     @GetMapping("theaters")
-    public ResponseEntity<?> getTheater(@RequestParam(value = "pageSize", required = false) Integer size,
-                                        @RequestParam(value = "page", required = false)Integer page,
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getTheater(@RequestParam(value = "pageSize", required = false,defaultValue = "25") Integer size,
+                                        @RequestParam(value = "page", required = false,defaultValue = "1")Integer page,
                                         @RequestParam(value = "sort", required = false) String sort,
                                         @RequestParam(value = "order", required = false) String order,
                                         @RequestParam(value = "search", required = false) String search,
@@ -38,6 +40,12 @@ public class TheaterController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
+
 
     @GetMapping("theaters/{id}")
     public ResponseEntity<?> getLocations(@PathVariable(value = "id",required = false) Integer id){

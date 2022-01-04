@@ -27,7 +27,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/")
 @Slf4j
-@CrossOrigin("*")
 public class MovieController {
 
     @Autowired

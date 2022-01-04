@@ -29,9 +29,22 @@ public class OrdersController {
 
 
     @GetMapping("orders-room")
-    public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "date_gte", required = false) String dateGte){
+    public ResponseEntity<?> getOrderByRoom(@RequestParam(value = "startDate", required = false) String startDate,
+                                            @RequestParam(value = "year", required = false) String year  ,
+                                            @RequestParam(value = "endDate", required = false) String endDate){
         var creation = this.userService.getUserFromContext();
-        var resultList = this.ordersService.findOrderStatistics(creation,dateGte);
+        var resultList = this.ordersService.findOrderStatistics(creation,startDate,endDate,year);
+        var totalElements = resultList.size();
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(totalElements)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("orders-user")
+    public ResponseEntity<?> getOrderByUser(@RequestParam(value = "user_id",  required = false) Integer userId){
+        var resultList = this.ordersService.findOrderByUser(userId);
         var totalElements = resultList.size();
         var response = ResponseRA.builder()
                 .content(resultList)

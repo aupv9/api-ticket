@@ -13,6 +13,9 @@ import java.util.List;
 @Mapper
 public interface OrdersRepository {
 
+    @Select("select * from orders where user_id = #{user}")
+    List<Orders> findOrderByUser(@Param("user")Integer user);
+
     List<Orders> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                          @Param("sort")String sort, @Param("order") String order,
                          @Param("showTimes")Integer showTimes, @Param("typeUser")String type,
@@ -42,7 +45,9 @@ public interface OrdersRepository {
                             @Param("isYear")Boolean isYear);
 
     List<OrderStatistics> findOrderStatistics(@Param("creation")Integer creation,
-                                              @Param("dateGte")String dateGte);
+                                              @Param("startDate")String startDate,
+                                              @Param("endDate")String endDate,
+                                              @Param("year")String year);
 
     List<OrderStatistics> findOrderByDate(@Param("date")String date);
 

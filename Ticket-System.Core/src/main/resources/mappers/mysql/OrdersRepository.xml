@@ -76,11 +76,13 @@
             <if test="creation != null">
                  creation = #{creation}
             </if>
-            <if test="dateGte != null">
+            <if test="startDate != null and endDate != null">
                 and date(created_date)
-                between date(#{dateGte}) and date(current_time)
+                between date(#{startDate}) and date(#{endDate})
             </if>
-            and year(created_date) = year(current_time)
+            <if test="year != null">
+                and year(created_date) = #{year}
+            </if>
         </where>
     </select>
 

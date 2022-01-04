@@ -1,5 +1,6 @@
 package com.apps.service;
 
+import com.apps.response.entity.ConcessionRevenue;
 import com.apps.response.entity.PercentCoverRoom;
 import com.apps.response.entity.PercentPaymentMethod;
 import com.apps.response.entity.RevenueEmployee;
@@ -15,6 +16,8 @@ public interface DashBoardService {
     List<PercentCoverRoom> getPercentCoverSeatOnTheater(String date,Integer theater);
 
     List<PercentPaymentMethod> getPercentPaymentMethod(String date);
+
+    List<ConcessionRevenue> getRevenueConcession(String startDate,String endDate,Integer creation);
 
 
 }

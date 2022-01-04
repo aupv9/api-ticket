@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface OrdersService {
     int countSeatAvailable(Integer show,Integer room);
+    List<Orders> findOrderByUser(Integer user);
 
     List<Orders> findAllByCreationAndCreated( Integer creation,
                                              String createdDate);
@@ -51,7 +52,7 @@ public interface OrdersService {
                           Integer showTimes, String type,String status,
                                   Integer creation,String dateGte,Boolean isYear);
 
-    List<OrderStatistics> findOrderStatistics(Integer creation, String dateGte);
+    List<OrderStatistics> findOrderStatistics(Integer creation, String startDate,String endDate,String year);
 
     List<OrderStatistics> findOrderByDate(String date);
 

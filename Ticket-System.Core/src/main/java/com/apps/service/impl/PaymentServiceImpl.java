@@ -110,13 +110,122 @@ public class PaymentServiceImpl implements PaymentService {
         return amount - discount;
     }
 
-    @Override
-    public int insertReturnedId(PaymentDto paymentDto) throws SQLException, ExecutionException, InterruptedException {
+    private int insertWithPaypal(PaymentDto paymentDto) throws ExecutionException, InterruptedException, SQLException {
+        var payment = new Payment();
+        payment.setStatus(PaymentStatus.Complete.getValue());
+        String sql = "Insert into payment(part_id,payment_method_id," +
+                "creation,status,transaction_id,created_date,amount,use_for," +
+                "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
+        payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
+        payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
+        payment.setCreation(userService.getUserFromContext());
+        payment.setCreatedDate(userService.getNowDateTime());
+        payment.setPartId(paymentDto.getPartId());
+        payment.setUserId(paymentDto.getUserId());
+        payment.setUseFor(payment.getUseFor().equals("Ticket") ? PaymentFor.TICKET.getValue() :
+                payment.getUseFor().equals("Gift") ? PaymentFor.GIFT.getValue() : PaymentFor.MEMBER_CASH.getValue());
+        payment.setNote(paymentDto.getNote());
+        payment.setAmount(paymentDto.getAmount());
+        payment.setUserId(paymentDto.getUserId());
+
+        int result = this.paymentCustomRepository.insert(payment, sql);
+        if (result > 0) {
+            var user = this.userService.findById(this.userService.getUserFromContext());
+            if (user != null) {
+                var auditLog = AuditLog.builder()
+                        .objectName(ObjectName.Payment.name())
+                        .accountName(user.getEmail())
+                        .resourceName(Resource.Payment.name())
+                        .actionDate(Utilities.getCurrentTime())
+                        .objectName(ObjectType.AL.name())
+                        .action(AuditAction.CE.name())
+                        .actionStatus(ActionStatus.Success.name())
+                        .build();
+                newAuditLog(auditLog);
+            }
+
+            var order = this.ordersService.findById(payment.getPartId());
+            var orders = Orders.builder()
+                    .id(order.getId())
+                    .updatedBy(userService.getUserFromContext())
+                    .updatedAt(Utilities.getCurrentTime())
+                    .status(OrderStatus.PAYMENT.getStatus())
+                    .build();
+            if (!paymentDto.getCode().isEmpty()) {
+                var offerCode =
+                        this.promotionRepository.checkPromotionCode(paymentDto.getCode());
+                var offer = this.promotionRepository.findById(offerCode.getOfferId());
+                int remainUse = offer.getMaxTotalUsage();
+                if (remainUse > 0) {
+                    var discountAmount = Utilities.getDiscountByCode(payment.getCode(), order.getTotalAmount(), offer);
+                    var offerHistory = OfferHistory.builder()
+                            .offerId(offer.getId())
+                            .orderId(payment.getPartId())
+                            .userId(order.getUserId())
+                            .timeUsed(Utilities.getCurrentTime())
+                            .status(OfferStatus.USED.name())
+                            .code(offerCode.getCode())
+                            .totalDiscount(discountAmount)
+                            .build();
+                    int inserted = this.promotionRepository.insertOfferHistory(offerHistory);
+                    if (inserted > 0) {
+                        if (user != null) {
+                            var auditLog = AuditLog.builder()
+                                    .objectName(ObjectName.OfferHistory.name())
+                                    .accountName(user.getEmail())
+                                    .resourceName(Resource.OfferHistory.name())
+                                    .actionDate(Utilities.getCurrentTime())
+                                    .objectName(ObjectType.AL.name())
+                                    .action(AuditAction.CE.name())
+                                    .actionStatus(ActionStatus.Success.name())
+                                    .build();
+                            newAuditLog(auditLog);
+                        }
+                    }
+                    int updated = this.promotionRepository.updateMaxTotalUsage(offer.getMaxTotalUsage() - 1, offer.getId());
+                    if (updated > 0) {
+                        if (user != null) {
+                            var auditLog = AuditLog.builder()
+                                    .objectName(ObjectName.Offer.name())
+                                    .accountName(user.getEmail())
+                                    .resourceName(Resource.Offer.name())
+                                    .actionDate(Utilities.getCurrentTime())
+                                    .objectName(ObjectType.AL.name())
+                                    .action(AuditAction.MO.name())
+                                    .actionStatus(ActionStatus.Success.name())
+                                    .build();
+                            newAuditLog(auditLog);
+                        }
+                    }
+                }
+            }
+            int updated = this.ordersService.update(orders);
+            if (updated > 0) {
+                if (user != null) {
+                    var auditLog = AuditLog.builder()
+                            .objectName(ObjectName.Order.name())
+                            .accountName(user.getEmail())
+                            .resourceName(Resource.Orders.name())
+                            .actionDate(Utilities.getCurrentTime())
+                            .objectName(ObjectType.AL.name())
+                            .action(AuditAction.MO.name())
+                            .actionStatus(ActionStatus.Success.name())
+                            .build();
+                    newAuditLog(auditLog);
+                }
+            }
+            this.ordersService.sendDataToClient();
+            this.seatService.sendDataToClient(order.getShowTimesDetailId());
+        }
+        return result;
+    }
+
+    private int paymentWithout(PaymentDto paymentDto) throws SQLException, ExecutionException, InterruptedException {
         var payment = new Payment();
         payment.setStatus(PaymentStatus.Verified.getValue());
         String sql = "Insert into payment(part_id,payment_method_id," +
-                    "creation,status,transaction_id,created_date,amount,use_for," +
-                    "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
+                "creation,status,transaction_id,created_date,amount,use_for," +
+                "note,user_id) values(?,?,?,?,?,?,?,?,?,?)";
         payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
         payment.setPaymentMethodId(paymentDto.getPaymentMethodId());
         payment.setCreation(userService.getUserFromContext());
@@ -245,6 +354,18 @@ public class PaymentServiceImpl implements PaymentService {
             this.seatService.sendDataToClient(order.getShowTimesDetailId());
         }
         return result;
+    }
+    @Override
+    public int insertReturnedId(PaymentDto paymentDto) throws SQLException, ExecutionException, InterruptedException {
+        var paymentMethod = this.paymentRepository.findPaymentMethodById(paymentDto.getPaymentMethodId());
+        if(paymentMethod == null){
+            return 0;
+        }
+        if(paymentMethod.getCode().equals(com.apps.contants.PaymentMethod.PAYPAL.name())){
+            return this.insertWithPaypal(paymentDto);
+        }else{
+            return this.paymentWithout(paymentDto);
+        }
     }
 
     @Override

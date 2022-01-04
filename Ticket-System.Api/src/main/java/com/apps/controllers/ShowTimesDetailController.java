@@ -46,23 +46,68 @@ public class ShowTimesDetailController {
                                                   @RequestParam(value = "dateStart", required = false) String dateStart,
                                                   @RequestParam(value = "theaterId", required = false,defaultValue = "0") Integer theater
                                                   ) {
-        var resultList =
-                this.showTimesDetailService
-                .findAllByMovie(page - 1, size, sort, order,
+        var resultList = this.showTimesDetailService.findAllByMovie(size,(page - 1) * size, sort, order,
                 movieId,roomId,search,dateStart,theater);
-        var totalElements = this.showTimesDetailService.findCountAll(movieId,roomId,search,theater,dateStart,null,null);
+//        var totalElements = this.showTimesDetailService.findCountAll(movieId,
+//                roomId,search,theater,dateStart,null,null);
         var response = ResponseRA.builder()
                 .content(resultList)
-                .totalElements(totalElements)
+                .totalElements(resultList.size())
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("cinemasByMovie")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getMoviesByAnonymous(
+            @RequestParam(value = "movieId", required = false,defaultValue = "0") Integer movieId) {
+        var resultList =
+                this.showTimesDetailService.findCinemasByMovie(movieId);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("showByTheaterAnonymous")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getSeatsByTheaterOfAnonymous(@RequestParam(value = "date",required = false) String date,
+                                                          @RequestParam(value = "theater",required = false) Integer theater,
+                                                          @RequestParam(value = "movie",required = false)Integer movie){
+
+        var result  = this.showTimesDetailService.findByTheaterMovie(movie,theater,date);
+        var response = ResponseRA.builder()
+                .content(result)
+                .totalElements(result.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+//    @GetMapping("getShowTime")
+//    @PreAuthorize("permitAll()")
+//    public ResponseEntity<?> getShowTime(@RequestParam(value = "date",required = false) String date,
+//                                         @RequestParam(value = "time",required = false) String time,
+//                                         @RequestParam(value = "theater",required = false) Integer theater,
+//                                         @RequestParam(value = "movie",required = false)Integer movie){
+//
+//        var result  = this.showTimesDetailService.findByTheaterMovie(movie,theater,date);
+//        var response = ResponseRA.builder()
+//                .content(result)
+//                .totalElements(result.size())
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
+
+
 
     @GetMapping("showTimeAnonymous/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<?> getShowTimesAnonymous(@PathVariable("id") Integer id){
         return ResponseEntity.ok(this.showTimesDetailService.findById(id));
     }
+
+
 
     @GetMapping("showTimesDetails")
     @PreAuthorize("hasAuthority('READ_SHOWTIME')")

@@ -4,6 +4,7 @@ package com.apps.service.impl;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.ShowTimesDetail;
 import com.apps.domain.entity.ShowTimesDetailMini;
+import com.apps.domain.entity.Theater;
 import com.apps.domain.repository.ShowTimesDetailsCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.mybatis.mysql.SeatRepository;
@@ -22,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,10 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     private final MovieService movieService;
 
     private final SeatRepository seatRepository;
+
+    private final TheaterService theaterService;
+
+    private final LocationService locationService;
 
     @Override
     public List<ShowTimesDetailDto> findAll(int limit, int offset,String sort, String order,
@@ -101,10 +107,19 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
     }
 
     private List<ShowTimesDetailDto> addCountSeat(List<ShowTimesDetailDto> showTimes){
-        return showTimes.stream()
-                .peek(item -> item.setCountSeatAvailable(this.seatRepository.
-                        findSeatInRoomByShowTimesDetail(item.getId(),item.getRoomId()).size()))
-                .collect(Collectors.toList());
+         showTimes
+                .forEach(item -> {
+                    item.setCountSeatAvailable(this.seatRepository.
+                            findSeatInRoomByShowTimesDetail(item.getId(),item.getRoomId()).size());
+                    var room = this.roomService.findById(item.getRoomId());
+                    item.setRoom(room);
+                    var theater = this.theaterService.findById(room.getTheaterId());
+                    item.setTheater(theater);
+                    var location = this.locationService.findById(theater.getLocationId());
+                    item.setLocation(location);
+                });
+        return showTimes;
+
     }
 
 
@@ -212,11 +227,12 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             key = "'findAllByMovie_'+#limit +'-'+#offset+'-'+#sort +'-'+#order+" +
                     "'-'+#search+'-'+#movieId +'-'+#roomId+'-'" +
                     "+#dateStart+'-'+#theater",unless = "#result == null")
-    public List<ShowTimesDetailDto> findAllByMovie(int limit, int offset, String sort, String order,
+    public List<ShowTimesDetailDto> findAllByMovie(Integer limit, Integer offset, String sort, String order,
                                                    Integer movieId,
                                                 Integer roomId, String search, String dateStart,
                                                    Integer theater) {
-        return this.addCountSeat(this.showTimesDetailRepository.findAllByMovie(limit, offset, sort, order, movieId > 0 ? movieId : null,
+        return this.addCountSeat(this.showTimesDetailRepository
+                .findAllByMovie(limit, offset, sort, order, movieId > 0 ? movieId : null,
                 search, dateStart,theater > 0 ? theater : null));
     }
 
@@ -374,7 +390,20 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         return this.showTimesDetailRepository.findShowStartByDay(date,room);
     }
 
+    @Override
+    public List<Theater> findCinemasByMovie(Integer movie) {
+        return this.showTimesDetailRepository.findCinemasByMovie(movie);
+    }
 
+    @Override
+    public List<ShowTimesDetailDto> findByTheaterMovie(Integer movie, Integer theater, String date) {
+        return this.showTimesDetailRepository.findByMovieAndTime(theater,movie,Utilities.convertIsoToDate(date));
+    }
+
+    @Override
+    public ShowTimesDetailDto findByTheaterMovieTime(Integer movie, Integer theater, String date, String time) {
+        return this.showTimesDetailRepository.findByTheaterAndMovieTime(theater,movie,date,time);
+    }
 
 
 }
