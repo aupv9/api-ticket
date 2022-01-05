@@ -218,6 +218,12 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    @Cacheable(value = "OrdersService" ,key = "'findByIdOrder_'+#orderId", unless = "#result == null")
+    public List<OrdersDetail> findByIdOrder(Integer orderId) {
+        return this.ordersRepository.findOrderDetailByIdOrder(orderId);
+    }
+
+    @Override
     @Cacheable(value = "OrdersService" ,key = "'findOrderByUser_'+#user", unless = "#result == null")
     public List<Orders> findOrderByUser(Integer user) {
         return this.ordersRepository.findOrderByUser(user);

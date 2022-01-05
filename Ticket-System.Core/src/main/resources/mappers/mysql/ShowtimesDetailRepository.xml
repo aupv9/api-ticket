@@ -272,12 +272,12 @@
         </where>
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-            insert into booksystem.showtimes_detail(time_end, showtimes_id, movie_id, location_id, theater_id, room_id, time_start)
-            values (#{entity.timeEnd},#{entity.showTimesId},#{entity.movieId},#{entity.locationId},#{entity.theaterId},#{entity.roomId},#{entity.timeStart})
-            <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
-                    SELECT LAST_INSERT_ID();
-            </selectKey>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+            insert into showtimes_detail(time_end, movie_id,room_id, time_start,price)
+            values (#{entity.timeEnd},#{entity.movieId},#{entity.roomId},#{entity.timeStart},#{entity.price})
+<!--            <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >-->
+<!--                    SELECT MAX(id) from showtimes_detail;-->
+<!--            </selectKey>-->
     </insert>
 
     <select id="findShowTimesDetailByLocationAndDate" resultType="com.apps.domain.entity.ShowTimesDetailMini">

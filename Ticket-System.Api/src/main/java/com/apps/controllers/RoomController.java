@@ -61,7 +61,6 @@ public class RoomController {
     public ResponseEntity<?> createRoom(@RequestBody RoomDto room) throws SQLException {
         int id = this.roomService.insert(room);
         room.setId(id);
-        System.out.println(id);
         return ResponseEntity.ok(room);
     }
 

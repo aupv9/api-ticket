@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Orders;
+import com.apps.domain.entity.OrdersDetail;
 import com.apps.mapper.OrderStatistics;
 import com.apps.response.entity.OrderSeats;
 import org.apache.ibatis.annotations.Delete;
@@ -15,6 +16,9 @@ public interface OrdersRepository {
 
     @Select("select * from orders where user_id = #{user}")
     List<Orders> findOrderByUser(@Param("user")Integer user);
+
+    @Select("select * from orders_detail where orders_id = #{id}")
+    List<OrdersDetail> findOrderDetailByIdOrder(@Param("id")Integer id);
 
     List<Orders> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
                          @Param("sort")String sort, @Param("order") String order,

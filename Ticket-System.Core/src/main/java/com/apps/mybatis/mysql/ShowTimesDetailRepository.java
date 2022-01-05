@@ -5,9 +5,7 @@ import com.apps.domain.entity.ShowTimesDetailMini;
 import com.apps.domain.entity.Theater;
 import com.apps.response.TimePick;
 import com.apps.response.entity.ShowTimesDetailDto;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -53,6 +51,8 @@ public interface ShowTimesDetailRepository {
     @Select("Select * from showtimes_detail where id = #{id}")
     ShowTimesDetail findById(int id);
 
+//    @Insert("insert into table2 (name) values(#{name})")
+//    @SelectKey(statement = "call identity()", keyProperty = "nameId", before = false, resultType = int.class)
     int insert(@Param("entity") ShowTimesDetail showTimesDetail);
 
     List<ShowTimesDetail> findByShowTimes(@Param("limit") int limit);
@@ -72,6 +72,10 @@ public interface ShowTimesDetailRepository {
 
 
     List<Theater> findCinemasByMovie(@Param("movie")Integer movie);
+
+    @Select("Select max(id) from showtimes_detail")
+    int selectMaxKey();
+
 
 
 }

@@ -293,7 +293,7 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
         if(movie != null){
             show.setMovieId(movie.getId());
         }
-        return this.repository.insert(show,sql);
+        return this.showTimesDetailRepository.insert(show);
     }
 
     @Override
@@ -309,7 +309,8 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
             Timestamp timestamp = Timestamp.from(instant);
             showTimes.setTimeEnd(timestamp.toString());
         }
-        return this.repository.insert(showTimes,sql);
+
+        return this.showTimesDetailRepository.insert(showTimes);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.apps.service;
 
 import com.apps.domain.entity.OrderRoomDto;
 import com.apps.domain.entity.Orders;
+import com.apps.domain.entity.OrdersDetail;
 import com.apps.mapper.OrderDto;
 import com.apps.mapper.OrderStatistics;
 import com.apps.request.MyOrderUpdateDto;
@@ -14,6 +15,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface OrdersService {
     int countSeatAvailable(Integer show,Integer room);
+
+    List<OrdersDetail> findByIdOrder(Integer orderId);
     List<Orders> findOrderByUser(Integer user);
 
     List<Orders> findAllByCreationAndCreated( Integer creation,

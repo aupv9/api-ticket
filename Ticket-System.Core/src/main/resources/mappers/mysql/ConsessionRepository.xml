@@ -84,4 +84,12 @@
         join concession c on c.id = orders_detail.concession_id
         where orders_id = #{id}
     </select>
+
+    <select id="findAllConcessionInOrderAndConcessionId" resultType="com.apps.response.entity.ConcessionMyOrder">
+        select concession_id,quantity,orders_id,c.name, c.price, c.category_id
+        from orders_detail
+                 join concession c on c.id = orders_detail.concession_id
+        where orders_id = #{id} and concession_id = #{concessionId}
+    </select>
+
 </mapper>

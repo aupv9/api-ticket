@@ -2,6 +2,7 @@ package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.RoomService;
 import com.apps.domain.entity.Service;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -18,4 +19,7 @@ public interface ServiceRepository {
 
     @Select("select * from room_service where room_id = #{room}")
     List<RoomService> findRoomServiceByRoom(@Param("room")Integer room);
+
+    @Delete("delete from room_service where room_id = #{id}")
+    int deleteByRoom(@Param("id")Integer id);
 }

@@ -4,7 +4,10 @@ import com.apps.contants.PaymentMethod;
 import com.apps.contants.Role;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Employee;
+import com.apps.domain.entity.OrdersDetail;
 import com.apps.domain.entity.UserRole;
+import com.apps.mapper.OrderStatistics;
+import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.EmployeeRepository;
 import com.apps.response.entity.*;
 import com.apps.service.*;
@@ -39,6 +42,7 @@ public class DashBoardServiceImpl implements DashBoardService {
 
     private final PaymentService paymentService;
 
+    private final ConcessionRepository concessionRepository;
 
     @Override
 //    @Cacheable(value = "DashBoardService" ,key = "'findAllRevenue_'+#limit+'-'+#offset+" +
@@ -129,11 +133,37 @@ public class DashBoardServiceImpl implements DashBoardService {
     }
 
     @Override
+    @Cacheable(cacheNames = "DashBoardService",key = "'getRevenueConcession_'" +
+            "+#startDate+'-'+#endDate+'-'+#creation",unless = "#result == null ")
     public List<ConcessionRevenue> getRevenueConcession(String startDate,String endDate,Integer creation) {
-        var resultList = this.ordersService.findOrderStatistics(creation,startDate,endDate,null);
+        var concessionList = this.concessionRepository.findAllConcession();
+        var resultList =
+                this.ordersService.findOrderStatistics(creation,startDate,endDate,null);
+        var concessionRevenues = new ArrayList<ConcessionRevenue>();
 
-        return null;
+        concessionList.forEach(concession -> {
+            var concessionRevenue = new ConcessionRevenue();
+            concessionRevenue.setLabel(concession.getName());
+            concessionRevenue.setId(concession.getName());
+            concessionRevenue.setValue(this.sumTotalConcession(resultList,concession.getId()));
+            concessionRevenues.add(concessionRevenue);
+        });
+        return concessionRevenues;
     }
+    private double totalConcession(List<ConcessionMyOrder> concessionMyOrders){
+        double totalAmount = 0.d;
+        for (var concession: concessionMyOrders){
+            totalAmount += concession.getPrice() * concession.getQuantity();
+        }
+        return totalAmount;
+    }
+
+    private double sumTotalConcession(List<OrderStatistics> orderStatistics,Integer concessionId){
+        return orderStatistics.stream()
+                .map(item -> this.concessionRepository.findAllConcessionInOrderAndConcessionId(item.getId(), concessionId))
+                .mapToDouble(this::totalConcession).sum();
+    }
+
 
     public List<EmployeeDto> addRole(List<Employee> employees){
         var listEmployee = new ArrayList<EmployeeDto>();

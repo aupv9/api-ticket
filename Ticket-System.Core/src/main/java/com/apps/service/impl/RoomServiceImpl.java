@@ -61,7 +61,6 @@ public class RoomServiceImpl implements RoomService {
         for (var service : room.getServices()){
             this.serviceRepository.insertRoomService(result,service);
         }
-        cacheManager.clearCache("RoomService");
         return result;
     }
 
@@ -97,12 +96,11 @@ public class RoomServiceImpl implements RoomService {
         room1.setCode(roomDto.getCode());
         room1.setActive(roomDto.isActive());
         room1.setTheaterId(roomDto.getTheaterId());
+        this.serviceRepository.deleteByRoom(room1.getId());
         for (var service : roomDto.getServices()){
             this.serviceRepository.insertRoomService(room1.getId(),service);
         }
-        int result = this.roomRepository.update(room1);
-        cacheManager.clearCache("RoomService");
-        return result;
+        return this.roomRepository.update(room1);
     }
 
     @Override
