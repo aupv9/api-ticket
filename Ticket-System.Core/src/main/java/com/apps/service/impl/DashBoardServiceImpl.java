@@ -1,16 +1,18 @@
 package com.apps.service.impl;
 
-import com.apps.contants.PaymentMethod;
+import com.apps.contants.OrderStatus;
 import com.apps.contants.Role;
 import com.apps.contants.Utilities;
 import com.apps.domain.entity.Employee;
-import com.apps.domain.entity.OrdersDetail;
 import com.apps.domain.entity.UserRole;
 import com.apps.mapper.OrderStatistics;
 import com.apps.mybatis.mysql.ConcessionRepository;
 import com.apps.mybatis.mysql.EmployeeRepository;
+import com.apps.request.MethodPur;
 import com.apps.response.entity.*;
 import com.apps.service.*;
+import com.google.common.collect.Lists;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,6 +22,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -150,6 +154,35 @@ public class DashBoardServiceImpl implements DashBoardService {
         });
         return concessionRevenues;
     }
+
+    @Override
+    @Cacheable(cacheNames = "DashBoardService",key = "'getRevenueMethod_'" +
+            "+#startDate+'-'+#endDate+'-'+#creation",unless = "#result == null ")
+    public List<RevenueMethod> getRevenueMethod(String startDate, String endDate, Integer creation) {
+        var resultList = this.ordersService.findOrderStatistics(creation,startDate,endDate,null);
+        var revenueMethods = new ArrayList<RevenueMethod>();
+        Lists.newArrayList(new MethodPur("Online",true),
+                new MethodPur("Offline",false)).forEach(method ->{
+                var revenueMethod = new RevenueMethod();
+                revenueMethod.setId(method.getName());
+                revenueMethod.setLabel(method.getName());
+                revenueMethod.setValue(this.revenuePerMethod(resultList,method.isOnline()));
+                revenueMethods.add(revenueMethod);
+        });
+        return revenueMethods;
+    }
+
+    private double revenuePerMethod(List<OrderStatistics> orderStatistics,boolean online){
+        double totalAmount = 0.d;
+        for (var order: orderStatistics){
+            if(order.isOnline() == online && !order.getStatus().equals(OrderStatus.CANCELLED.getStatus())){
+                totalAmount += order.getTotal();
+            }
+        }
+        return totalAmount;
+    }
+
+
     private double totalConcession(List<ConcessionMyOrder> concessionMyOrders){
         double totalAmount = 0.d;
         for (var concession: concessionMyOrders){
@@ -225,3 +258,4 @@ public class DashBoardServiceImpl implements DashBoardService {
     }
 
 }
+

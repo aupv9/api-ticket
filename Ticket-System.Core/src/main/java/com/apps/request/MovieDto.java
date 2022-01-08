@@ -18,12 +18,15 @@ public class MovieDto implements Serializable {
 
     private int id,durationMin;
     private String name,thumbnail,releasedDate,trailerUrl,genre;
+
     @NotNull
     @NotBlank
     private String photo;
+
     @NotNull
     @NotBlank
     private String casts;
+
     @NotNull
     @NotBlank
     private String tags;

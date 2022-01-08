@@ -10,7 +10,8 @@ import java.util.List;
 @Mapper
 public interface AuditLogRepository {
     int insert(@Param("audit") AuditLog auditLog);
-    List<AuditLogDto> findAll(@Param("limit") int limit, @Param("offset") int offset,
-                              @Param("sort")String sort, @Param("order") String order,@Param("actionDate") String date);
+    List<AuditLogDto> findAll(@Param("limit") Integer limit, @Param("offset") Integer offset,
+                              @Param("sort")String sort, @Param("order") String order,
+                              @Param("actionDate") String date);
     int findCountAll(@Param("actionDate") String date);
 }

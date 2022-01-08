@@ -398,8 +398,26 @@ public class ShowTimesDetailServiceImpl implements ShowTimesDetailService {
 
     @Override
     public List<ShowTimesDetailDto> findByTheaterMovie(Integer movie, Integer theater, String date) {
-        return this.showTimesDetailRepository.findByMovieAndTime(theater,movie,Utilities.convertIsoToDate(date));
+        return this.addInfoShowTimes(this.showTimesDetailRepository.findByMovieAndTime(theater,movie,Utilities.convertIsoToDate(date)));
     }
+
+    private List<ShowTimesDetailDto> addInfoShowTimes(List<ShowTimesDetailDto> showTimesDetailDtos){
+         showTimesDetailDtos.forEach(item ->{
+             var room = this.roomService.findById(item.getRoomId());
+             if(room != null){
+                 var theater = this.theaterService.findById(room.getTheaterId());
+                 if(theater != null){
+                     item.setTheater(theater);
+                     var location = this.locationService.findById(theater.getLocationId());
+                     if(location != null){
+                         item.setLocation(location);
+                     }
+                 }
+             }
+         });
+         return showTimesDetailDtos;
+    }
+
 
     @Override
     public ShowTimesDetailDto findByTheaterMovieTime(Integer movie, Integer theater, String date, String time) {

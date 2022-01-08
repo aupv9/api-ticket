@@ -1,6 +1,7 @@
 package com.apps.mybatis.mysql;
 
 import com.apps.domain.entity.Movie;
+import com.apps.request.MovieDto;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -57,5 +58,7 @@ public interface MovieRepository {
 
     @Select("select * from movie where name = #{name}")
     Movie findByName(@Param("name")String name);
+
+    int insert(@Param("movie")Movie movie);
 
 }

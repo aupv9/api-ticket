@@ -7,7 +7,7 @@
         select * from audit_log
         <where>
             <if test="actionDate != null">
-                 date(actionDate) = date(actionDate)
+                 date(actionDate) = date(#{actionDate})
             </if>
         </where>
         <if test="sort != null">

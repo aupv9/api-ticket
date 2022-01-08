@@ -30,7 +30,8 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     @Cacheable(cacheNames = "AuditLogService",key = "'findAllAuditLog_'+#limit +'-'+#offset +'-'+#sort +'-'+#order +'-'+#date",unless = "#result == null ")
     public List<AuditLogDto> findAll(Integer limit, Integer offset, String sort,String order,String date) {
-        return this.addAuthorToAudit(this.auditLogRepository.findAll(limit,offset,sort,order,Utilities.convertIsoToDate(date)));
+        var listAuditLogs = this.auditLogRepository.findAll(limit,offset,sort,order,!date.isEmpty() ? Utilities.convertIsoToDate(date): null);
+        return this.addAuthorToAudit(listAuditLogs);
     }
 
     public List<AuditLogDto> addAuthorToAudit(List<AuditLogDto> auditLogDtos){

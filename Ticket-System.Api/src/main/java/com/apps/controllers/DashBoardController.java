@@ -92,6 +92,17 @@ public class DashBoardController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("revenueMethod")
+    public ResponseEntity<?> revenueMethod(@RequestParam(value = "startDate", required = false) String startDate,
+                                               @RequestParam(value = "endDate", required = false) String endDate){
+        var creation = this.userService.getUserFromContext();
+        var resultList = this.dashBoardService.getRevenueMethod(startDate,endDate,creation);
+        var response = ResponseRA.builder()
+                .content(resultList)
+                .totalElements(resultList.size())
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
 
 }

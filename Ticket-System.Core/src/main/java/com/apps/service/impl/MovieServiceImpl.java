@@ -113,7 +113,7 @@ public class MovieServiceImpl implements MovieService {
         String sql = "INSERT INTO MOVIE(name,thumbnail,image,genre," +
                 "released_date,trailer_url,duration_min)" +
                 " VALUES(?,?,?,?,?,?,?)";
-        return this.movieCustomRepository.insert(movie,sql);
+        return this.movieRepository.insert(movie);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class MovieServiceImpl implements MovieService {
                         .trailerUrl(movieDto.getTrailerUrl())
                         .durationMin(movieDto.getDurationMin())
                         .build();
-        int idMovie = this.insert(movie);
+        int idMovie = this.movieRepository.insert(movie);
 
         if(movieDto.getCasts() != null){
             var listCast = movieDto.getCasts().split(",");

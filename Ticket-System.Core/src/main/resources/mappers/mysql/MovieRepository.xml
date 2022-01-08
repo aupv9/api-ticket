@@ -88,12 +88,14 @@
 <!--    </select>-->
 
 
-    <!--    <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">-->
-    <!--        INSERT INTO booksystem.room (code, name, theater_id)-->
-    <!--        VALUES (#{room.code},#{room.name},#{room.theaterId})-->
-    <!--        <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >-->
-    <!--            SELECT LAST_INSERT_ID();-->
-    <!--        </selectKey>-->
-    <!--    </insert>-->
+        <insert id="insert" useGeneratedKeys="true" keyProperty="com.apps.domain.entity.Room.id">
+            INSERT INTO MOVIE(name,thumbnail,image,genre," +
+            "released_date,trailer_url,duration_min)" +
+            " VALUES(#{movie.name},#{movie.thumbnail},#{movie.image},#{movie.genre},
+                #{movie.released},#{movie.trailerUrl},#{movie.durationMin})
+            <selectKey keyProperty="id" order="AFTER" resultType="int" statementType="PREPARED" >
+                SELECT LAST_INSERT_ID();
+            </selectKey>
+        </insert>
 
 </mapper>

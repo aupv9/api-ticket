@@ -782,6 +782,7 @@ public class OrdersServiceImpl implements OrdersService {
                     .actionDate(Utilities.getCurrentTime())
                     .action(AuditAction.CE.name())
                     .actionStatus(ActionStatus.Success.name())
+
                     .build();
             newAuditLog(auditLog);
         }

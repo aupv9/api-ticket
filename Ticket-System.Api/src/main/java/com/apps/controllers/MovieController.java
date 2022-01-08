@@ -115,7 +115,7 @@ public class MovieController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("movies")
+    @PostMapping("movies-import")
     public ResponseEntity<?> getMovieById(@RequestBody @Valid MovieDto movie) throws SQLException {
         var result = this.movieService.insertMulti(movie);
         movie.setId(result);
