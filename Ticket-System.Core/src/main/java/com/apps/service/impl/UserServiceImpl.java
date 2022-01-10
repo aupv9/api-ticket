@@ -7,12 +7,14 @@ import com.apps.domain.entity.*;
 import com.apps.domain.repository.UserCustomRepository;
 import com.apps.exception.NotFoundException;
 import com.apps.filter.JWTService;
+import com.apps.job.NewsLetterJob;
 import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
 import com.apps.mybatis.mysql.RoleRepository;
 import com.apps.mybatis.mysql.SocialRepository;
 import com.apps.mybatis.mysql.UserAccountRepository;
 import com.apps.mybatis.mysql.UserAccountStatusRepository;
+import com.apps.request.EmailNewsletter;
 import com.apps.request.GoogleLoginRequest;
 import com.apps.request.ScheduleEmailRequest;
 import com.apps.response.UserLoginResponse;
@@ -23,11 +25,10 @@ import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.tomcat.jni.Local;
+import org.quartz.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,11 +36,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -182,6 +185,73 @@ public class UserServiceImpl implements UserService {
         }
         return 0;
     }
+
+    @Override
+    public UserRegisterDto signUp(UserRegisterDto userRegisterDto) throws SQLException {
+        UserInfo userInfo = UserInfo.builder()
+                .email(userRegisterDto.getEmail())
+                .isLoginSocial(userRegisterDto.getIsLoginSocial())
+                .firstName(userRegisterDto.getFirstName())
+                .lastName(userRegisterDto.getLastName())
+                .fullName(userRegisterDto.getFirstName() + " " + userRegisterDto.getLastName())
+                .photo(userRegisterDto.getPhoto())
+                .build();
+        int idReturned = this.userCustomRepository.insert(userInfo,sqlInsertUserInfo);
+        if(idReturned > 0){
+            String generatedToken = RandomStringUtils.random(15, true, true);
+            String passwordEncode = encoder.encode(userRegisterDto.getPassword());
+            UserAccount userAccount = UserAccount.builder()
+                    .userInfoId(idReturned)
+                    .email(userRegisterDto.getEmail())
+                    .password(passwordEncode)
+                    .emailConfirmationToken(generatedToken)
+                    .createdBy(0)
+                    .createdDate(getNowDateTime())
+                    .registeredAt(getNowDateTime())
+                    .address(userRegisterDto.getAddress())
+                    .city(userRegisterDto.getCity()).state(userRegisterDto.getState())
+                    .userAccountStatusId(statusRepository.findByCode(UserStatus.WAIT_CONFIRM.getName()).getId())
+                    .build();
+            int idUserReturned = this.userAccountRepository.insert(userAccount);
+            var scheduleEmail = new ScheduleEmailRequest();
+            scheduleEmail.setEmail(userInfo.getEmail());
+            scheduleEmail.setSubject("Confirm Email");
+            scheduleEmail.setBody("<h1>Comfirm register account!</h1>" +
+                    "<br/> <a href='http://localhost:8080/api/v1/confirmEmail?token="+ generatedToken +"'>Link Confirm<a/>");
+            var response = this.restTemplate.postForEntity("http://localhost:8081/api/v1/scheduleEmail",scheduleEmail,ScheduleEmailRequest.class);
+            Role role = this.roleRepository.findByCode(com.apps.contants.Role.USER.getName());
+            this.roleRepository.insertUserRole(idReturned,role.getId());
+
+            userRegisterDto.setId(idUserReturned);
+            return userRegisterDto;
+        }
+        return userRegisterDto;
+    }
+
+
+    private JobDetail buildJobDetail(List<EmailNewsletter> emailNewsletters) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("data",emailNewsletters);
+        return JobBuilder.newJob(NewsLetterJob.class)
+                .withIdentity(UUID.randomUUID().toString(), "email-jobs")
+                .withDescription("Send Email Job")
+                .usingJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    private Trigger buildJobTrigger(JobDetail jobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), "email-triggers")
+                .withDescription("Send Email Promotion Trigger")
+                .startAt(Date.valueOf(LocalDate.now()))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                .build();
+    }
+
+
+
 
     @Override
     public UserRegisterDto registerUser(UserRegisterDto userRegisterDto) throws SQLException {
@@ -377,7 +447,8 @@ public class UserServiceImpl implements UserService {
                         .email(email).id(user.getId())
                         .fullName(userInfo.getFullName())
                         .photo(userInfo.getPhoto())
-                        .privileges(privilege.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                        .privileges(privilege.stream()
+                                .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                         .build();
             }
         }

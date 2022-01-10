@@ -2,7 +2,6 @@ package com.apps.service;
 
 
 import com.apps.domain.entity.User;
-import com.apps.domain.entity.UserInfo;
 import com.apps.mapper.UserDto;
 import com.apps.mapper.UserRegisterDto;
 import com.apps.request.GoogleLoginRequest;
@@ -15,6 +14,8 @@ import java.util.List;
 
 public interface UserService {
     int registerAccountUser(UserRegisterDto userRegisterDto) throws SQLException;
+
+    UserRegisterDto signUp(UserRegisterDto userRegisterDto) throws SQLException;
 
     UserRegisterDto registerUser(UserRegisterDto userRegisterDto) throws SQLException;
 
@@ -40,6 +41,7 @@ public interface UserService {
     boolean checkTokenEmail(String token);
 
     User findUserByEmail(String email);
+
 
 
 }

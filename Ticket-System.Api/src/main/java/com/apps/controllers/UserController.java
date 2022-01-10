@@ -52,9 +52,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("profile/{id}")
+    public ResponseEntity<?> getProfile(@PathVariable(value = "id",required = false) Integer id) {
+        var userId = this.userService.getUserFromContext();
+        return ResponseEntity.ok(this.userService.findById(userId));
+    }
+
     @PostMapping("users")
-    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto,
-                                        @RequestHeader("Authorization") String token) throws SQLException {
+    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) throws SQLException {
         if(this.userService.checkEmailAlready(userRegisterDto.getEmail())){
             return ResponseEntity.badRequest().body("Email Already");
         }
