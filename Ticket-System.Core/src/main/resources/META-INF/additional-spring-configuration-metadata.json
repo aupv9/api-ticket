@@ -4,5 +4,11 @@
       "name": "email.confirm.length",
       "type": "java.lang.String",
       "description": "Description for email.confirm.length."
-  }
-] }
+    },
+    {
+      "name": "spring.mail.scheduler.enabled",
+      "type": "java.lang.String",
+      "description": "Description for spring.mail.scheduler.enabled."
+    }
+
+  ] }

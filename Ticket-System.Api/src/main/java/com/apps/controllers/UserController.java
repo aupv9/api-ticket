@@ -48,7 +48,6 @@ public class UserController {
                     .totalElements(totalElements)
                     .build();
             return ResponseEntity.ok(response);
-
         }
     }
 
